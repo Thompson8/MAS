@@ -1,7 +1,6 @@
 package hu.mas.core;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,10 +31,6 @@ public class Main {
 	public static final Logger logger = LogManager.getLogger();
 
 	public static final String SUMO_BIN = "sumo-gui";
-	public static final String SUMO_CONFIG_PATH = "/";
-	public static final String SUMO_CONFIG_FILE = "helloWorld.sumocfg";
-	public static final String AGENT_CONFIG_PATH = "/";
-	public static final String AGENT_CONFIG_FILE = "helloWorld.agent.xml";
 	public static final double STEP_LENGTH = 0.1;
 	public static final int ITERATION_COUNT = 1000;
 	public static final boolean RE_PLAN_MODE = true;
@@ -48,21 +43,58 @@ public class Main {
 
 	public static final ExecutorService AGENT_EXECUTER = Executors.newFixedThreadPool(AGENT_THREAD_POOL_SIZE);
 
-	public static void main(String[] args) throws JAXBException, InterruptedException, ExecutionException {
-		String sumoConfigPath = SUMO_CONFIG_PATH;
-		String sumoConfigFile = sumoConfigPath + SUMO_CONFIG_FILE;
+	public static void main(String[] args) throws JAXBException {
+		String sumoStartCommand = SUMO_BIN;
 		boolean rePlanMode = RE_PLAN_MODE;
-		String agentConfigPath = AGENT_CONFIG_PATH;
-		String agentConfigFile = agentConfigPath + AGENT_CONFIG_FILE;
 		int iterationCount = ITERATION_COUNT;
 		double stepLength = STEP_LENGTH;
+		String sumoConfigPath = null;
+		String sumoConfigFile = null;
+		String agentConfigFile = null;
 
+		for (String arg : args) {
+			if (arg.startsWith("--sumo_start_command=")) {
+				sumoStartCommand = arg.replace("--sumo_start_command=", "").trim();
+			} else if (arg.startsWith("--sumo_config_file=")) {
+				sumoConfigFile = arg.replace("--sumo_config_file=", "").trim();
+				sumoConfigPath = sumoConfigFile.substring(0, sumoConfigFile.lastIndexOf('/') + 1);
+			} else if (arg.startsWith("--agent_config_file=")) {
+				agentConfigFile = arg.replace("--agent_config_file=", "").trim();
+			} else if (arg.startsWith("--simulation-iteration=")) {
+				iterationCount = Integer.parseInt(arg.replace("--simulation-iteration=", "").trim());
+			} else if (arg.startsWith("--step-length=")) {
+				stepLength = Double.parseDouble(arg.replace("--step-length=", "").trim());
+			} else if (arg.startsWith("--replan_agent_mode")) {
+				rePlanMode = Boolean.parseBoolean(arg.replace("--replan_agent_mode", "").trim());
+			}
+		}
+
+		boolean validConfig = true;
+		if (sumoConfigFile == null) {
+			logger.error("--sumo_config_file parameter cannot be null!");
+			validConfig = false;
+		}
+		if (agentConfigFile == null) {
+			logger.error("--agent_config_file parameter cannot be null!");
+			validConfig = false;
+		}
+
+		if (validConfig) {
+			startSimulation(sumoConfigFile, sumoConfigPath, agentConfigFile, sumoStartCommand, stepLength,
+					iterationCount, rePlanMode);
+		} else {
+			logger.error("Invalid configuration, failed to start simulation!");
+		}
+	}
+
+	private static void startSimulation(String sumoConfigFile, String sumoConfigPath, String agentConfigFile,
+			String sumoStartCommand, double stepLength, int iterationCount, boolean rePlanMode) throws JAXBException {
 		SumoConfiguration configuration = ParseSumoConfiguration.parseConfiguation(sumoConfigFile);
 		Net net = ParseNet.parseNet(sumoConfigPath + configuration.getInput().getNetFile().getValue());
 		Graph graph = Converter.fromNetToGraph(net);
 		List<Agent> agents = rePlanMode ? loadRePlanAgents(agentConfigFile, graph) : loadAgents(agentConfigFile, graph);
 
-		SumoTraciConnection conn = new SumoTraciConnection(SUMO_BIN, sumoConfigFile);
+		SumoTraciConnection conn = new SumoTraciConnection(sumoStartCommand, sumoConfigFile);
 		conn.addOption("step-length", Double.toString(stepLength));
 		conn.addOption("start", "true");
 
