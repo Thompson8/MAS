@@ -7,7 +7,6 @@ tmp/
 *~.nib
 local.properties
 .settings/
-.settings
 .loadpath
 .recommenders
 target/
