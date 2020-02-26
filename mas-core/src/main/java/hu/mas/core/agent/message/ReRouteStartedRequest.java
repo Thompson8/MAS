@@ -3,13 +3,13 @@ package hu.mas.core.agent.message;
 import hu.mas.core.agent.Route;
 import hu.mas.core.agent.Vehicle;
 
-public class ReRouteRequest implements MessageBody {
-
+public class ReRouteStartedRequest implements MessageBody {
+	
 	private final Route route;
 
 	private final Vehicle vehicle;
 
-	public ReRouteRequest(Route route, Vehicle vehicle) {
+	public ReRouteStartedRequest(Route route, Vehicle vehicle) {
 		this.route = route;
 		this.vehicle = vehicle;
 	}

@@ -19,10 +19,6 @@ import hu.mas.core.util.Pair;
 
 public class Dijkstra implements PathFinder {
 
-	private DijkstraGraph cachedGraph;
-
-	private double[][] travelWeigthMatrix;
-
 	public static DijkstraGraph calculateShortestPathFromSource(DijkstraGraph graph, DijkstraNode source) {
 		source.setDistance(0.0);
 
@@ -74,76 +70,52 @@ public class Dijkstra implements PathFinder {
 	}
 
 	@Override
-	public List<Pair<Double, List<Node>>> getShortestPaths(Graph graph, Node nodeFrom, Node nodeTo,
+	public List<Pair<Double, Pair<List<Node>, List<Edge>>>> getShortestPaths(Graph graph, Node nodeFrom, Node nodeTo,
 			double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
+		Pair<Double, List<Node>> route = getShortestPathImp(graph, nodeFrom, travelWeigthMatrix, edgeMatrix)
+				.get(nodeTo);
+		if (!route.getRigth().contains(nodeTo)) {
+			route.getRigth().add(nodeTo);
+		}
 		return Collections
-				.singletonList(getShortestPathImp(graph, nodeFrom, travelWeigthMatrix, edgeMatrix).get(nodeTo));
+				.singletonList(new Pair<>(route.getLeft(), new Pair<>(route.getRigth(), toEdges(route.getRigth()))));
 	}
 
 	public Map<Node, Pair<Double, List<Node>>> getShortestPathImp(Graph graph, Node nodeFrom,
 			double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
-		if (isChanged(travelWeigthMatrix)) {
-			DijkstraGraph graphToSearch = new DijkstraGraph();
-			graph.getNodes().stream().map(e -> new DijkstraNode(e.getId())).forEach(graphToSearch::addNode);
+		DijkstraGraph graphToSearch = new DijkstraGraph();
+		graph.getNodes().stream().map(e -> new DijkstraNode(e.getId())).forEach(graphToSearch::addNode);
 
-			graphToSearch.getNodes().stream().forEach(e -> {
-				Optional<Node> node = graph.getNodes().stream().filter(a -> a.getId().equals(e.getName())).findFirst();
-				if (node.isPresent()) {
-					node.get().getIncomingEdges().stream().forEach(b -> {
-						Optional<DijkstraNode> n = graphToSearch.getNodes().stream()
-								.filter(c -> c.getName().equals(b.getFrom().getId())).findFirst();
-						Pair<Integer, Integer> p = find(b, edgeMatrix);
-						e.addDestination(n.get(), travelWeigthMatrix[p.getLeft()][p.getRigth()]);
-					});
-					node.get().getOutgoingEdges().stream().forEach(b -> {
-						Optional<DijkstraNode> n = graphToSearch.getNodes().stream()
-								.filter(c -> c.getName().equals(b.getTo().getId())).findFirst();
-						Pair<Integer, Integer> p = find(b, edgeMatrix);
-						e.addDestination(n.get(), travelWeigthMatrix[p.getLeft()][p.getRigth()]);
-					});
-				}
-			});
-
-			Optional<DijkstraNode> source = graphToSearch.getNodes().stream()
-					.filter(e -> e.getName().equals(nodeFrom.getId())).findFirst();
-			if (source.isPresent()) {
-				DijkstraGraph resultGrap = Dijkstra.calculateShortestPathFromSource(graphToSearch, source.get());
-
-				this.cachedGraph = resultGrap;
-				if (travelWeigthMatrix != null) {
-					this.travelWeigthMatrix = travelWeigthMatrix.clone();
-				}
-
-				return resultGrap.getNodes().stream().collect(Collectors.toMap(
-						e -> graph.getNodes().stream().filter(a -> a.getId().equals(e.getName())).findFirst().get(),
-						e -> new Pair<>(e.getDistance(),
-								e.getShortestPath().stream().map(b -> graph.getNodes().stream()
-										.filter(a -> a.getId().equals(b.getName())).findFirst())
-										.map(a -> a.orElse(null)).collect(Collectors.toList()))));
-			} else {
-				return new HashMap<>();
+		graphToSearch.getNodes().stream().forEach(e -> {
+			Optional<Node> node = graph.getNodes().stream().filter(a -> a.getId().equals(e.getName())).findFirst();
+			if (node.isPresent()) {
+				node.get().getIncomingEdges().stream().forEach(b -> {
+					Optional<DijkstraNode> n = graphToSearch.getNodes().stream()
+							.filter(c -> c.getName().equals(b.getFrom().getId())).findFirst();
+					Pair<Integer, Integer> p = find(b, edgeMatrix);
+					e.addDestination(n.get(), travelWeigthMatrix[p.getLeft()][p.getRigth()]);
+				});
+				node.get().getOutgoingEdges().stream().forEach(b -> {
+					Optional<DijkstraNode> n = graphToSearch.getNodes().stream()
+							.filter(c -> c.getName().equals(b.getTo().getId())).findFirst();
+					Pair<Integer, Integer> p = find(b, edgeMatrix);
+					e.addDestination(n.get(), travelWeigthMatrix[p.getLeft()][p.getRigth()]);
+				});
 			}
-		} else {
-			return cachedGraph.getNodes().stream().collect(Collectors.toMap(
+		});
+
+		Optional<DijkstraNode> source = graphToSearch.getNodes().stream()
+				.filter(e -> e.getName().equals(nodeFrom.getId())).findFirst();
+		if (source.isPresent()) {
+			DijkstraGraph resultGrap = Dijkstra.calculateShortestPathFromSource(graphToSearch, source.get());
+
+			return resultGrap.getNodes().stream().collect(Collectors.toMap(
 					e -> graph.getNodes().stream().filter(a -> a.getId().equals(e.getName())).findFirst().get(),
 					e -> new Pair<>(e.getDistance(), e.getShortestPath().stream()
 							.map(b -> graph.getNodes().stream().filter(a -> a.getId().equals(b.getName())).findFirst())
 							.map(a -> a.orElse(null)).collect(Collectors.toList()))));
-		}
-	}
-
-	private boolean isChanged(double[][] travelWeigthMatrix) {
-		if (this.travelWeigthMatrix != null) {
-			for (int i = 0; i < travelWeigthMatrix.length; i++) {
-				for (int j = 0; j < travelWeigthMatrix[i].length; j++) {
-					if (this.travelWeigthMatrix[i][j] != travelWeigthMatrix[i][j]) {
-						return true;
-					}
-				}
-			}
-			return false;
 		} else {
-			return true;
+			return new HashMap<>();
 		}
 	}
 

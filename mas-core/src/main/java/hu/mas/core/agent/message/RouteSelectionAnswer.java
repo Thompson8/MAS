@@ -2,19 +2,19 @@ package hu.mas.core.agent.message;
 
 public class RouteSelectionAnswer implements MessageBody {
 
-	private final String routeId;
+	private String message;
 
-	public RouteSelectionAnswer(String routeId) {
-		this.routeId = routeId;
+	public RouteSelectionAnswer(String message) {
+		this.message = message;
 	}
 
-	public String getRouteId() {
-		return routeId;
+	public String getMessage() {
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return "RouteSelectionAnswer [routeId=" + routeId + "]";
+		return "RouteSelectionAnswer [message=" + message + "]";
 	}
 
 }

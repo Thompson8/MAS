@@ -6,42 +6,42 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.message.LocationInfoAnswer;
-import hu.mas.core.agent.message.LocationInfoRequest;
 import hu.mas.core.agent.message.Message;
 import hu.mas.core.agent.message.MessageType;
 import hu.mas.core.agent.message.RouteInfoAnswer;
 import hu.mas.core.agent.message.RouteInfoRequest;
 import hu.mas.core.agent.message.RouteSelectionRequest;
-import hu.mas.core.agent.message.RouteSelectionAnswer;
+import hu.mas.core.agent.message.RouteStartedRequest;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Node;
 import hu.mas.core.util.Pair;
+import it.polito.appeal.traci.SumoTraciConnection;
 
 public class SimpleAgent extends Agent {
 
 	private static final Logger logger = LogManager.getLogger();
 
-	protected static final int ROUTE_INFO_POLL_INTERVAL = 1000;
-
-	public SimpleAgent(Vehicle vehicle, Node from, Node to, MasController masController) {
-		super(vehicle, from, to, masController);
+	public SimpleAgent(Vehicle vehicle, Node from, Node to, MasController masController,
+			SumoTraciConnection connection) {
+		super(vehicle, from, to, masController, connection);
 	}
 
-	public SimpleAgent(String id, Vehicle vehicle, Node from, Node to, MasController masController) {
-		super(id, vehicle, from, to, masController);
+	public SimpleAgent(String id, Vehicle vehicle, Node from, Node to, MasController masController,
+			SumoTraciConnection connection) {
+		super(id, vehicle, from, to, masController, connection);
 	}
 
 	@Override
-	public void selectRoute(List<Pair<Double, List<Node>>> routes) {
-		Optional<Pair<Double, List<Node>>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
+	public void selectRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes) {
+		Optional<Pair<Double, Pair<List<Node>, List<Edge>>>> route = routes.stream()
+				.min((a, b) -> a.getLeft().compareTo(b.getLeft()));
 		if (route.isPresent()) {
-			List<Node> nodes = route.get().getRigth();
+			List<Node> nodes = route.get().getRigth().getLeft();
 			if (!nodes.contains(this.to)) {
 				nodes.add(to);
 			}
-			this.route = new Route(nodes);
+			this.route = new Route(nodes, route.get().getRigth().getRigth());
 		}
 	}
 
@@ -71,30 +71,56 @@ public class SimpleAgent extends Agent {
 			logger.info("Agent: {} sent chosen route to Mas", this.id);
 
 			Message routeSelectionAnswer = routeSelection.getConnection().take();
-			this.route.setId(((RouteSelectionAnswer) routeSelectionAnswer.getBody()).getRouteId());
-			logger.info("Agent: {} started travelling on route: {}", this.id, this.route);
+			logger.info("Agent: {} route selection answer: {}", this.id, routeSelectionAnswer);
 
-			boolean finished = false;
-			while (!finished) {
-				Thread.sleep(ROUTE_INFO_POLL_INTERVAL);
-				Message currentLocation = new Message(this.id, MessageType.LOCATION_INFO_REQUEST,
-						new LocationInfoRequest(this.vehicle));
-				masController.sendMessage(currentLocation);
-				Message currentLocationAnswer = currentLocation.getConnection().take();
-				Optional<Edge> currentEdge = ((LocationInfoAnswer) currentLocationAnswer.getBody()).getCurrentEdge();
-				
-				if (currentEdge.isPresent()) {
-					logger.info("Agent: {} current edge: {}", this.id, currentEdge.get());
-				} else {
-					logger.info("Agent: {} finished it's destination", this.id);
-					finished = true;
-				}
-				
-				if (Thread.interrupted()) {
-					logger.warn("Agent: {} thread was interrupted, will terminate further processing!", this.id);
+			Message routeStartedRequest = new Message(this.id, MessageType.ROUTE_STARTED_REQUEST,
+					new RouteStartedRequest(this.vehicle));
+			logger.info("Agent: {} sent route started signal", this.id);
+			masController.sendMessage(routeStartedRequest);
+			Message routeStartedAnswer = routeStartedRequest.getConnection().take();
+			logger.info("Agent: {} recived acknowledgement signal: {}", this.id, routeStartedAnswer);
+
+			startRoute();
+			logger.info("Agent: {} sent request to SUMO to start route", this.id);
+
+			Integer startIteration = null;
+			while (startIteration == null) {
+				if (Thread.currentThread().isInterrupted()) {
+					logger.info("Agent: {} was interrupted will terminate further running", this.id);
 					break;
+				} else {
+					Thread.sleep(LOCATION_POOL_INTERVAL_TIME);
+				}
+				startIteration = getStartIteration();
+			}
+
+			logger.info("Agent: {} started travelling on route: {}, iteration: {}", this.id, this.route,
+					startIteration);
+
+			Integer finishIteration = null;
+			while (finishIteration == null) {
+				if (Thread.currentThread().isInterrupted()) {
+					logger.info("Agent: {} was interrupted will terminate further running", this.id);
+					break;
+				} else {
+					Thread.sleep(LOCATION_POOL_INTERVAL_TIME);
+				}
+
+				finishIteration = getFinishIteration();
+
+				if (finishIteration == null) {
+					Optional<Edge> edge = getLocation();
+					if (edge.isPresent()) {
+						logger.info("Agent: {} is still executing it's route, location: {}", this.id,
+								edge.get().getId());
+					} else {
+						logger.info("Agent: {} edge not found, must be temp sync error", this.id);
+					}
 				}
 			}
+
+			logger.info("Agent: {} finished it's route, iteration: {}", this.id, finishIteration);
+
 		} catch (Exception e) {
 			logger.error("Exception during agent execution", e);
 			throw new AgentException(e);

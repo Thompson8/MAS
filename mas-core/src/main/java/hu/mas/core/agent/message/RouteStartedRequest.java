@@ -2,11 +2,11 @@ package hu.mas.core.agent.message;
 
 import hu.mas.core.agent.Vehicle;
 
-public class LocationInfoRequest implements MessageBody {
+public class RouteStartedRequest implements MessageBody {
 
 	private final Vehicle vehicle;
 
-	public LocationInfoRequest(Vehicle vehicle) {
+	public RouteStartedRequest(Vehicle vehicle) {
 		this.vehicle = vehicle;
 	}
 
@@ -16,7 +16,7 @@ public class LocationInfoRequest implements MessageBody {
 
 	@Override
 	public String toString() {
-		return "LocationInfoRequest [vehicle=" + vehicle + "]";
+		return "RouteStartedRequest [vehicle=" + vehicle + "]";
 	}
-
+	
 }

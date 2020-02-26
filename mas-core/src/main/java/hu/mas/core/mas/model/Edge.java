@@ -43,7 +43,7 @@ public class Edge {
 
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", from=" + from + ", to=" + to + "]";
+		return "Edge [id=" + id + ", from=" + from.getId() + ", to=" + to.getId() + "]";
 	}
 
 	@Override

@@ -7,7 +7,6 @@ public class Pair<L, R> {
 	private final R rigth;
 
 	public Pair(L left, R rigth) {
-		super();
 		this.left = left;
 		this.rigth = rigth;
 	}

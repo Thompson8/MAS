@@ -1,15 +1,24 @@
 package hu.mas.core.agent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import de.tudresden.ws.container.SumoStringList;
 import hu.mas.core.mas.MasController;
+import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Node;
 import hu.mas.core.util.Pair;
+import it.polito.appeal.traci.SumoTraciConnection;
 
 public abstract class Agent implements Runnable {
 
+	protected static final int LOCATION_POOL_INTERVAL_TIME = 1000;
+
 	protected static final AtomicInteger SEQUENCE = new AtomicInteger(0);
+
+	protected final SumoTraciConnection connection;
 
 	protected String id;
 
@@ -24,14 +33,15 @@ public abstract class Agent implements Runnable {
 	protected MasController masController;
 
 	protected Integer sleepTime;
-	
+
 	protected Integer rePlanIntervalTime;
 
-	public Agent(Vehicle vehicle, Node from, Node to, MasController masController) {
-		this(generateId(), vehicle, from, to, masController);
+	public Agent(Vehicle vehicle, Node from, Node to, MasController masController, SumoTraciConnection connection) {
+		this(generateId(), vehicle, from, to, masController, connection);
 	}
 
-	public Agent(String id, Vehicle vehicle, Node from, Node to, MasController masController) {
+	public Agent(String id, Vehicle vehicle, Node from, Node to, MasController masController,
+			SumoTraciConnection connection) {
 		this.id = id;
 		this.vehicle = vehicle;
 		this.from = from;
@@ -39,13 +49,42 @@ public abstract class Agent implements Runnable {
 		this.masController = masController;
 		this.sleepTime = null;
 		this.rePlanIntervalTime = null;
+		this.connection = connection;
 	}
 
 	public static String generateId() {
 		return "Agent_" + SEQUENCE.getAndIncrement();
 	}
 
-	public abstract void selectRoute(List<Pair<Double, List<Node>>> routes);
+	protected abstract void selectRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes);
+
+	protected void startRoute() throws Exception {
+		SumoStringList edges = new SumoStringList(
+				route.getEdges().stream().map(Edge::getId).collect(Collectors.toList()));
+		connection.do_job_set(de.tudresden.sumo.cmd.Route.add(route.getId(), edges));
+		connection.do_job_set(de.tudresden.sumo.cmd.Vehicle.add(vehicle.getId(), vehicle.getTypeId(), route.getId(), 0,
+				0.0, vehicle.getSpeed(), Byte.valueOf("0")));
+	}
+
+	protected boolean isFinished() {
+		return masController.isFinished(vehicle);
+	}
+
+	protected Integer getFinishIteration() {
+		return masController.getFinishIteration(vehicle);
+	}
+
+	protected boolean isStarted() {
+		return masController.isStarted(vehicle);
+	}
+
+	protected Integer getStartIteration() {
+		return masController.getStartIteration(vehicle);
+	}
+
+	protected Optional<Edge> getLocation() {
+		return masController.findCurrentLocation(vehicle);
+	}
 
 	public String getId() {
 		return id;

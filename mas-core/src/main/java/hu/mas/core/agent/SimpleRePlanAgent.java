@@ -7,68 +7,88 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.message.LocationInfoAnswer;
-import hu.mas.core.agent.message.LocationInfoRequest;
 import hu.mas.core.agent.message.Message;
 import hu.mas.core.agent.message.MessageType;
-import hu.mas.core.agent.message.ReRouteAnswer;
-import hu.mas.core.agent.message.ReRouteRequest;
+import hu.mas.core.agent.message.ReRouteStartedRequest;
 import hu.mas.core.agent.message.RouteInfoAnswer;
 import hu.mas.core.agent.message.RouteInfoRequest;
 import hu.mas.core.agent.message.RouteSelectionRequest;
-import hu.mas.core.agent.message.RouteSelectionAnswer;
+import hu.mas.core.agent.message.RouteStartedRequest;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Node;
 import hu.mas.core.util.Pair;
+import it.polito.appeal.traci.SumoTraciConnection;
 
-public class SimpleRePlanAgent extends SimpleAgent {
+public class SimpleRePlanAgent extends RePlanAgent {
 
 	private static final Logger logger = LogManager.getLogger();
 
-	public SimpleRePlanAgent(Vehicle vehicle, Node from, Node to, MasController masController) {
-		super(vehicle, from, to, masController);
+	public SimpleRePlanAgent(Vehicle vehicle, Node from, Node to, MasController masController,
+			SumoTraciConnection connection) {
+		super(vehicle, from, to, masController, connection);
 	}
 
-	public SimpleRePlanAgent(String id, Vehicle vehicle, Node from, Node to, MasController masController) {
-		super(id, vehicle, from, to, masController);
+	public SimpleRePlanAgent(String id, Vehicle vehicle, Node from, Node to, MasController masController,
+			SumoTraciConnection connection) {
+		super(id, vehicle, from, to, masController, connection);
 	}
 
 	@Override
-	public void selectRoute(List<Pair<Double, List<Node>>> routes) {
-		Optional<List<Node>> route = getOptimalRoute(routes);
+	public void selectRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes) {
+		Optional<Pair<Double, Pair<List<Node>, List<Edge>>>> route = getOptimalRoute(routes);
 		if (route.isPresent()) {
-			this.route = new Route(route.get());
-		}
-	}
-
-	public Optional<List<Node>> getOptimalRoute(List<Pair<Double, List<Node>>> routes) {
-		Optional<Pair<Double, List<Node>>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
-		if (route.isPresent()) {
-			List<Node> nodes = route.get().getRigth();
+			List<Node> nodes = route.get().getRigth().getLeft();
 			if (!nodes.contains(this.to)) {
-				nodes.add(this.to);
+				nodes.add(to);
 			}
-			return Optional.of(nodes);
-		} else {
-			return Optional.empty();
+			this.route = new Route(nodes, route.get().getRigth().getRigth());
 		}
 	}
 
-	public boolean selectReRoute(List<Pair<Double, List<Node>>> routes, Edge currentEdge) {
-		Optional<List<Node>> route = getOptimalRoute(routes);
+	protected Optional<Pair<Double, Pair<List<Node>, List<Edge>>>> getOptimalRoute(
+			List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes) {
+		return routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
+	}
+
+	@Override
+	public boolean selectReRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes, Edge location) {
+		Optional<Pair<Double, Pair<List<Node>, List<Edge>>>> route = getOptimalRoute(routes);
 		if (route.isPresent()) {
-			List<Node> nodes = route.get();
-			List<Node> routeNodes = new ArrayList<>();
-			routeNodes.add(currentEdge.getFrom());
-			routeNodes.addAll(nodes);
+			Optional<Node> startNodeOpt = this.route.getNodes().stream()
+					.filter(e -> e.getOutgoingEdges().contains(location)).findFirst();
+			if (startNodeOpt.isPresent()) {
+				Node startNode = startNodeOpt.get();
+				List<Node> nodes = route.get().getRigth().getLeft();
+				if (!nodes.contains(this.to)) {
+					nodes.add(to);
+				}
 
-			int index = this.route.getNodes().indexOf(routeNodes.get(0));
-			if (index == -1 || (index == 0 ? !this.route.getNodes().equals(routeNodes)
-					: !this.route.getNodes().subList(index - 1, this.route.getNodes().size() - 1).equals(routeNodes))) {
-				this.route = new Route(routeNodes);
+				if (nodes.get(0).equals(startNode)) {
+					List<Node> tmp = new ArrayList<>();
+					tmp.add(startNode);
+					tmp.addAll(nodes);
+					nodes = tmp;
+				}
 
-				return true;
+				List<Edge> edges = route.get().getRigth().getRigth();
+				if (!edges.get(0).equals(location)) {
+					List<Edge> tmp = new ArrayList<>();
+					tmp.add(location);
+					tmp.addAll(edges);
+					edges = tmp;
+				}
+
+				int index = this.route.getEdges().indexOf(location);
+				List<Edge> subEdges = this.route.getEdges().subList(index, this.route.getEdges().size());
+				if (!subEdges.equals(edges)) {
+					logger.info("Agent: {} old route: {}, , will be changed", this.id, this.route);
+					this.route = new Route(nodes, edges);
+					return true;
+				} else {
+					logger.info("Agent: {} old and new edges match so no re route will take place", this.id);
+					return false;
+				}
 			} else {
 				return false;
 			}
@@ -103,56 +123,81 @@ public class SimpleRePlanAgent extends SimpleAgent {
 			logger.info("Agent: {} sent chosen route to Mas", this.id);
 
 			Message routeSelectionAnswer = routeSelection.getConnection().take();
-			this.route.setId(((RouteSelectionAnswer) routeSelectionAnswer.getBody()).getRouteId());
-			logger.info("Agent: {} started travelling on route: {}", this.id, this.route);
+			logger.info("Agent: {} route selection answer: {}", this.id, routeSelectionAnswer);
 
-			boolean finished = false;
-			while (!finished) {
-				Thread.sleep(rePlanIntervalTime);
-				Message currentLocation = new Message(this.id, MessageType.LOCATION_INFO_REQUEST,
-						new LocationInfoRequest(this.vehicle));
-				masController.sendMessage(currentLocation);
-				Message currentLocationAnswer = currentLocation.getConnection().take();
-				Optional<Edge> currentEdge = ((LocationInfoAnswer) currentLocationAnswer.getBody()).getCurrentEdge();
+			Message routeStartedRequest = new Message(this.id, MessageType.ROUTE_STARTED_REQUEST,
+					new RouteStartedRequest(this.vehicle));
+			logger.info("Agent: {} sent route started signal", this.id);
+			masController.sendMessage(routeStartedRequest);
+			Message routeStartedAnswer = routeStartedRequest.getConnection().take();
+			logger.info("Agent: {} recived acknowledgement signal: {}", this.id, routeStartedAnswer);
 
-				if (currentEdge.isPresent()) {
-					logger.info("Agent: {} current edge: {}", this.id, currentEdge.get());
-
-					Node reRouteFrom = selectNextStop(currentEdge.get());
-					Message reRoteInfoRequest = new Message(this.id, MessageType.ROUTE_INFO_REQUEST,
-							new RouteInfoRequest(reRouteFrom, to));
-					masController.sendMessage(reRoteInfoRequest);
-
-					Message reRoteInfoRequestMessageAnswer = reRoteInfoRequest.getConnection().take();
-					RouteInfoAnswer reRoteInfoRequestMessageAnswerBody = (RouteInfoAnswer) reRoteInfoRequestMessageAnswer
-							.getBody();
-
-					logger.info("Agent: {} recived routes to choose from for re routing: {}", this.id,
-							reRoteInfoRequestMessageAnswerBody.getRoute());
-					if (selectReRoute(reRoteInfoRequestMessageAnswerBody.getRoute(), currentEdge.get())) {
-						logger.info("Agent: {} chosen {} route for re routing", this.id, this.route);
-
-						Message retRouteSelection = new Message(this.id, MessageType.RE_ROUTE_REQUEST,
-								new ReRouteRequest(this.route, this.vehicle));
-						masController.sendMessage(retRouteSelection);
-						logger.info("Agent: {} sent chosen route to Mas for re routing", this.id);
-
-						Message reRouteSelectionAnswer = retRouteSelection.getConnection().take();
-						this.route.setId(((ReRouteAnswer) reRouteSelectionAnswer.getBody()).getRouteId());
-						logger.info("Agent: {} started travelling on re route: {}", this.id, this.route);
-					} else {
-						logger.info("Agent: {} re route not needed", this.id);
-					}
+			startRoute();
+			Integer startIteration = null;
+			while (startIteration == null) {
+				if (Thread.currentThread().isInterrupted()) {
+					logger.info("Agent: {} was interrupted will terminate further running", this.id);
+					break;
 				} else {
-					logger.info("Agent: {} finished it's destination", this.id);
-					finished = true;
+					Thread.sleep(LOCATION_POOL_INTERVAL_TIME);
+				}
+				startIteration = getStartIteration();
+			}
+
+			logger.info("Agent: {} started travelling on route: {}, iteration: {}", this.id, this.route,
+					startIteration);
+
+			Integer finishIteration = null;
+			while (finishIteration == null) {
+				if (Thread.currentThread().isInterrupted()) {
+					logger.info("Agent: {} was interrupted will terminate further running", this.id);
+					break;
+				} else {
+					Thread.sleep(RE_PLAN_INTERVAL_TIME);
 				}
 
-				if (Thread.interrupted()) {
-					logger.warn("Agent: {} thread was interrupted, will terminate further processing!", this.id);
-					break;
+				finishIteration = getFinishIteration();
+
+				if (finishIteration == null) {
+					Optional<Edge> locationOpt = getLocation();
+					if (locationOpt.isPresent()) {
+						final Edge location = locationOpt.get();
+						logger.info("Agent: {} is still executing it's route, location: {}", this.id, location.getId());
+
+						Node from = this.route.getNodes().stream().filter(e -> e.getIncomingEdges().contains(location))
+								.findFirst().orElseThrow();
+						if (!from.equals(this.to)) {
+							infoRequest = new Message(this.id, MessageType.ROUTE_INFO_REQUEST,
+									new RouteInfoRequest(from, to));
+							masController.sendMessage(infoRequest);
+
+							infoRequestMessageAnswer = infoRequest.getConnection().take();
+							infoRequestMessageAnswerBody = (RouteInfoAnswer) infoRequestMessageAnswer.getBody();
+							if (selectReRoute(infoRequestMessageAnswerBody.getRoute(), location)) {
+								logger.info("Agent: {} determined that re route is needed", this.id);
+
+								Message reRouteMessage = new Message(this.id, MessageType.RE_ROUTE_STARTED_REQUEST,
+										new ReRouteStartedRequest(this.route, this.vehicle));
+								masController.sendMessage(reRouteMessage);
+								Message reRouteAnswer = reRouteMessage.getConnection().take();
+								logger.info("Agent: {} recived re route answer: {}", this.id, reRouteAnswer.getBody());
+
+								updateRoute();
+								logger.info("Agent: {} started travelling on re route: {}", this.id, this.route);
+							} else {
+								logger.info("Agent: {} determined that re route is not needed", this.id);
+							}
+						} else {
+							logger.info("Agent: {} re route not needed, we are on direct route to finish", this.id);
+						}
+
+					} else {
+						logger.info("Agent: {} edge not found, must be temp sync error", this.id);
+					}
 				}
 			}
+
+			logger.info("Agent: {} finished it's route, iteration: {}", this.id, finishIteration);
 
 		} catch (Exception e) {
 			logger.error("Exception during agent execution", e);
@@ -160,16 +205,10 @@ public class SimpleRePlanAgent extends SimpleAgent {
 		}
 	}
 
-	protected Node selectNextStop(Edge edge) {
-		return this.route.getNodes().stream().filter(e -> e.getIncomingEdges().contains(edge)).findFirst()
-				.orElseThrow();
-	}
-
 	@Override
 	public String toString() {
 		return "SimpleRePlanAgent [id=" + id + ", vehicle=" + vehicle + ", from=" + from + ", to=" + to + ", route="
-				+ route + ", masController=" + masController + ", sleepTime=" + sleepTime + ", rePlanIntervalTime="
-				+ rePlanIntervalTime + "]";
+				+ route + ", masController=" + masController + ", sleepTime=" + sleepTime + "]";
 	}
 
 }

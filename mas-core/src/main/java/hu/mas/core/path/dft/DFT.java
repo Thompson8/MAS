@@ -12,8 +12,8 @@ import hu.mas.core.util.Pair;
 public class DFT implements PathFinder {
 
 	@Override
-	public List<Pair<Double, List<Node>>> getShortestPaths(final Graph graph, Node nodeFrom, Node nodeTo,
-			double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
+	public List<Pair<Double, Pair<List<Node>, List<Edge>>>> getShortestPaths(final Graph graph, Node nodeFrom,
+			Node nodeTo, double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
 		DFTGraph dftGraph = new DFTGraph(graph.getNodes().size());
 		for (int i = 0; i < graph.getNodes().size(); i++) {
 			Node node = toNode(graph, i);
@@ -31,7 +31,7 @@ public class DFT implements PathFinder {
 
 		return dftGraph.getAllPaths(fromNode(graph, nodeFrom), fromNode(graph, nodeTo)).stream()
 				.map(e -> e.stream().map(a -> toNode(graph, a)).collect(Collectors.toList())).distinct()
-				.map(e -> new Pair<>(calculateRouteCost(travelWeigthMatrix, edgeMatrix, e), e))
+				.map(e -> new Pair<>(calculateRouteCost(travelWeigthMatrix, edgeMatrix, e), new Pair<>(e, toEdges(e))))
 				.collect(Collectors.toList());
 	}
 

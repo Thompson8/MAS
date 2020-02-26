@@ -2,6 +2,8 @@ package hu.mas.core.agent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import hu.mas.core.mas.model.Edge;
+
 public class Vehicle {
 
 	public static final AtomicInteger SEQUENCE = new AtomicInteger(0);
@@ -24,6 +26,11 @@ public class Vehicle {
 
 	public static String generateId() {
 		return "Vehicle_" + SEQUENCE.getAndIncrement();
+	}
+
+	// TODO implement
+	public double caculateEdgeImpact(Edge edge) {
+		return 1.0;
 	}
 
 	public String getId() {

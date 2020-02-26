@@ -1,15 +1,12 @@
-package hu.mas.core.agent;
+package hu.mas.core.mas;
 
 public class VehicleStatistics {
 
 	private Integer start;
 
-	private Integer finish;
+	private Integer agentStartMessage;
 
-	public VehicleStatistics(Integer start) {
-		super();
-		this.start = start;
-	}
+	private Integer finish;
 
 	public Integer getStart() {
 		return start;
@@ -27,15 +24,25 @@ public class VehicleStatistics {
 		this.finish = finish;
 	}
 
+	public Integer getAgentStartMessage() {
+		return agentStartMessage;
+	}
+
+	public void setAgentStartMessage(Integer agentStartMessage) {
+		this.agentStartMessage = agentStartMessage;
+	}
+
 	@Override
 	public String toString() {
-		return "VehicleStatistics [start=" + start + ", finish=" + finish + "]";
+		return "VehicleStatistics [start=" + start + ", agentStartMessage=" + agentStartMessage + ", finish=" + finish
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((agentStartMessage == null) ? 0 : agentStartMessage.hashCode());
 		result = prime * result + ((finish == null) ? 0 : finish.hashCode());
 		result = prime * result + ((start == null) ? 0 : start.hashCode());
 		return result;
@@ -50,6 +57,12 @@ public class VehicleStatistics {
 		if (getClass() != obj.getClass())
 			return false;
 		VehicleStatistics other = (VehicleStatistics) obj;
+		if (agentStartMessage == null) {
+			if (other.agentStartMessage != null)
+				return false;
+		} else if (!agentStartMessage.equals(other.agentStartMessage)) {
+			return false;
+		}
 		if (finish == null) {
 			if (other.finish != null)
 				return false;
@@ -57,8 +70,9 @@ public class VehicleStatistics {
 			return false;
 		}
 		if (start == null) {
-			if (other.start != null)
+			if (other.start != null) {
 				return false;
+			}
 		} else if (!start.equals(other.start)) {
 			return false;
 		}
