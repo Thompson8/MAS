@@ -1,6 +1,7 @@
 package hu.mas.core.agent;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToDoubleBiFunction;
 
 import hu.mas.core.mas.model.Edge;
 
@@ -13,6 +14,10 @@ public class Vehicle {
 	private String typeId;
 
 	private double speed;
+
+	private ToDoubleBiFunction<Edge, Vehicle> caculateEdgeImpact;
+
+	private ToDoubleBiFunction<Double, Double> impactEnhancer;
 
 	public Vehicle(String typeId, double speed) {
 		this(generateId(), typeId, speed);
@@ -28,9 +33,8 @@ public class Vehicle {
 		return "Vehicle_" + SEQUENCE.getAndIncrement();
 	}
 
-	// TODO implement
-	public double caculateEdgeImpact(Edge edge) {
-		return 1.0;
+	public double caculateEdgeImpact(Edge edge, double edgeWeigth) {
+		return impactEnhancer.applyAsDouble(caculateEdgeImpact.applyAsDouble(edge, this), edgeWeigth);
 	}
 
 	public String getId() {
@@ -55,6 +59,22 @@ public class Vehicle {
 
 	public void setSpeed(double speed) {
 		this.speed = speed;
+	}
+
+	public ToDoubleBiFunction<Edge, Vehicle> getCaculateEdgeImpact() {
+		return caculateEdgeImpact;
+	}
+
+	public void setCaculateEdgeImpact(ToDoubleBiFunction<Edge, Vehicle> caculateEdgeImpact) {
+		this.caculateEdgeImpact = caculateEdgeImpact;
+	}
+
+	public ToDoubleBiFunction<Double, Double> getImpactEnhancer() {
+		return impactEnhancer;
+	}
+
+	public void setImpactEnhancer(ToDoubleBiFunction<Double, Double> impactEnhancer) {
+		this.impactEnhancer = impactEnhancer;
 	}
 
 	@Override

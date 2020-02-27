@@ -28,6 +28,8 @@ public abstract class AbstractMas {
 
 	protected final Graph graph;
 
+	protected final EdgeWeightCalculatorType edgeWeightCalculator;
+
 	protected final SumoTraciConnection connection;
 
 	protected final double[][] travelWeigthMatrix;
@@ -40,11 +42,15 @@ public abstract class AbstractMas {
 
 	protected final Map<Integer, List<double[][]>> historicalTravelWeigthMatrix;
 
-	public AbstractMas(Graph graph, SumoTraciConnection connection, PathFinder pathFinder) {
+	protected Double maxLength = null;
+
+	public AbstractMas(Graph graph, SumoTraciConnection connection, PathFinder pathFinder,
+			EdgeWeightCalculatorType edgeWeightCalculator) {
 		if (graph == null || connection == null || pathFinder == null) {
 			throw new IllegalArgumentException();
 		}
 		this.graph = graph;
+		this.edgeWeightCalculator = edgeWeightCalculator;
 		this.connection = connection;
 		this.travelWeigthMatrix = new double[this.graph.getNodes().size()][this.graph.getNodes().size()];
 		this.edgeMatrix = new Edge[this.graph.getNodes().size()][this.graph.getNodes().size()];
@@ -63,8 +69,9 @@ public abstract class AbstractMas {
 					Optional<Edge> edge = from.getOutgoingEdges().stream()
 							.filter(e -> to.getIncomingEdges().contains(e)).findFirst();
 					if (edge.isPresent()) {
-						travelWeigthMatrix[i][j] = 1.0;
-						edgeMatrix[i][j] = edge.get();
+						Edge foundEdge = edge.get();
+						travelWeigthMatrix[i][j] = getEdgeWeigth(foundEdge);
+						edgeMatrix[i][j] = foundEdge;
 					} else {
 						travelWeigthMatrix[i][j] = 0.0;
 					}
@@ -145,6 +152,26 @@ public abstract class AbstractMas {
 			}
 
 		});
+	}
+
+	protected Double getEdgeWeigth(Edge edge) {
+		Double result = null;
+		switch (edgeWeightCalculator) {
+		case CONSTANT:
+			result = 1.0;
+			break;
+		case LENGTH:
+			if (maxLength == null) {
+				maxLength = graph.getNodes().stream().map(
+						e -> e.getEdges().stream().map(Edge::getLength).max((a, b) -> a.compareTo(b)).orElseThrow())
+						.max((a, b) -> a.compareTo(b)).orElseThrow();
+			}
+			result = edge.getLength() / maxLength;
+			break;
+		default:
+			break;
+		}
+		return result;
 	}
 
 	public void registerActualVehicleStart(Entry<Vehicle, VehicleData> data, int iteration) {

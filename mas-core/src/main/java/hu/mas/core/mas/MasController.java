@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -124,13 +125,13 @@ public class MasController implements Runnable {
 	public boolean isFinished(Vehicle vehicle) {
 		return mas.getVehiclesData().get(vehicle).getStatistics().getFinish() != null;
 	}
-	
+
 	public boolean isStarted(Vehicle vehicle) {
 		return mas.getVehiclesData().get(vehicle).getStatistics().getStart() != null;
 	}
-	
+
 	public Integer getStartIteration(Vehicle vehicle) {
-		return mas.getVehiclesData().get(vehicle).getStatistics().getStart();		
+		return mas.getVehiclesData().get(vehicle).getStatistics().getStart();
 	}
 
 	public Integer getFinishIteration(Vehicle vehicle) {
@@ -148,6 +149,9 @@ public class MasController implements Runnable {
 	public void writeStatisticsToFile(File file) throws IOException {
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			try (PrintWriter printWriter = new PrintWriter(fileWriter)) {
+				printWriter.println("Statistics");
+				printWriter.println(getStatictics());
+
 				printWriter.println("Tracked vehicle data:");
 				mas.getVehiclesData().getData().entrySet().stream()
 						.map(e -> "Vehicle: " + e.getKey().getId() + ", start: "
@@ -165,6 +169,25 @@ public class MasController implements Runnable {
 						.forEach(printWriter::println);
 			}
 		}
+	}
+
+	public String getStatictics() {
+		StringBuilder builder = new StringBuilder();
+		Integer vehicleCount = mas.getVehiclesData().getData().size();
+		long finishedVehicles = mas.getVehiclesData().getData().values().stream()
+				.filter(e -> e.getStatistics().getStart() != null && e.getStatistics().getFinish() != null).count();
+		builder.append("Finished vehicles: " + finishedVehicles + "/" + vehicleCount + "\n");
+		List<Integer> times = mas.getVehiclesData().getData().values().stream()
+				.filter(e -> e.getStatistics().getStart() != null && e.getStatistics().getFinish() != null)
+				.map(e -> e.getStatistics().getFinish() - e.getStatistics().getStart()).collect(Collectors.toList());
+		if (!times.isEmpty()) {
+			builder.append("Avg time: " + times.stream().reduce(0, (a, b) -> a + b) / times.size() + "\n");
+			builder.append("Min time: " + times.stream().min((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
+			builder.append("Max time: " + times.stream().max((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
+		} else {
+			builder.append("No time data to process\n");
+		}
+		return builder.toString();
 	}
 
 }

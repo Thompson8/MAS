@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import hu.mas.core.config.net.xml.model.Lane;
 import hu.mas.core.config.net.xml.model.Net;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Graph;
@@ -19,7 +20,12 @@ public class Converter {
 				.filter(e -> e.getFunction() == null).forEach(e -> {
 					Optional<Node> from = nodes.stream().filter(n -> n.getId().equals(e.getFrom())).findFirst();
 					Optional<Node> to = nodes.stream().filter(n -> n.getId().equals(e.getTo())).findFirst();
-					Edge edge = new Edge(e.getId(), from.get(), to.get());
+					Double speed = e.getLanes().stream().map(Lane::getSpeed).min((a, b) -> a.compareTo(b))
+							.orElseThrow();
+					Double length = e.getLanes().stream().map(Lane::getLength).max((a, b) -> a.compareTo(b))
+							.orElseThrow();
+
+					Edge edge = new Edge(e.getId(), from.get(), to.get(), speed, length);
 					from.get().getEdges().add(edge);
 					to.get().getEdges().add(edge);
 				});

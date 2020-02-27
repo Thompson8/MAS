@@ -8,13 +8,19 @@ public class Edge {
 
 	private Node to;
 
-	public Edge(String id, Node from, Node to) {
-		if (id == null || from == null || to == null) {
+	private double speed;
+
+	private double length;
+
+	public Edge(String id, Node from, Node to, double speed, double length) {
+		if (id == null || from == null || to == null || speed <= 0 || length <= 0) {
 			throw new IllegalArgumentException();
 		}
 		this.id = id;
 		this.from = from;
 		this.to = to;
+		this.speed = speed;
+		this.length = length;
 	}
 
 	public String getId() {
@@ -41,9 +47,26 @@ public class Edge {
 		this.to = to;
 	}
 
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public double getLength() {
+		return length;
+	}
+
+	public void setLength(double length) {
+		this.length = length;
+	}
+
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", from=" + from.getId() + ", to=" + to.getId() + "]";
+		return "Edge [id=" + id + ", from=" + from.getId() + ", to=" + to.getId() + ", speed=" + speed + ", length="
+				+ length + "]";
 	}
 
 	@Override

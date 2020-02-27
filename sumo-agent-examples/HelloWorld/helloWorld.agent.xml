@@ -1,20 +1,20 @@
 <configuration>
     <agent id="agent_1" from="1" to="3" sleepTime="0" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_1" typeId="MEDIUM" speed="0.1"/>
+        <vehicle id="vehicle_1" typeId="MEDIUM" speed="10.00"/>
     </agent>
     <agent id="agent_2" from="1" to="3" sleepTime="2000" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_2" typeId="MEDIUM" speed="0.1"/>
+        <vehicle id="vehicle_2" typeId="MEDIUM" speed="10.00"/>
     </agent>
     <agent id="agent_3" from="1" to="3" sleepTime="4000" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_3" typeId="MEDIUM" speed="0.2"/>
+        <vehicle id="vehicle_3" typeId="MEDIUM" speed="10.00"/>
     </agent>
     <agent id="agent_4" from="1" to="3" sleepTime="6000" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_4" typeId="MEDIUM" speed="0.1"/>
+        <vehicle id="vehicle_4" typeId="MEDIUM" speed="10.00"/>
     </agent>
     <agent id="agent_5" from="1" to="3" sleepTime="8000" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_5" typeId="MEDIUM" speed="0.1"/>
+        <vehicle id="vehicle_5" typeId="MEDIUM" speed="10.00"/>
     </agent>
     <agent id="agent_6" from="1" to="3" sleepTime="10000" rePlanIntervalTime="2000">
-        <vehicle id="vehicle_6" typeId="MEDIUM" speed="0.2"/>
+        <vehicle id="vehicle_6" typeId="MEDIUM" speed="10.00"/>
     </agent>
 </configuration>
