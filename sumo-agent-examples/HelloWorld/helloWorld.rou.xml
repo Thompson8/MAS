@@ -23,7 +23,7 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="FAST" maxSpeed="30.00" color="red"/>
-    <vType id="MEDIUM" maxSpeed="10.00" color="yellow"/>
-    <vType id="SLOW" maxSpeed="2.00" color="cyan"/>
+    <vType id="FAST" maxSpeed="30.00" color="red" length="5"/>
+    <vType id="MEDIUM" maxSpeed="10.00" color="yellow" length="5"/>
+    <vType id="SLOW" maxSpeed="2.00" color="cyan" length="5"/>
 </routes>

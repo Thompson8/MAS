@@ -14,16 +14,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.mas.core.agent.Agent;
-import hu.mas.core.agent.ImpactCalculatorType;
 import hu.mas.core.config.agent.xml.AgentConverter;
 import hu.mas.core.config.agent.xml.ParseAgent;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
 import hu.mas.core.config.net.xml.ParseNet;
 import hu.mas.core.config.net.xml.model.Net;
+import hu.mas.core.config.route.xml.ParseRoutesConfig;
+import hu.mas.core.config.route.xml.model.RoutesConfig;
 import hu.mas.core.config.sumo.xml.ParseSumoConfiguration;
 import hu.mas.core.config.sumo.xml.model.SumoConfiguration;
 import hu.mas.core.mas.AbstractMas;
-import hu.mas.core.mas.EdgeWeightCalculatorType;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.SimpleMas;
 import hu.mas.core.mas.converter.Converter;
@@ -31,6 +31,7 @@ import hu.mas.core.mas.model.Graph;
 import hu.mas.core.path.PathFinder;
 import hu.mas.core.path.dft.DFT;
 import hu.mas.core.path.dijkstra.Dijkstra;
+import hu.mas.core.simulation.SimulationEdgeImpactCalculatorType;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {
@@ -39,11 +40,10 @@ public class Main {
 
 	private static final String SUMO_BIN = "sumo-gui";
 	private static final double STEP_LENGTH = 0.1;
-	private static final int ITERATION_COUNT = 500;
+	private static final int ITERATION_COUNT = 300;
 	private static final String PATH_FINDER_ALGORITHM = "DFT";
 	private static final boolean REP_PLAN_AGENT = false;
-	private static final ImpactCalculatorType DEFAULT_IMPACT_CALCULATOR = ImpactCalculatorType.VEHICLE_AND_EDGE_SPEED;
-	private static final EdgeWeightCalculatorType DEFAULT_EDGE_WEIGTH_CALCULATOR = EdgeWeightCalculatorType.LENGTH;
+	private static final SimulationEdgeImpactCalculatorType DEFAULT_IMPACT_CALCULATOR = SimulationEdgeImpactCalculatorType.TRAVEL_TIME;
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
@@ -63,8 +63,7 @@ public class Main {
 		String sumoConfigFile = null;
 		String agentConfigFile = null;
 		String outputFile = null;
-		ImpactCalculatorType impactCalculator = DEFAULT_IMPACT_CALCULATOR;
-		EdgeWeightCalculatorType edgeWeightCalculator = DEFAULT_EDGE_WEIGTH_CALCULATOR;
+		SimulationEdgeImpactCalculatorType impactCalculator = DEFAULT_IMPACT_CALCULATOR;
 
 		for (String arg : args) {
 			if (arg.startsWith("--sumo_start_command=")) {
@@ -85,10 +84,8 @@ public class Main {
 			} else if (arg.startsWith("--re_plan_agent=")) {
 				replanAgents = Boolean.parseBoolean(arg.replace("--re_plan_agent=", "").trim());
 			} else if (arg.startsWith("--impact_calculator=")) {
-				impactCalculator = ImpactCalculatorType.valueOf(arg.replace("--impact_calculator=", "").trim());
-			} else if (arg.startsWith("--edge_weigth_calculator=")) {
-				edgeWeightCalculator = EdgeWeightCalculatorType
-						.valueOf(arg.replace("--edge_weigth_calculator=", "").trim());
+				impactCalculator = SimulationEdgeImpactCalculatorType
+						.valueOf(arg.replace("--impact_calculator=", "").trim());
 			}
 		}
 
@@ -108,8 +105,7 @@ public class Main {
 
 		if (validConfig) {
 			Optional<MasController> controller = startSimulation(sumoConfigFile, sumoConfigPath, agentConfigFile,
-					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, replanAgents, impactCalculator,
-					edgeWeightCalculator);
+					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, replanAgents, impactCalculator);
 			if (controller.isPresent()) {
 				try {
 					logger.info("Output file: {}, start writing", outputFile);
@@ -126,18 +122,20 @@ public class Main {
 
 	private static Optional<MasController> startSimulation(String sumoConfigFile, String sumoConfigPath,
 			String agentConfigFile, String sumoStartCommand, double stepLength, int iterationCount,
-			String pathFinderAlgorithm, boolean replanAgents, ImpactCalculatorType impactCalculator,
-			EdgeWeightCalculatorType edgeWeightCalculator) throws JAXBException {
+			String pathFinderAlgorithm, boolean replanAgents, SimulationEdgeImpactCalculatorType impactCalculator)
+			throws JAXBException {
 		SumoConfiguration configuration = ParseSumoConfiguration.parseConfiguation(sumoConfigFile);
 		Net net = ParseNet.parseNet(sumoConfigPath + configuration.getInput().getNetFile().getValue());
+		RoutesConfig routes = ParseRoutesConfig
+				.parseRoutes(sumoConfigPath + configuration.getInput().getRouteFiles().getValue());
 		Graph graph = Converter.fromNetToGraph(net);
 		SumoTraciConnection conn = new SumoTraciConnection(sumoStartCommand, sumoConfigFile);
 		conn.addOption("step-length", Double.toString(stepLength));
 		conn.addOption("start", "true");
-		List<Agent> agents = replanAgents ? loadRePlanAgents(agentConfigFile, graph, conn, impactCalculator)
-				: loadAgents(agentConfigFile, graph, conn, impactCalculator);
+		List<Agent> agents = replanAgents ? loadRePlanAgents(agentConfigFile, graph, conn, impactCalculator, routes)
+				: loadAgents(agentConfigFile, graph, conn, impactCalculator, routes);
 
-		AbstractMas mas = new SimpleMas(graph, conn, getPathFinder(pathFinderAlgorithm), edgeWeightCalculator);
+		AbstractMas mas = new SimpleMas(graph, conn, getPathFinder(pathFinderAlgorithm), impactCalculator);
 		MasController controller = new MasController(mas, iterationCount, stepLength);
 		linkAgentsWithController(agents, controller);
 
@@ -177,17 +175,17 @@ public class Main {
 	}
 
 	private static List<Agent> loadAgents(String configFile, Graph graph, SumoTraciConnection connection,
-			ImpactCalculatorType impactCalculator) throws JAXBException {
+			SimulationEdgeImpactCalculatorType impactCalculator, RoutesConfig routes) throws JAXBException {
 		AgentConfiguration agentConfiguration = ParseAgent.parseAgentConfiguration(configFile);
-		return AgentConverter.toSimpleAgents(agentConfiguration, graph, connection, impactCalculator).stream()
+		return AgentConverter.toSimpleAgents(agentConfiguration, graph, connection, impactCalculator, routes).stream()
 				.map(e -> (Agent) e).collect(Collectors.toList());
 	}
 
 	private static List<Agent> loadRePlanAgents(String configFile, Graph graph, SumoTraciConnection connection,
-			ImpactCalculatorType impactCalculator) throws JAXBException {
+			SimulationEdgeImpactCalculatorType impactCalculator, RoutesConfig routes) throws JAXBException {
 		AgentConfiguration agentConfiguration = ParseAgent.parseAgentConfiguration(configFile);
-		return AgentConverter.toSimpleRePlanAgents(agentConfiguration, graph, connection, impactCalculator).stream()
-				.map(e -> (Agent) e).collect(Collectors.toList());
+		return AgentConverter.toSimpleRePlanAgents(agentConfiguration, graph, connection, impactCalculator, routes)
+				.stream().map(e -> (Agent) e).collect(Collectors.toList());
 	}
 
 	private static void linkAgentsWithController(List<Agent> agents, MasController controller) {

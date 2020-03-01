@@ -13,28 +13,34 @@ public class Vehicle {
 
 	private String typeId;
 
-	private double speed;
+	private double maxSpeed;
+
+	private double length;
 
 	private ToDoubleBiFunction<Edge, Vehicle> caculateEdgeImpact;
 
-	private ToDoubleBiFunction<Double, Double> impactEnhancer;
-
-	public Vehicle(String typeId, double speed) {
-		this(generateId(), typeId, speed);
+	public Vehicle(String typeId, double maxSpeed, double length) {
+		this(generateId(), typeId, maxSpeed, length);
 	}
 
-	public Vehicle(String id, String typeId, double speed) {
+	public Vehicle(String id, String typeId, double maxSpeed, double length) {
 		this.id = id;
 		this.typeId = typeId;
-		this.speed = speed;
+		this.maxSpeed = maxSpeed;
+		this.length = length;
 	}
 
 	public static String generateId() {
 		return "Vehicle_" + SEQUENCE.getAndIncrement();
 	}
 
-	public double caculateEdgeImpact(Edge edge, double edgeWeigth) {
-		return impactEnhancer.applyAsDouble(caculateEdgeImpact.applyAsDouble(edge, this), edgeWeigth);
+	public double caculateEdgeImpact(Edge edge) {
+		return caculateEdgeImpact.applyAsDouble(edge, this);
+	}
+
+	public double calculateTravelTime(Edge edge) {
+		double speedOnEdge = edge.getSpeed() >= this.maxSpeed ? this.maxSpeed : edge.getSpeed();
+		return edge.getLength() / speedOnEdge;
 	}
 
 	public String getId() {
@@ -53,12 +59,12 @@ public class Vehicle {
 		this.typeId = typeId;
 	}
 
-	public double getSpeed() {
-		return speed;
+	public double getMaxSpeed() {
+		return maxSpeed;
 	}
 
-	public void setSpeed(double speed) {
-		this.speed = speed;
+	public void setMaxSpeed(double speed) {
+		this.maxSpeed = speed;
 	}
 
 	public ToDoubleBiFunction<Edge, Vehicle> getCaculateEdgeImpact() {
@@ -69,17 +75,17 @@ public class Vehicle {
 		this.caculateEdgeImpact = caculateEdgeImpact;
 	}
 
-	public ToDoubleBiFunction<Double, Double> getImpactEnhancer() {
-		return impactEnhancer;
+	public double getLength() {
+		return length;
 	}
 
-	public void setImpactEnhancer(ToDoubleBiFunction<Double, Double> impactEnhancer) {
-		this.impactEnhancer = impactEnhancer;
+	public void setLength(double length) {
+		this.length = length;
 	}
 
 	@Override
 	public String toString() {
-		return "Vehicle [id=" + id + ", typeId=" + typeId + ", speed=" + speed + "]";
+		return "Vehicle [id=" + id + ", typeId=" + typeId + ", maxSpeed=" + maxSpeed + "]";
 	}
 
 	@Override
@@ -88,7 +94,7 @@ public class Vehicle {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(speed);
+		temp = Double.doubleToLongBits(maxSpeed);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
 		return result;
@@ -109,7 +115,7 @@ public class Vehicle {
 		} else if (!id.equals(other.id)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(speed) != Double.doubleToLongBits(other.speed))
+		if (Double.doubleToLongBits(maxSpeed) != Double.doubleToLongBits(other.maxSpeed))
 			return false;
 		if (typeId == null) {
 			if (other.typeId != null)

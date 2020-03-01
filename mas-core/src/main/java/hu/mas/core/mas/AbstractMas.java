@@ -19,6 +19,7 @@ import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Graph;
 import hu.mas.core.mas.model.Node;
 import hu.mas.core.path.PathFinder;
+import hu.mas.core.simulation.SimulationEdgeImpactCalculatorType;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -28,7 +29,7 @@ public abstract class AbstractMas {
 
 	protected final Graph graph;
 
-	protected final EdgeWeightCalculatorType edgeWeightCalculator;
+	protected final SimulationEdgeImpactCalculatorType edgeWeightCalculator;
 
 	protected final SumoTraciConnection connection;
 
@@ -45,7 +46,7 @@ public abstract class AbstractMas {
 	protected Double maxLength = null;
 
 	public AbstractMas(Graph graph, SumoTraciConnection connection, PathFinder pathFinder,
-			EdgeWeightCalculatorType edgeWeightCalculator) {
+			SimulationEdgeImpactCalculatorType edgeWeightCalculator) {
 		if (graph == null || connection == null || pathFinder == null) {
 			throw new IllegalArgumentException();
 		}
@@ -160,13 +161,8 @@ public abstract class AbstractMas {
 		case CONSTANT:
 			result = 1.0;
 			break;
-		case LENGTH:
-			if (maxLength == null) {
-				maxLength = graph.getNodes().stream().map(
-						e -> e.getEdges().stream().map(Edge::getLength).max((a, b) -> a.compareTo(b)).orElseThrow())
-						.max((a, b) -> a.compareTo(b)).orElseThrow();
-			}
-			result = edge.getLength() / maxLength;
+		case TRAVEL_TIME:
+			result = edge.getLength() / edge.getSpeed();
 			break;
 		default:
 			break;

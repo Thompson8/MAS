@@ -63,7 +63,7 @@ public abstract class Agent implements Runnable {
 				route.getEdges().stream().map(Edge::getId).collect(Collectors.toList()));
 		connection.do_job_set(de.tudresden.sumo.cmd.Route.add(route.getId(), edges));
 		connection.do_job_set(de.tudresden.sumo.cmd.Vehicle.add(vehicle.getId(), vehicle.getTypeId(), route.getId(), 0,
-				0.0, vehicle.getSpeed(), Byte.valueOf("0")));
+				0.0, vehicle.getMaxSpeed(), Byte.valueOf("0")));
 	}
 
 	protected boolean isFinished() {
