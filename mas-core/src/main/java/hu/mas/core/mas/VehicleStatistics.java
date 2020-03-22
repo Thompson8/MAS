@@ -2,49 +2,49 @@ package hu.mas.core.mas;
 
 public class VehicleStatistics {
 
-	private Integer start;
+	private Double actualStart;
 
-	private Integer agentStartMessage;
+	private Double actualFinish;
 
-	private Integer finish;
+	private Double agentStart;
 
-	public Integer getStart() {
-		return start;
+	public Double getActualStart() {
+		return actualStart;
 	}
 
-	public void setStart(Integer start) {
-		this.start = start;
+	public void setActualStart(Double actualStart) {
+		this.actualStart = actualStart;
 	}
 
-	public Integer getFinish() {
-		return finish;
+	public Double getActualFinish() {
+		return actualFinish;
 	}
 
-	public void setFinish(Integer finish) {
-		this.finish = finish;
+	public void setActualFinish(Double actualFinish) {
+		this.actualFinish = actualFinish;
 	}
 
-	public Integer getAgentStartMessage() {
-		return agentStartMessage;
+	public Double getAgentStart() {
+		return agentStart;
 	}
 
-	public void setAgentStartMessage(Integer agentStartMessage) {
-		this.agentStartMessage = agentStartMessage;
+	public void setAgentStart(Double agentStart) {
+		this.agentStart = agentStart;
 	}
 
 	@Override
 	public String toString() {
-		return "VehicleStatistics [start=" + start + ", agentStartMessage=" + agentStartMessage + ", finish=" + finish
-				+ "]";
+		return "VehicleStatistics [actualStartIteration=" + actualStart + ", agentStartMessage=" + agentStart
+				+ ", actualFinishIteration=" + actualFinish + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((agentStartMessage == null) ? 0 : agentStartMessage.hashCode());
-		result = prime * result + ((finish == null) ? 0 : finish.hashCode());
-		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		result = prime * result + ((agentStart == null) ? 0 : agentStart.hashCode());
+		result = prime * result + ((actualFinish == null) ? 0 : actualFinish.hashCode());
+		result = prime * result + ((actualStart == null) ? 0 : actualStart.hashCode());
 		return result;
 	}
 
@@ -57,23 +57,23 @@ public class VehicleStatistics {
 		if (getClass() != obj.getClass())
 			return false;
 		VehicleStatistics other = (VehicleStatistics) obj;
-		if (agentStartMessage == null) {
-			if (other.agentStartMessage != null)
+		if (agentStart == null) {
+			if (other.agentStart != null)
 				return false;
-		} else if (!agentStartMessage.equals(other.agentStartMessage)) {
+		} else if (!agentStart.equals(other.agentStart)) {
 			return false;
 		}
-		if (finish == null) {
-			if (other.finish != null)
+		if (actualFinish == null) {
+			if (other.actualFinish != null)
 				return false;
-		} else if (!finish.equals(other.finish)) {
+		} else if (!actualFinish.equals(other.actualFinish)) {
 			return false;
 		}
-		if (start == null) {
-			if (other.start != null) {
+		if (actualStart == null) {
+			if (other.actualStart != null) {
 				return false;
 			}
-		} else if (!start.equals(other.start)) {
+		} else if (!actualStart.equals(other.actualStart)) {
 			return false;
 		}
 		return true;

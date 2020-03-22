@@ -23,6 +23,10 @@ public class Edge {
 		this.length = length;
 	}
 
+	public double calculateAvgTravelTime() {
+		return length / speed;
+	}
+
 	public String getId() {
 		return id;
 	}

@@ -1,10 +1,12 @@
 package hu.mas.core.agent;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Node;
+import hu.mas.core.util.Pair;
 
 public class Route {
 
@@ -16,14 +18,17 @@ public class Route {
 
 	private List<Edge> edges;
 
-	public Route(List<Node> nodes, List<Edge> edges) {
-		this(generateId(), nodes, edges);
+	private Map<Edge, Pair<Double, Double>> travelTimeForEdges;
+
+	public Route(List<Node> nodes, List<Edge> edges, Map<Edge, Pair<Double, Double>> travelTimeForEdges) {
+		this(generateId(), nodes, edges, travelTimeForEdges);
 	}
 
-	public Route(String id, List<Node> nodes, List<Edge> edges) {
+	public Route(String id, List<Node> nodes, List<Edge> edges, Map<Edge, Pair<Double, Double>> travelTimeForEdges) {
 		this.id = id;
 		this.nodes = nodes;
 		this.edges = edges;
+		this.travelTimeForEdges = travelTimeForEdges;
 	}
 
 	public static String generateId() {
@@ -54,9 +59,18 @@ public class Route {
 		this.edges = edges;
 	}
 
+	public Map<Edge, Pair<Double, Double>> getTravelTimeForEdges() {
+		return travelTimeForEdges;
+	}
+
+	public void setTravelTimeForEdges(Map<Edge, Pair<Double, Double>> travelTimeForEdges) {
+		this.travelTimeForEdges = travelTimeForEdges;
+	}
+
 	@Override
 	public String toString() {
-		return "Route [id=" + id + ", nodes=" + nodes + ", edges=" + edges + "]";
+		return "Route [id=" + id + ", nodes=" + nodes + ", edges=" + edges + ", travelTimeForEdges="
+				+ travelTimeForEdges + "]";
 	}
 
 	@Override
@@ -66,6 +80,7 @@ public class Route {
 		result = prime * result + ((edges == null) ? 0 : edges.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
+		result = prime * result + ((travelTimeForEdges == null) ? 0 : travelTimeForEdges.hashCode());
 		return result;
 	}
 
@@ -94,6 +109,13 @@ public class Route {
 			if (other.nodes != null)
 				return false;
 		} else if (!nodes.equals(other.nodes)) {
+			return false;
+		}
+		if (travelTimeForEdges == null) {
+			if (other.travelTimeForEdges != null) {
+				return false;
+			}
+		} else if (!travelTimeForEdges.equals(other.travelTimeForEdges)) {
 			return false;
 		}
 		return true;

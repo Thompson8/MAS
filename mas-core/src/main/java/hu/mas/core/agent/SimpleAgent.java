@@ -33,15 +33,10 @@ public class SimpleAgent extends Agent {
 	}
 
 	@Override
-	public void selectRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes) {
-		Optional<Pair<Double, Pair<List<Node>, List<Edge>>>> route = routes.stream()
-				.min((a, b) -> a.getLeft().compareTo(b.getLeft()));
+	public void selectRoute(List<Pair<Double, Route>> routes) {
+		Optional<Pair<Double, Route>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
 		if (route.isPresent()) {
-			List<Node> nodes = route.get().getRigth().getLeft();
-			if (!nodes.contains(this.to)) {
-				nodes.add(to);
-			}
-			this.route = new Route(nodes, route.get().getRigth().getRigth());
+			this.route = route.get().getRigth();
 		}
 	}
 
@@ -54,15 +49,16 @@ public class SimpleAgent extends Agent {
 				Thread.sleep(sleepTime);
 			}
 
-			Message infoRequest = new Message(this.id, MessageType.ROUTE_INFO_REQUEST, new RouteInfoRequest(from, to));
+			Message infoRequest = new Message(this.id, MessageType.ROUTE_INFO_REQUEST,
+					new RouteInfoRequest(this.from, this.to, this.vehicle));
 			masController.sendMessage(infoRequest);
 
 			Message infoRequestMessageAnswer = infoRequest.getConnection().take();
 			RouteInfoAnswer infoRequestMessageAnswerBody = (RouteInfoAnswer) infoRequestMessageAnswer.getBody();
 
 			logger.info("Agent: {} recived routes to choose from: {}", this.id,
-					infoRequestMessageAnswerBody.getRoute());
-			selectRoute(infoRequestMessageAnswerBody.getRoute());
+					infoRequestMessageAnswerBody.getRoutes());
+			selectRoute(infoRequestMessageAnswerBody.getRoutes());
 			logger.info("Agent: {} chosen {} route", this.id, this.route);
 
 			Message routeSelection = new Message(this.id, MessageType.ROUTE_SELECTION_REQUEST,
@@ -83,22 +79,21 @@ public class SimpleAgent extends Agent {
 			startRoute();
 			logger.info("Agent: {} sent request to SUMO to start route", this.id);
 
-			Integer startIteration = null;
-			while (startIteration == null) {
+			Double start = null;
+			while (start == null) {
 				if (Thread.currentThread().isInterrupted()) {
 					logger.info("Agent: {} was interrupted will terminate further running", this.id);
 					break;
 				} else {
 					Thread.sleep(LOCATION_POOL_INTERVAL_TIME);
 				}
-				startIteration = getStartIteration();
+				start = getStart();
 			}
 
-			logger.info("Agent: {} started travelling on route: {}, iteration: {}", this.id, this.route,
-					startIteration);
+			logger.info("Agent: {} started travelling on route: {}, start time: {}", this.id, this.route, start);
 
-			Integer finishIteration = null;
-			while (finishIteration == null) {
+			Double finish = null;
+			while (finish == null) {
 				if (Thread.currentThread().isInterrupted()) {
 					logger.info("Agent: {} was interrupted will terminate further running", this.id);
 					break;
@@ -106,9 +101,9 @@ public class SimpleAgent extends Agent {
 					Thread.sleep(LOCATION_POOL_INTERVAL_TIME);
 				}
 
-				finishIteration = getFinishIteration();
+				finish = getFinish();
 
-				if (finishIteration == null) {
+				if (finish == null) {
 					Optional<Edge> edge = getLocation();
 					if (edge.isPresent()) {
 						logger.info("Agent: {} is still executing it's route, location: {}", this.id,
@@ -119,7 +114,7 @@ public class SimpleAgent extends Agent {
 				}
 			}
 
-			logger.info("Agent: {} finished it's route, iteration: {}", this.id, finishIteration);
+			logger.info("Agent: {} finished it's route, finish time: {}", this.id, finish);
 
 		} catch (Exception e) {
 			logger.error("Exception during agent execution", e);

@@ -6,7 +6,6 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
 import hu.mas.core.agent.SimpleAgent;
-import hu.mas.core.agent.SimpleRePlanAgent;
 import hu.mas.core.agent.Vehicle;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
 import hu.mas.core.config.route.xml.model.RoutesConfig;
@@ -26,13 +25,6 @@ public class AgentConverter {
 				.collect(Collectors.toList());
 	}
 
-	public static List<SimpleRePlanAgent> toSimpleRePlanAgents(AgentConfiguration configuration, Graph graph,
-			SumoTraciConnection connection, SimulationEdgeImpactCalculatorType impactCalculator, RoutesConfig routes) {
-		return configuration.getAgents().stream()
-				.map(e -> toSimpleRePlanAgent(e, graph.getNodes(), connection, impactCalculator, routes))
-				.collect(Collectors.toList());
-	}
-
 	private static SimpleAgent toSimpleAgent(hu.mas.core.config.agent.xml.model.Agent agent, List<Node> nodes,
 			SumoTraciConnection connection, SimulationEdgeImpactCalculatorType impactCalculator, RoutesConfig routes) {
 		VehicleType type = findVehicleType(agent.getVehicle().getTypeId(), routes).orElseThrow();
@@ -44,21 +36,7 @@ public class AgentConverter {
 				connection);
 		result.setSleepTime(agent.getSleepTime());
 		result.getVehicle().setCaculateEdgeImpact(getImpactCalculator(impactCalculator));
-		return result;
-	}
-
-	private static SimpleRePlanAgent toSimpleRePlanAgent(hu.mas.core.config.agent.xml.model.Agent agent,
-			List<Node> nodes, SumoTraciConnection connection, SimulationEdgeImpactCalculatorType impactCalculator,
-			RoutesConfig routes) {
-		VehicleType type = findVehicleType(agent.getVehicle().getTypeId(), routes).orElseThrow();
-
-		SimpleRePlanAgent result = new SimpleRePlanAgent(agent.getId(),
-				new Vehicle(agent.getVehicle().getId(), type.getId(), type.getMaxSpeed(), type.getLength()),
-				nodes.stream().filter(e -> e.getId().equals(agent.getFrom())).findFirst().orElseThrow(),
-				nodes.stream().filter(e -> e.getId().equals(agent.getTo())).findFirst().orElseThrow(), null,
-				connection);
-		result.setSleepTime(agent.getSleepTime());
-		result.getVehicle().setCaculateEdgeImpact(getImpactCalculator(impactCalculator));
+		result.setAgentStartInterval(agent.getAgentStartInterval());
 		return result;
 	}
 

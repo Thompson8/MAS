@@ -11,6 +11,10 @@ public class VehicleData {
 
 	private final VehicleStatistics statistics;
 
+	private Integer expectedStartIteration;
+	
+	private Integer expectedFinishIteration;
+	
 	public VehicleData() {
 		this.statistics = new VehicleStatistics();
 	}
@@ -33,6 +37,22 @@ public class VehicleData {
 
 	public VehicleStatistics getStatistics() {
 		return statistics;
+	}
+
+	public Integer getExpectedStartIteration() {
+		return expectedStartIteration;
+	}
+
+	public void setExpectedStartIteration(Integer expectedStartIteration) {
+		this.expectedStartIteration = expectedStartIteration;
+	}
+
+	public Integer getExpectedFinishIteration() {
+		return expectedFinishIteration;
+	}
+
+	public void setExpectedFinishIteration(Integer expectedFinishIteration) {
+		this.expectedFinishIteration = expectedFinishIteration;
 	}
 
 	@Override

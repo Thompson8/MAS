@@ -34,7 +34,7 @@ public abstract class Agent implements Runnable {
 
 	protected Integer sleepTime;
 
-	protected Integer rePlanIntervalTime;
+	protected Integer agentStartInterval;
 
 	public Agent(Vehicle vehicle, Node from, Node to, MasController masController, SumoTraciConnection connection) {
 		this(generateId(), vehicle, from, to, masController, connection);
@@ -48,7 +48,7 @@ public abstract class Agent implements Runnable {
 		this.to = to;
 		this.masController = masController;
 		this.sleepTime = null;
-		this.rePlanIntervalTime = null;
+		this.agentStartInterval = null;
 		this.connection = connection;
 	}
 
@@ -56,7 +56,7 @@ public abstract class Agent implements Runnable {
 		return "Agent_" + SEQUENCE.getAndIncrement();
 	}
 
-	protected abstract void selectRoute(List<Pair<Double, Pair<List<Node>, List<Edge>>>> routes);
+	protected abstract void selectRoute(List<Pair<Double, Route>> routes);
 
 	protected void startRoute() throws Exception {
 		SumoStringList edges = new SumoStringList(
@@ -70,16 +70,16 @@ public abstract class Agent implements Runnable {
 		return masController.isFinished(vehicle);
 	}
 
-	protected Integer getFinishIteration() {
-		return masController.getFinishIteration(vehicle);
+	protected Double getFinish() {
+		return masController.getFinish(vehicle);
 	}
 
 	protected boolean isStarted() {
 		return masController.isStarted(vehicle);
 	}
 
-	protected Integer getStartIteration() {
-		return masController.getStartIteration(vehicle);
+	protected Double getStart() {
+		return masController.getStart(vehicle);
 	}
 
 	protected Optional<Edge> getLocation() {
@@ -142,19 +142,19 @@ public abstract class Agent implements Runnable {
 		this.masController = masController;
 	}
 
-	public Integer getRePlanIntervalTime() {
-		return rePlanIntervalTime;
+	public Integer getAgentStartInterval() {
+		return agentStartInterval;
 	}
 
-	public void setRePlanIntervalTime(Integer rePlanIntervalTime) {
-		this.rePlanIntervalTime = rePlanIntervalTime;
+	public void setAgentStartInterval(Integer agentStartInterval) {
+		this.agentStartInterval = agentStartInterval;
 	}
 
 	@Override
 	public String toString() {
 		return "Agent [id=" + id + ", vehicle=" + vehicle + ", from=" + from + ", to=" + to + ", route=" + route
-				+ ", masController=" + masController + ", sleepTime=" + sleepTime + ", rePlanIntervalTime="
-				+ rePlanIntervalTime + "]";
+				+ ", masController=" + masController + ", sleepTime=" + sleepTime + ", agentStartInterval="
+				+ agentStartInterval + "]";
 	}
 
 }

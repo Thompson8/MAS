@@ -15,7 +15,7 @@ public class Agent {
 
 	private Integer sleepTime;
 
-	private Integer rePlanIntervalTime;
+	private Integer agentStartInterval;
 
 	@XmlAttribute(name = "id")
 	public String getId() {
@@ -62,19 +62,19 @@ public class Agent {
 		this.sleepTime = sleepTime;
 	}
 
-	@XmlAttribute(name = "rePlanIntervalTime")
-	public Integer getRePlanIntervalTime() {
-		return rePlanIntervalTime;
+	@XmlAttribute(name = "agentStartInterval")
+	public Integer getAgentStartInterval() {
+		return agentStartInterval;
 	}
 
-	public void setRePlanIntervalTime(Integer rePlanIntervalTime) {
-		this.rePlanIntervalTime = rePlanIntervalTime;
+	public void setAgentStartInterval(Integer agentStartInterval) {
+		this.agentStartInterval = agentStartInterval;
 	}
 
 	@Override
 	public String toString() {
 		return "Agent [id=" + id + ", vehicle=" + vehicle + ", from=" + from + ", to=" + to + ", sleepTime=" + sleepTime
-				+ ", rePlanIntervalTime=" + rePlanIntervalTime + "]";
+				+ ", agentStartInterval=" + agentStartInterval + "]";
 	}
 
 }

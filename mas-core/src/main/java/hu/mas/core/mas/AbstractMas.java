@@ -41,9 +41,7 @@ public abstract class AbstractMas {
 
 	protected final PathFinder pathFinder;
 
-	protected final Map<Integer, List<double[][]>> historicalTravelWeigthMatrix;
-
-	protected Double maxLength = null;
+	protected final Map<Double, List<double[][]>> historicalTravelWeigthMatrix;
 
 	public AbstractMas(Graph graph, SumoTraciConnection connection, PathFinder pathFinder,
 			SimulationEdgeImpactCalculatorType edgeWeightCalculator) {
@@ -81,61 +79,63 @@ public abstract class AbstractMas {
 		}
 	}
 
-	protected void updateTravelWeigthMatrix(int iteration) throws Exception {
+	protected void updateTravelWeigthMatrix(double currentTime) throws Exception {
 		for (int i = 0; i < edgeMatrix.length; i++) {
 			for (int j = 0; j < edgeMatrix[i].length; j++) {
 				Edge edge = edgeMatrix[i][j];
 				if (edge != null) {
-					travelWeigthMatrix[i][j] = getValueForTravelWeigthMatrixUpdate(i, j, edge, iteration);
+					travelWeigthMatrix[i][j] = getValueForTravelWeigthMatrixUpdate(i, j, edge, currentTime);
 				}
 			}
 		}
 	}
 
-	protected abstract double getValueForTravelWeigthMatrixUpdate(int x, int y, Edge edge, int iteration)
+	protected abstract double getValueForTravelWeigthMatrixUpdate(int x, int y, Edge edge, double currentTime)
 			throws Exception;
 
-	public List<Pair<Double, Pair<List<Node>, List<Edge>>>> getShortestPath(Node nodeFrom, Node nodeTo) {
-		return pathFinder.getShortestPaths(graph, nodeFrom, nodeTo, travelWeigthMatrix, edgeMatrix);
+	public List<Pair<Double, Route>> getShortestPath(Node nodeFrom, Node nodeTo, Vehicle vehicle, double currentTime) {
+		return pathFinder.getShortestPaths(graph, nodeFrom, nodeTo, travelWeigthMatrix, edgeMatrix, vehicle,
+				currentTime);
 	}
 
-	public void updateData(int iteration) throws Exception {
-		updateVehicleData(iteration);
-		updateTravelWeigthMatrix(iteration);
-		updateHistoricalTravelWeigthMatrix(iteration);
+	public void updateData(double currentTime) throws Exception {
+		updateVehicleData(currentTime);
+		updateTravelWeigthMatrix(currentTime);
+		updateHistoricalTravelWeigthMatrix(currentTime);
 	}
 
-	protected void updateHistoricalTravelWeigthMatrix(int iteration) {
+	protected void updateHistoricalTravelWeigthMatrix(double currentTime) {
 		double[][] copy = new double[travelWeigthMatrix.length][travelWeigthMatrix[0].length];
 		for (int i = 0; i < copy.length; i++) {
 			copy[i] = Arrays.copyOf(travelWeigthMatrix[i], travelWeigthMatrix[i].length);
 		}
 
-		List<double[][]> list = this.historicalTravelWeigthMatrix.get(iteration);
+		List<double[][]> list = this.historicalTravelWeigthMatrix.get(currentTime);
 		if (list == null) {
 			list = new ArrayList<>();
 			list.add(copy);
-			this.historicalTravelWeigthMatrix.put(iteration, list);
+			this.historicalTravelWeigthMatrix.put(currentTime, list);
 		} else {
 			list.add(copy);
 		}
 	}
 
-	protected void updateVehicleData(int iteration) throws Exception {
+	protected void updateVehicleData(double currentTime) throws Exception {
 		SumoStringList vehicles = (SumoStringList) connection.do_job_get(de.tudresden.sumo.cmd.Vehicle.getIDList());
 		vehiclesData.getData().entrySet().stream().forEach(e -> {
 			Optional<String> contains = vehicles.stream().filter(a -> e.getKey().getId().equals(a)).findFirst();
-			if (e.getValue().getStatistics().getStart() != null && e.getValue().getStatistics().getFinish() == null
-					&& contains.isEmpty()) {
-				logger.info("Vehicle: {} finished it's route, finish: {}", e.getKey().getId(), iteration);
-				e.getValue().getStatistics().setFinish(iteration);
+			if (e.getValue().getStatistics().getActualStart() != null
+					&& e.getValue().getStatistics().getActualFinish() == null && contains.isEmpty()) {
+				logger.info("Vehicle: {} finished it's route, finish: {}", e.getKey().getId(), currentTime);
+				e.getValue().getStatistics().setActualFinish(currentTime);
 			}
 
-			if (e.getValue().getStatistics().getStart() == null && contains.isPresent()) {
-				registerActualVehicleStart(e, iteration);
+			if (e.getValue().getStatistics().getActualStart() == null && contains.isPresent()) {
+				registerActualVehicleStart(e, currentTime);
 			}
 
-			if (e.getValue().getStatistics().getStart() != null && e.getValue().getStatistics().getFinish() == null) {
+			if (e.getValue().getStatistics().getActualStart() != null
+					&& e.getValue().getStatistics().getActualFinish() == null) {
 				try {
 					String edgeId = (String) connection
 							.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(e.getKey().getId()));
@@ -151,33 +151,21 @@ public abstract class AbstractMas {
 					throw new RuntimeException(ex);
 				}
 			}
-
 		});
 	}
 
 	protected Double getEdgeWeigth(Edge edge) {
-		Double result = null;
-		switch (edgeWeightCalculator) {
-		case CONSTANT:
-			result = 1.0;
-			break;
-		case TRAVEL_TIME:
-			result = edge.getLength() / edge.getSpeed();
-			break;
-		default:
-			break;
-		}
-		return result;
+		return edge.calculateAvgTravelTime();
 	}
 
-	public void registerActualVehicleStart(Entry<Vehicle, VehicleData> data, int iteration) {
-		data.getValue().getStatistics().setStart(iteration);
+	public void registerActualVehicleStart(Entry<Vehicle, VehicleData> data, double currentTime) {
+		data.getValue().getStatistics().setActualStart(currentTime);
 		data.getValue().setCurrentEdge(data.getValue().getRoute().getEdges().get(0));
 	}
 
-	public void registerVehicleStart(Vehicle vehicle, int iteration) {
+	public void registerVehicleStart(Vehicle vehicle, double currentTime) {
 		VehicleData entry = vehiclesData.get(vehicle);
-		entry.getStatistics().setAgentStartMessage(iteration);
+		entry.getStatistics().setAgentStart(currentTime);
 	}
 
 	public void registerRoute(Vehicle vehicle, Route route) {
@@ -185,11 +173,10 @@ public abstract class AbstractMas {
 		data.setRoute(route);
 		data.setCurrentEdge(route.getEdges().get(0));
 		vehiclesData.put(vehicle, data);
+		registerRouteOperations(vehicle, route);
 	}
 
-	public void registerReRoute(Vehicle vehicle, Route route) {
-		vehiclesData.get(vehicle).setRoute(route);
-	}
+	protected abstract void registerRouteOperations(Vehicle vehicle, Route route);
 
 	protected Optional<Node> findNode(String id) {
 		return graph.getNodes().stream().filter(e -> e.getId().equals(id)).findFirst();
@@ -230,7 +217,7 @@ public abstract class AbstractMas {
 		return vehiclesData;
 	}
 
-	public Map<Integer, List<double[][]>> getHistoricalTravelWeigthMatrix() {
+	public Map<Double, List<double[][]>> getHistoricalTravelWeigthMatrix() {
 		return historicalTravelWeigthMatrix;
 	}
 

@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Set;
 
+import hu.mas.core.agent.Route;
+import hu.mas.core.agent.Vehicle;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.Graph;
 import hu.mas.core.mas.model.Node;
@@ -70,15 +72,17 @@ public class Dijkstra implements PathFinder {
 	}
 
 	@Override
-	public List<Pair<Double, Pair<List<Node>, List<Edge>>>> getShortestPaths(Graph graph, Node nodeFrom, Node nodeTo,
-			double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
+	public List<Pair<Double, Route>> getShortestPaths(Graph graph, Node nodeFrom, Node nodeTo,
+			double[][] travelWeigthMatrix, Edge[][] edgeMatrix, Vehicle vehicle, double currentTime) {
 		Pair<Double, List<Node>> route = getShortestPathImp(graph, nodeFrom, travelWeigthMatrix, edgeMatrix)
 				.get(nodeTo);
 		if (!route.getRigth().contains(nodeTo)) {
 			route.getRigth().add(nodeTo);
 		}
-		return Collections
-				.singletonList(new Pair<>(route.getLeft(), new Pair<>(route.getRigth(), toEdges(route.getRigth()))));
+
+		List<Edge> edges = toEdges(route.getRigth());
+		return Collections.singletonList(new Pair<>(route.getLeft(), new Route(route.getRigth(), edges,
+				calculateTravelTimeForEdges(edges, vehicle, currentTime, travelWeigthMatrix, edgeMatrix))));
 	}
 
 	public Map<Node, Pair<Double, List<Node>>> getShortestPathImp(Graph graph, Node nodeFrom,

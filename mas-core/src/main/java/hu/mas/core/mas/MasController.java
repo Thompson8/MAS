@@ -17,8 +17,6 @@ import org.apache.logging.log4j.Logger;
 import hu.mas.core.agent.Vehicle;
 import hu.mas.core.agent.message.Message;
 import hu.mas.core.agent.message.MessageType;
-import hu.mas.core.agent.message.ReRouteStartedAnswer;
-import hu.mas.core.agent.message.ReRouteStartedRequest;
 import hu.mas.core.agent.message.RouteInfoAnswer;
 import hu.mas.core.agent.message.RouteInfoRequest;
 import hu.mas.core.agent.message.RouteSelectionAnswer;
@@ -28,6 +26,7 @@ import hu.mas.core.agent.message.RouteStartedRequest;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.MasException;
 import hu.mas.core.mas.model.Node;
+import hu.mas.core.util.TimeCalculator;
 
 public class MasController implements Runnable {
 
@@ -54,21 +53,24 @@ public class MasController implements Runnable {
 			mas.runServer();
 
 			for (int i = 0; i < simulationIterationLimit; i++) {
-				mas.updateData(i);
+				double currentTime = TimeCalculator.calculateTime(i, stepLength);
+				mas.updateData(currentTime);
 
 				if (i % 100 == 0) {
-					logger.info("Mas iteration: {}, current time: {}", i, i * stepLength);
+					logger.info("Mas iteration: {}, current time: {}", i, currentTime);
 				}
 				while (!incomingAgentMessageQueue.isEmpty()) {
 					Message message = incomingAgentMessageQueue.remove();
 					logger.info("Recived message {}, from agent: {}", message.getType(), message.getAgentId());
-					processMessage(message, i);
+					processMessage(message, currentTime);
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
 
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
+
+			mas.updateData(TimeCalculator.calculateTime(simulationIterationLimit, stepLength));
 		} catch (Exception e) {
 			logger.error("Exception during Mas execution", e);
 			throw new MasException(e);
@@ -77,34 +79,27 @@ public class MasController implements Runnable {
 		}
 	}
 
-	private void processMessage(Message message, int iteration) throws Exception {
+	private void processMessage(Message message, double currentTime) throws Exception {
 		Message answer = null;
 
 		switch (message.getType()) {
 		case ROUTE_INFO_REQUEST:
 			RouteInfoRequest request = (RouteInfoRequest) message.getBody();
-			answer = new Message(message.getAgentId(), MessageType.ROUTE_RECOMMENDATION,
-					new RouteInfoAnswer(mas.getShortestPath(request.getFrom(), request.getTo())));
+			answer = new Message(message.getAgentId(), MessageType.ROUTE_RECOMMENDATION, new RouteInfoAnswer(
+					mas.getShortestPath(request.getFrom(), request.getTo(), request.getVehicle(), currentTime)));
 			break;
 		case ROUTE_SELECTION_REQUEST:
 			RouteSelectionRequest selection = (RouteSelectionRequest) message.getBody();
 			mas.registerRoute(selection.getVehicle(), selection.getRoute());
 			answer = new Message(message.getAgentId(), MessageType.ROUTE_SELECTION_ANSWER,
-					new RouteSelectionAnswer("Route registered in iteration: " + iteration));
-			mas.updateData(iteration);
+					new RouteSelectionAnswer("Route registered in iteration: " + currentTime));
+			mas.updateData(currentTime);
 			break;
 		case ROUTE_STARTED_REQUEST:
 			RouteStartedRequest startedRequest = (RouteStartedRequest) message.getBody();
-			mas.registerVehicleStart(startedRequest.getVehicle(), iteration);
+			mas.registerVehicleStart(startedRequest.getVehicle(), currentTime);
 			answer = new Message(message.getAgentId(), MessageType.ROUTE_STARTED_ANSWER,
-					new RouteStartedAnswer("Start request registered in iteration: " + iteration));
-			break;
-		case RE_ROUTE_STARTED_REQUEST:
-			ReRouteStartedRequest reRouteStartedRequest = (ReRouteStartedRequest) message.getBody();
-			mas.registerReRoute(reRouteStartedRequest.getVehicle(), reRouteStartedRequest.getRoute());
-			answer = new Message(message.getAgentId(), MessageType.RE_ROUTE_STARTED_ANSWER,
-					new ReRouteStartedAnswer("Start re route request registered in iteration: " + iteration));
-			mas.updateData(iteration);
+					new RouteStartedAnswer("Start request registered in iteration: " + currentTime));
 			break;
 		default:
 			break;
@@ -123,19 +118,19 @@ public class MasController implements Runnable {
 	}
 
 	public boolean isFinished(Vehicle vehicle) {
-		return mas.getVehiclesData().get(vehicle).getStatistics().getFinish() != null;
+		return mas.getVehiclesData().get(vehicle).getStatistics().getActualFinish() != null;
 	}
 
 	public boolean isStarted(Vehicle vehicle) {
-		return mas.getVehiclesData().get(vehicle).getStatistics().getStart() != null;
+		return mas.getVehiclesData().get(vehicle).getStatistics().getActualStart() != null;
 	}
 
-	public Integer getStartIteration(Vehicle vehicle) {
-		return mas.getVehiclesData().get(vehicle).getStatistics().getStart();
+	public Double getStart(Vehicle vehicle) {
+		return mas.getVehiclesData().get(vehicle).getStatistics().getActualStart();
 	}
 
-	public Integer getFinishIteration(Vehicle vehicle) {
-		return mas.getVehiclesData().get(vehicle).getStatistics().getFinish();
+	public Double getFinish(Vehicle vehicle) {
+		return mas.getVehiclesData().get(vehicle).getStatistics().getActualFinish();
 	}
 
 	public void sendMessage(Message message) {
@@ -155,8 +150,8 @@ public class MasController implements Runnable {
 				printWriter.println("Tracked vehicle data:");
 				mas.getVehiclesData().getData().entrySet().stream()
 						.map(e -> "Vehicle: " + e.getKey().getId() + ", start: "
-								+ e.getValue().getStatistics().getStart() + ", finish: "
-								+ e.getValue().getStatistics().getFinish())
+								+ e.getValue().getStatistics().getActualStart() + ", finish: "
+								+ e.getValue().getStatistics().getActualFinish())
 						.forEach(printWriter::println);
 
 				printWriter.println();
@@ -175,13 +170,15 @@ public class MasController implements Runnable {
 		StringBuilder builder = new StringBuilder();
 		Integer vehicleCount = mas.getVehiclesData().getData().size();
 		long finishedVehicles = mas.getVehiclesData().getData().values().stream()
-				.filter(e -> e.getStatistics().getStart() != null && e.getStatistics().getFinish() != null).count();
+				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() != null)
+				.count();
 		builder.append("Finished vehicles: " + finishedVehicles + "/" + vehicleCount + "\n");
-		List<Integer> times = mas.getVehiclesData().getData().values().stream()
-				.filter(e -> e.getStatistics().getStart() != null && e.getStatistics().getFinish() != null)
-				.map(e -> e.getStatistics().getFinish() - e.getStatistics().getStart()).collect(Collectors.toList());
+		List<Double> times = mas.getVehiclesData().getData().values().stream()
+				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() != null)
+				.map(e -> e.getStatistics().getActualFinish() - e.getStatistics().getActualStart())
+				.collect(Collectors.toList());
 		if (!times.isEmpty()) {
-			builder.append("Avg time: " + times.stream().reduce(0, (a, b) -> a + b) / times.size() + "\n");
+			builder.append("Avg time: " + times.stream().reduce(0.0, (a, b) -> a + b) / times.size() + "\n");
 			builder.append("Min time: " + times.stream().min((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
 			builder.append("Max time: " + times.stream().max((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
 		} else {

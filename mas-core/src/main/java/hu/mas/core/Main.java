@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.mas.core.agent.Agent;
+import hu.mas.core.agent.AgentPopulator;
 import hu.mas.core.config.agent.xml.AgentConverter;
 import hu.mas.core.config.agent.xml.ParseAgent;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
@@ -25,8 +26,8 @@ import hu.mas.core.config.sumo.xml.ParseSumoConfiguration;
 import hu.mas.core.config.sumo.xml.model.SumoConfiguration;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.MasController;
-import hu.mas.core.mas.SimpleMas;
 import hu.mas.core.mas.converter.Converter;
+import hu.mas.core.mas.intention.simple.SimpleMas;
 import hu.mas.core.mas.model.Graph;
 import hu.mas.core.path.PathFinder;
 import hu.mas.core.path.dft.DFT;
@@ -42,14 +43,18 @@ public class Main {
 	private static final double STEP_LENGTH = 0.1;
 	private static final int ITERATION_COUNT = 300;
 	private static final String PATH_FINDER_ALGORITHM = "DFT";
-	private static final boolean REP_PLAN_AGENT = false;
 	private static final SimulationEdgeImpactCalculatorType DEFAULT_IMPACT_CALCULATOR = SimulationEdgeImpactCalculatorType.TRAVEL_TIME;
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
+	private static final int AGENT_POPULATOR_THREAD_POOL_SIZE = 10;
+
 	private static final int AGENT_THREAD_POOL_SIZE = 20;
 
 	private static final ExecutorService MAS_EXECUTER = Executors.newFixedThreadPool(MAS_THREAD_POOL_SIZE);
+
+	private static final ExecutorService AGENT_POPULATOR_EXECUTER = Executors
+			.newFixedThreadPool(AGENT_POPULATOR_THREAD_POOL_SIZE);
 
 	private static final ExecutorService AGENT_EXECUTER = Executors.newFixedThreadPool(AGENT_THREAD_POOL_SIZE);
 
@@ -58,7 +63,6 @@ public class Main {
 		int iterationCount = ITERATION_COUNT;
 		double stepLength = STEP_LENGTH;
 		String pathFinderAlgorithm = PATH_FINDER_ALGORITHM;
-		boolean replanAgents = REP_PLAN_AGENT;
 		String sumoConfigPath = null;
 		String sumoConfigFile = null;
 		String agentConfigFile = null;
@@ -81,8 +85,6 @@ public class Main {
 				outputFile = arg.replace("--output_file=", "").trim();
 			} else if (arg.startsWith("--path_finder_alg=")) {
 				pathFinderAlgorithm = arg.replace("--path_finder_alg=", "").trim();
-			} else if (arg.startsWith("--re_plan_agent=")) {
-				replanAgents = Boolean.parseBoolean(arg.replace("--re_plan_agent=", "").trim());
 			} else if (arg.startsWith("--impact_calculator=")) {
 				impactCalculator = SimulationEdgeImpactCalculatorType
 						.valueOf(arg.replace("--impact_calculator=", "").trim());
@@ -105,7 +107,7 @@ public class Main {
 
 		if (validConfig) {
 			Optional<MasController> controller = startSimulation(sumoConfigFile, sumoConfigPath, agentConfigFile,
-					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, replanAgents, impactCalculator);
+					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, impactCalculator);
 			if (controller.isPresent()) {
 				try {
 					logger.info("Output file: {}, start writing", outputFile);
@@ -122,8 +124,7 @@ public class Main {
 
 	private static Optional<MasController> startSimulation(String sumoConfigFile, String sumoConfigPath,
 			String agentConfigFile, String sumoStartCommand, double stepLength, int iterationCount,
-			String pathFinderAlgorithm, boolean replanAgents, SimulationEdgeImpactCalculatorType impactCalculator)
-			throws JAXBException {
+			String pathFinderAlgorithm, SimulationEdgeImpactCalculatorType impactCalculator) throws JAXBException {
 		SumoConfiguration configuration = ParseSumoConfiguration.parseConfiguation(sumoConfigFile);
 		Net net = ParseNet.parseNet(sumoConfigPath + configuration.getInput().getNetFile().getValue());
 		RoutesConfig routes = ParseRoutesConfig
@@ -132,8 +133,7 @@ public class Main {
 		SumoTraciConnection conn = new SumoTraciConnection(sumoStartCommand, sumoConfigFile);
 		conn.addOption("step-length", Double.toString(stepLength));
 		conn.addOption("start", "true");
-		List<Agent> agents = replanAgents ? loadRePlanAgents(agentConfigFile, graph, conn, impactCalculator, routes)
-				: loadAgents(agentConfigFile, graph, conn, impactCalculator, routes);
+		List<Agent> agents = loadAgents(agentConfigFile, graph, conn, impactCalculator, routes);
 
 		AbstractMas mas = new SimpleMas(graph, conn, getPathFinder(pathFinderAlgorithm), impactCalculator);
 		MasController controller = new MasController(mas, iterationCount, stepLength);
@@ -141,7 +141,14 @@ public class Main {
 
 		try {
 			Future<?> controllerTask = MAS_EXECUTER.submit(controller);
-			agents.stream().map(AGENT_EXECUTER::submit).collect(Collectors.toList());
+			agents.stream().forEach(e -> {
+				if (e.getAgentStartInterval() == null) {
+					AGENT_EXECUTER.submit(e);
+				} else {
+					AGENT_POPULATOR_EXECUTER.submit(new AgentPopulator(e, e.getAgentStartInterval(), AGENT_EXECUTER));
+				}
+			});
+
 			controllerTask.get();
 
 			logger.info("Simulation over, shutting down unfinished agents");
@@ -161,6 +168,11 @@ public class Main {
 			} catch (Exception e) {
 				logger.error("Error during agent executor shutdown", e);
 			}
+			try {
+				AGENT_POPULATOR_EXECUTER.shutdownNow();
+			} catch (Exception e) {
+				logger.error("Error during agent populator executor shutdown", e);
+			}
 		}
 	}
 
@@ -179,13 +191,6 @@ public class Main {
 		AgentConfiguration agentConfiguration = ParseAgent.parseAgentConfiguration(configFile);
 		return AgentConverter.toSimpleAgents(agentConfiguration, graph, connection, impactCalculator, routes).stream()
 				.map(e -> (Agent) e).collect(Collectors.toList());
-	}
-
-	private static List<Agent> loadRePlanAgents(String configFile, Graph graph, SumoTraciConnection connection,
-			SimulationEdgeImpactCalculatorType impactCalculator, RoutesConfig routes) throws JAXBException {
-		AgentConfiguration agentConfiguration = ParseAgent.parseAgentConfiguration(configFile);
-		return AgentConverter.toSimpleRePlanAgents(agentConfiguration, graph, connection, impactCalculator, routes)
-				.stream().map(e -> (Agent) e).collect(Collectors.toList());
 	}
 
 	private static void linkAgentsWithController(List<Agent> agents, MasController controller) {
