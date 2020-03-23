@@ -25,10 +25,12 @@ import hu.mas.core.config.route.xml.model.RoutesConfig;
 import hu.mas.core.config.sumo.xml.ParseSumoConfiguration;
 import hu.mas.core.config.sumo.xml.model.SumoConfiguration;
 import hu.mas.core.mas.AbstractMas;
+import hu.mas.core.mas.Mas;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
 import hu.mas.core.mas.intention.simple.SimpleMas;
 import hu.mas.core.mas.model.Graph;
+import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
 import hu.mas.core.path.PathFinder;
 import hu.mas.core.path.dft.DFT;
 import hu.mas.core.path.dijkstra.Dijkstra;
@@ -41,9 +43,10 @@ public class Main {
 
 	private static final String SUMO_BIN = "sumo-gui";
 	private static final double STEP_LENGTH = 0.1;
-	private static final int ITERATION_COUNT = 300;
+	private static final int ITERATION_COUNT = 500;
 	private static final String PATH_FINDER_ALGORITHM = "DFT";
 	private static final SimulationEdgeImpactCalculatorType DEFAULT_IMPACT_CALCULATOR = SimulationEdgeImpactCalculatorType.TRAVEL_TIME;
+	private static final Mas DEFAULT_MAS = Mas.SUMO_DELEGATED_MAS;
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
@@ -68,6 +71,7 @@ public class Main {
 		String agentConfigFile = null;
 		String outputFile = null;
 		SimulationEdgeImpactCalculatorType impactCalculator = DEFAULT_IMPACT_CALCULATOR;
+		Mas mas = DEFAULT_MAS;
 
 		for (String arg : args) {
 			if (arg.startsWith("--sumo_start_command=")) {
@@ -88,6 +92,8 @@ public class Main {
 			} else if (arg.startsWith("--impact_calculator=")) {
 				impactCalculator = SimulationEdgeImpactCalculatorType
 						.valueOf(arg.replace("--impact_calculator=", "").trim());
+			} else if (arg.startsWith("--mas=")) {
+				mas = Mas.valueOf(arg.replace("--mas=", "").trim());
 			}
 		}
 
@@ -107,7 +113,7 @@ public class Main {
 
 		if (validConfig) {
 			Optional<MasController> controller = startSimulation(sumoConfigFile, sumoConfigPath, agentConfigFile,
-					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, impactCalculator);
+					sumoStartCommand, stepLength, iterationCount, pathFinderAlgorithm, impactCalculator, mas);
 			if (controller.isPresent()) {
 				try {
 					logger.info("Output file: {}, start writing", outputFile);
@@ -124,7 +130,8 @@ public class Main {
 
 	private static Optional<MasController> startSimulation(String sumoConfigFile, String sumoConfigPath,
 			String agentConfigFile, String sumoStartCommand, double stepLength, int iterationCount,
-			String pathFinderAlgorithm, SimulationEdgeImpactCalculatorType impactCalculator) throws JAXBException {
+			String pathFinderAlgorithm, SimulationEdgeImpactCalculatorType impactCalculator, Mas masToUse)
+			throws JAXBException {
 		SumoConfiguration configuration = ParseSumoConfiguration.parseConfiguation(sumoConfigFile);
 		Net net = ParseNet.parseNet(sumoConfigPath + configuration.getInput().getNetFile().getValue());
 		RoutesConfig routes = ParseRoutesConfig
@@ -135,7 +142,8 @@ public class Main {
 		conn.addOption("start", "true");
 		List<Agent> agents = loadAgents(agentConfigFile, graph, conn, impactCalculator, routes);
 
-		AbstractMas mas = new SimpleMas(graph, conn, getPathFinder(pathFinderAlgorithm), impactCalculator);
+		AbstractMas mas = createMas(masToUse, graph, conn, pathFinderAlgorithm, impactCalculator);
+
 		MasController controller = new MasController(mas, iterationCount, stepLength);
 		linkAgentsWithController(agents, controller);
 
@@ -173,6 +181,18 @@ public class Main {
 			} catch (Exception e) {
 				logger.error("Error during agent populator executor shutdown", e);
 			}
+		}
+	}
+
+	private static AbstractMas createMas(Mas masToUse, Graph graph, SumoTraciConnection conn,
+			String pathFinderAlgorithm, SimulationEdgeImpactCalculatorType impactCalculator) {
+		switch (masToUse) {
+		case SIMPLE_MAS:
+			return new SimpleMas(graph, conn, getPathFinder(pathFinderAlgorithm), impactCalculator);
+		case SUMO_DELEGATED_MAS:
+			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm), impactCalculator);
+		default:
+			throw new UnsupportedOperationException();
 		}
 	}
 

@@ -2,4 +2,7 @@
     <agent from="1" to="3" agentStartInterval="2000">
         <vehicle typeId="MEDIUM"/>
     </agent>
+    <agent from="1" to="3" agentStartInterval="3000">
+        <vehicle typeId="SLOW"/>
+    </agent>
 </configuration>
