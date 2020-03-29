@@ -1,0 +1,5 @@
+<configuration>
+    <agent from="465223283" to="36265378" agentStartInterval="10000">
+        <vehicle typeId="MEDIUM"/>
+    </agent>
+</configuration>

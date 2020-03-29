@@ -4,11 +4,11 @@ import hu.mas.core.agent.Vehicle;
 
 public class Intention {
 
-	private Vehicle vehicle;
+	private final Vehicle vehicle;
 	
-	private Double start;
+	private final Double start;
 	
-	private Double finish;
+	private final Double finish;
 
 	public Intention(Vehicle vehicle, Double start, Double finish) {
 		this.vehicle = vehicle;
@@ -20,24 +20,12 @@ public class Intention {
 		return vehicle;
 	}
 
-	public void setVehicle(Vehicle vehicle) {
-		this.vehicle = vehicle;
-	}
-
 	public Double getStart() {
 		return start;
 	}
 
-	public void setStart(Double start) {
-		this.start = start;
-	}
-
 	public Double getFinish() {
 		return finish;
-	}
-
-	public void setFinish(Double finish) {
-		this.finish = finish;
 	}
 
 	@Override

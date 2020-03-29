@@ -1,27 +1,27 @@
 package hu.mas.core.agent.message;
 
 import hu.mas.core.agent.Vehicle;
-import hu.mas.core.mas.model.Node;
+import hu.mas.core.mas.model.Vertex;
 
 public class RouteInfoRequest implements MessageBody {
 
-	private final Node from;
+	private final Vertex from;
 
-	private final Node to;
+	private final Vertex to;
 
 	private final Vehicle vehicle;
 
-	public RouteInfoRequest(Node from, Node to, Vehicle vehicle) {
+	public RouteInfoRequest(Vertex from, Vertex to, Vehicle vehicle) {
 		this.from = from;
 		this.to = to;
 		this.vehicle = vehicle;
 	}
 
-	public Node getFrom() {
+	public Vertex getFrom() {
 		return from;
 	}
 
-	public Node getTo() {
+	public Vertex getTo() {
 		return to;
 	}
 

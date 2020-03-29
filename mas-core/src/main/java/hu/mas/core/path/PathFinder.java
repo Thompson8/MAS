@@ -1,6 +1,5 @@
 package hu.mas.core.path;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,45 +7,27 @@ import java.util.Map;
 import hu.mas.core.agent.Route;
 import hu.mas.core.agent.Vehicle;
 import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Graph;
-import hu.mas.core.mas.model.Node;
+import hu.mas.core.mas.model.MasGraph;
+import hu.mas.core.mas.model.Vertex;
 import hu.mas.core.util.Pair;
 
 public interface PathFinder {
 
-	public List<Pair<Double, Route>> getShortestPaths(Graph graph, Node nodeFrom, Node nodeTo,
-			double[][] travelWeigthMatrix, Edge[][] edgeMatrix, Vehicle vehicle, double currentTime);
-
-	default Pair<Integer, Integer> find(Edge edge, Edge[][] edgeMatrix) {
-		for (int i = 0; i < edgeMatrix.length; i++) {
-			for (int j = 0; j < edgeMatrix[i].length; j++) {
-				Edge e = edgeMatrix[i][j];
-				if (e != null && e.equals(edge)) {
-					return new Pair<>(i, j);
-				}
-			}
-		}
-		return null;
+	public default List<Pair<Double, Route>> getShortestPaths(String from, String to, Vehicle vehicle,
+			double currentTime, MasGraph masGraph) {
+		return getShortestPaths(masGraph.findVertex(from).orElseThrow(), masGraph.findVertex(to).orElseThrow(), vehicle,
+				currentTime, masGraph);
 	}
 
-	default List<Edge> toEdges(List<Node> nodes) {
-		List<Edge> result = new ArrayList<>();
-		for (int i = 0; i < nodes.size() - 1; i++) {
-			Node from = nodes.get(i);
-			Node to = nodes.get(i + 1);
-			result.add(from.getOutgoingEdges().stream().filter(e -> e.getTo().equals(to)).findFirst().orElseThrow());
-		}
-		return result;
-	}
+	public List<Pair<Double, Route>> getShortestPaths(Vertex from, Vertex to, Vehicle vehicle, double currentTime,
+			MasGraph masGraph);
 
-	default Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> routes, Vehicle vehicle,
-			double currentTime, double[][] travelWeigthMatrix, Edge[][] edgeMatrix) {
+	default Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle,
+			double currentTime) {
 		Map<Edge, Pair<Double, Double>> result = new HashMap<>();
-
 		double startTime = currentTime;
-		for (Edge edge : routes) {
-			Pair<Integer, Integer> index = find(edge, edgeMatrix);
-			double baseTravelTime = travelWeigthMatrix[index.getLeft()][index.getRigth()];
+		for (Edge edge : edges) {
+			double baseTravelTime = edge.getWeigth();
 			double vehicleTravelTime = vehicle.calculateTravelTime(edge);
 
 			double finishTime = startTime + (baseTravelTime > vehicleTravelTime ? baseTravelTime : vehicleTravelTime);
@@ -54,8 +35,13 @@ public interface PathFinder {
 			startTime = finishTime;
 			result.put(edge, calculatedTravelTime);
 		}
-
+		
 		return result;
+	}
+
+	default double calculateCost(Route route) {
+		return route.getTravelTimeForEdges().values().stream().map(Pair::getRigth).max((a, b) -> a.compareTo(b))
+				.orElseThrow();
 	}
 
 }

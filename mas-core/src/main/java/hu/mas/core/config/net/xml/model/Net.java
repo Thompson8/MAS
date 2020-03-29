@@ -1,6 +1,7 @@
 package hu.mas.core.config.net.xml.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +12,7 @@ public class Net {
 	private List<Edge> edges;
 
 	private List<Connection> connections;
-	
+
 	private List<Junction> junctions;
 
 	@XmlElement(name = "edge")
@@ -31,7 +32,7 @@ public class Net {
 	public void setConnections(List<Connection> connection) {
 		this.connections = connection;
 	}
-	
+
 	@XmlElement(name = "junction")
 	public List<Junction> getJunctions() {
 		return junctions;
@@ -45,5 +46,23 @@ public class Net {
 	public String toString() {
 		return "Net [edges=" + edges + ", connections=" + connections + ", junctions=" + junctions + "]";
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(connections, edges, junctions);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Net)) {
+			return false;
+		}
+		Net other = (Net) obj;
+		return Objects.equals(connections, other.connections) && Objects.equals(edges, other.edges)
+				&& Objects.equals(junctions, other.junctions);
+	}	
+
 }

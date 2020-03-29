@@ -1,5 +1,7 @@
 package hu.mas.core.config.net.xml.model;
 
+import java.util.Objects;
+
 import javax.xml.bind.annotation.XmlAttribute;
 
 public class Connection {
@@ -29,6 +31,23 @@ public class Connection {
 	@Override
 	public String toString() {
 		return "Connection [from=" + from + ", to=" + to + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(from, to);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Connection)) {
+			return false;
+		}
+		Connection other = (Connection) obj;
+		return Objects.equals(from, other.from) && Objects.equals(to, other.to);
 	}
 	
 }

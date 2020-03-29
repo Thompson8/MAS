@@ -1,11 +1,7 @@
 package hu.mas.core.mas;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -16,10 +12,9 @@ import de.tudresden.ws.container.SumoStringList;
 import hu.mas.core.agent.Route;
 import hu.mas.core.agent.Vehicle;
 import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Graph;
-import hu.mas.core.mas.model.Node;
+import hu.mas.core.mas.model.MasGraph;
+import hu.mas.core.mas.model.Vertex;
 import hu.mas.core.path.PathFinder;
-import hu.mas.core.simulation.SimulationEdgeImpactCalculatorType;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -27,135 +22,80 @@ public abstract class AbstractMas {
 
 	private static final Logger logger = LogManager.getLogger();
 
-	protected final Graph graph;
-
-	protected final SimulationEdgeImpactCalculatorType edgeWeightCalculator;
-
 	protected final SumoTraciConnection connection;
 
-	protected final double[][] travelWeigthMatrix;
-
-	protected final Edge[][] edgeMatrix;
+	protected final MasGraph graph;
 
 	protected final VehiclesData vehiclesData;
 
 	protected final PathFinder pathFinder;
 
-	protected final Map<Double, List<double[][]>> historicalTravelWeigthMatrix;
-
-	public AbstractMas(Graph graph, SumoTraciConnection connection, PathFinder pathFinder,
-			SimulationEdgeImpactCalculatorType edgeWeightCalculator) {
+	public AbstractMas(MasGraph graph, SumoTraciConnection connection, PathFinder pathFinder) {
 		if (graph == null || connection == null || pathFinder == null) {
 			throw new IllegalArgumentException();
 		}
 		this.graph = graph;
-		this.edgeWeightCalculator = edgeWeightCalculator;
 		this.connection = connection;
-		this.travelWeigthMatrix = new double[this.graph.getNodes().size()][this.graph.getNodes().size()];
-		this.edgeMatrix = new Edge[this.graph.getNodes().size()][this.graph.getNodes().size()];
 		this.vehiclesData = new VehiclesData();
 		this.pathFinder = pathFinder;
-		this.historicalTravelWeigthMatrix = new HashMap<>();
-		init();
-	}
-
-	protected void init() {
-		for (int i = 0; i < travelWeigthMatrix.length; i++) {
-			for (int j = 0; j < travelWeigthMatrix[i].length; j++) {
-				if (i != j) {
-					Node from = graph.getNodes().get(i);
-					Node to = graph.getNodes().get(j);
-					Optional<Edge> edge = from.getOutgoingEdges().stream()
-							.filter(e -> to.getIncomingEdges().contains(e)).findFirst();
-					if (edge.isPresent()) {
-						Edge foundEdge = edge.get();
-						travelWeigthMatrix[i][j] = getEdgeWeigth(foundEdge);
-						edgeMatrix[i][j] = foundEdge;
-					} else {
-						travelWeigthMatrix[i][j] = 0.0;
-					}
-				}
-			}
-		}
 	}
 
 	protected void updateTravelWeigthMatrix(double currentTime) throws Exception {
-		for (int i = 0; i < edgeMatrix.length; i++) {
-			for (int j = 0; j < edgeMatrix[i].length; j++) {
-				Edge edge = edgeMatrix[i][j];
-				if (edge != null) {
-					travelWeigthMatrix[i][j] = getValueForTravelWeigthMatrixUpdate(i, j, edge, currentTime);
-				}
-			}
+		for (Edge edge : graph.getEdges()) {
+			graph.updateEdgeWeight(edge, getValueForWeigthUpdate(edge, currentTime));
 		}
 	}
 
-	protected abstract double getValueForTravelWeigthMatrixUpdate(int x, int y, Edge edge, double currentTime)
-			throws Exception;
+	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception;
 
-	public List<Pair<Double, Route>> getShortestPath(Node nodeFrom, Node nodeTo, Vehicle vehicle, double currentTime) {
-		return pathFinder.getShortestPaths(graph, nodeFrom, nodeTo, travelWeigthMatrix, edgeMatrix, vehicle,
-				currentTime);
+	public List<Pair<Double, Route>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph);
+	}
+
+	public List<Pair<Double, Route>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph);
 	}
 
 	public void updateData(double currentTime) throws Exception {
 		updateVehicleData(currentTime);
 		updateTravelWeigthMatrix(currentTime);
-		updateHistoricalTravelWeigthMatrix(currentTime);
-	}
-
-	protected void updateHistoricalTravelWeigthMatrix(double currentTime) {
-		double[][] copy = new double[travelWeigthMatrix.length][travelWeigthMatrix[0].length];
-		for (int i = 0; i < copy.length; i++) {
-			copy[i] = Arrays.copyOf(travelWeigthMatrix[i], travelWeigthMatrix[i].length);
-		}
-
-		List<double[][]> list = this.historicalTravelWeigthMatrix.get(currentTime);
-		if (list == null) {
-			list = new ArrayList<>();
-			list.add(copy);
-			this.historicalTravelWeigthMatrix.put(currentTime, list);
-		} else {
-			list.add(copy);
-		}
 	}
 
 	protected void updateVehicleData(double currentTime) throws Exception {
 		SumoStringList vehicles = (SumoStringList) connection.do_job_get(de.tudresden.sumo.cmd.Vehicle.getIDList());
-		vehiclesData.getData().entrySet().stream().forEach(e -> {
-			Optional<String> contains = vehicles.stream().filter(a -> e.getKey().getId().equals(a)).findFirst();
-			if (e.getValue().getStatistics().getActualStart() != null
-					&& e.getValue().getStatistics().getActualFinish() == null && contains.isEmpty()) {
-				logger.info("Vehicle: {} finished it's route, finish: {}", e.getKey().getId(), currentTime);
-				e.getValue().getStatistics().setActualFinish(currentTime);
-			}
-
-			if (e.getValue().getStatistics().getActualStart() == null && contains.isPresent()) {
-				registerActualVehicleStart(e, currentTime);
-			}
-
-			if (e.getValue().getStatistics().getActualStart() != null
-					&& e.getValue().getStatistics().getActualFinish() == null) {
-				try {
-					String edgeId = (String) connection
-							.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(e.getKey().getId()));
-					Optional<Edge> edge = findEdge(edgeId);
-					if (edge.isPresent()) {
-						logger.trace("Vehicle: {} current edge is: {}", e.getKey().getId(), edgeId);
-						e.getValue().setCurrentEdge(edge.get());
-					} else {
-						logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
-								e.getKey().getId());
+		vehiclesData.getData().entrySet().stream().filter(e -> e.getValue().getStatistics().getActualFinish() == null)
+				.forEach(e -> {
+					try {
+						handleVehicleDataUpdate(e, vehicles, currentTime);
+					} catch (Exception ex) {
+						throw new RuntimeException(ex);
 					}
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-		});
+				});
 	}
 
-	protected Double getEdgeWeigth(Edge edge) {
-		return edge.calculateAvgTravelTime();
+	public void handleVehicleDataUpdate(Entry<Vehicle, VehicleData> vehicleData, SumoStringList vehicles,
+			double currentTime) throws Exception {
+		Optional<String> contains = vehicles.stream().filter(e -> vehicleData.getKey().getId().equals(e)).findFirst();
+
+		if (contains.isPresent()) {
+			if (vehicleData.getValue().getStatistics().getActualStart() == null) {
+				registerActualVehicleStart(vehicleData, currentTime);
+			}
+			String edgeId = (String) connection
+					.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(vehicleData.getKey().getId()));
+			Optional<Edge> edge = graph.findEdge(edgeId);
+
+			if (edge.isPresent()) {
+				logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
+				vehicleData.getValue().setCurrentEdge(edge.get());
+			} else {
+				logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
+						vehicleData.getKey().getId());
+			}
+		} else if (vehicleData.getValue().getStatistics().getActualStart() != null) {
+			logger.info("Vehicle: {} finished it's route, finish: {}", vehicleData.getKey().getId(), currentTime);
+			vehicleData.getValue().getStatistics().setActualFinish(currentTime);
+		}
 	}
 
 	public void registerActualVehicleStart(Entry<Vehicle, VehicleData> data, double currentTime) {
@@ -178,31 +118,8 @@ public abstract class AbstractMas {
 
 	protected abstract void registerRouteOperations(Vehicle vehicle, Route route);
 
-	protected Optional<Node> findNode(String id) {
-		return graph.getNodes().stream().filter(e -> e.getId().equals(id)).findFirst();
-	}
-
-	protected Optional<Edge> findEdge(String edgeId) {
-		for (int i = 0; i < edgeMatrix.length; i++) {
-			for (int j = 0; j < edgeMatrix[i].length; j++) {
-				if (edgeMatrix[i][j] != null && edgeMatrix[i][j].getId().equals(edgeId)) {
-					return Optional.of(edgeMatrix[i][j]);
-				}
-			}
-		}
-		return Optional.empty();
-	}
-
 	public void doTimeStep() throws Exception {
 		connection.do_timestep();
-	}
-
-	public String getTravelWeigthMatrixAsString() {
-		return Arrays.deepToString(travelWeigthMatrix);
-	}
-
-	public String getEdgeMatrixAsString() {
-		return Arrays.deepToString(edgeMatrix);
 	}
 
 	public void runServer() throws IOException {
@@ -216,9 +133,9 @@ public abstract class AbstractMas {
 	public VehiclesData getVehiclesData() {
 		return vehiclesData;
 	}
-
-	public Map<Double, List<double[][]>> getHistoricalTravelWeigthMatrix() {
-		return historicalTravelWeigthMatrix;
+	
+	public Optional<Edge> get(String id) {
+		return graph.findEdge(id);
 	}
 
 }

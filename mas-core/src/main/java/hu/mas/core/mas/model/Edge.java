@@ -1,18 +1,22 @@
 package hu.mas.core.mas.model;
 
+import java.util.Objects;
+
 public class Edge {
 
 	private String id;
 
-	private Node from;
+	private Vertex from;
 
-	private Node to;
+	private Vertex to;
 
 	private double speed;
 
 	private double length;
+	
+	private double weigth;
 
-	public Edge(String id, Node from, Node to, double speed, double length) {
+	public Edge(String id, Vertex from, Vertex to, double speed, double length) {
 		if (id == null || from == null || to == null || speed <= 0 || length <= 0) {
 			throw new IllegalArgumentException();
 		}
@@ -21,6 +25,7 @@ public class Edge {
 		this.to = to;
 		this.speed = speed;
 		this.length = length;
+		this.weigth = calculateAvgTravelTime();
 	}
 
 	public double calculateAvgTravelTime() {
@@ -35,19 +40,19 @@ public class Edge {
 		this.id = id;
 	}
 
-	public Node getFrom() {
+	public Vertex getFrom() {
 		return from;
 	}
 
-	public void setFrom(Node from) {
+	public void setFrom(Vertex from) {
 		this.from = from;
 	}
 
-	public Node getTo() {
+	public Vertex getTo() {
 		return to;
 	}
 
-	public void setTo(Node to) {
+	public void setTo(Vertex to) {
 		this.to = to;
 	}
 
@@ -67,36 +72,36 @@ public class Edge {
 		this.length = length;
 	}
 
+	public double getWeigth() {
+		return weigth;
+	}
+
+	public void setWeigth(double weigth) {
+		this.weigth = weigth;
+	}
+
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", from=" + from.getId() + ", to=" + to.getId() + ", speed=" + speed + ", length="
-				+ length + "]";
+		return "Edge [id=" + id + ", from=" + from + ", to=" + to + ", speed=" + speed + ", length=" + length
+				+ ", weigth=" + weigth + "]";
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return Objects.hash(id);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Edge other = (Edge) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id)) {
+		}
+		if (!(obj instanceof Edge)) {
 			return false;
 		}
-		return true;
+		Edge other = (Edge) obj;
+		return Objects.equals(id, other.id);
 	}
+
 
 }

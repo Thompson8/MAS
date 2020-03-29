@@ -29,12 +29,12 @@ public class AgentPopulator implements Runnable {
 	public void run() {
 		while (!stopFlag.get()) {
 			try {
-				logger.info("Populator will sleep for {}ms", interval);
-				Thread.sleep(interval);
 				Agent newAgent = copy(templateAgent);
 				logger.info("Populator created new agent: {}", newAgent);
 				agentExecuter.execute(newAgent);
 				logger.info("Populator submitted agent");
+				logger.info("Populator will sleep for {}ms", interval);
+				Thread.sleep(interval);
 			} catch (Exception e) {
 				logger.error("Error during agent populator execution, will terminate population", e);
 				break;
@@ -58,9 +58,7 @@ public class AgentPopulator implements Runnable {
 	}
 
 	private Vehicle copyVehicle(Vehicle toCopy) {
-		Vehicle vehicle = new Vehicle(toCopy.getTypeId(), toCopy.getMaxSpeed(), toCopy.getLength());
-		vehicle.setCaculateEdgeImpact(toCopy.getCaculateEdgeImpact());
-		return vehicle;
+		return new Vehicle(toCopy.getTypeId(), toCopy.getMaxSpeed(), toCopy.getLength());
 	}
 
 	public void stop() {

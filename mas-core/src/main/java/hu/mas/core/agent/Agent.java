@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import de.tudresden.ws.container.SumoStringList;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Node;
+import hu.mas.core.mas.model.Vertex;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -16,7 +16,7 @@ public abstract class Agent implements Runnable {
 
 	protected static final int LOCATION_POOL_INTERVAL_TIME = 1000;
 
-	protected static final AtomicInteger SEQUENCE = new AtomicInteger(0);
+	protected static final AtomicInteger SEQUENCE = new AtomicInteger(1);
 
 	protected final SumoTraciConnection connection;
 
@@ -24,9 +24,9 @@ public abstract class Agent implements Runnable {
 
 	protected Vehicle vehicle;
 
-	protected Node from;
+	protected Vertex from;
 
-	protected Node to;
+	protected Vertex to;
 
 	protected Route route;
 
@@ -36,11 +36,11 @@ public abstract class Agent implements Runnable {
 
 	protected Integer agentStartInterval;
 
-	public Agent(Vehicle vehicle, Node from, Node to, MasController masController, SumoTraciConnection connection) {
+	public Agent(Vehicle vehicle, Vertex from, Vertex to, MasController masController, SumoTraciConnection connection) {
 		this(generateId(), vehicle, from, to, masController, connection);
 	}
 
-	public Agent(String id, Vehicle vehicle, Node from, Node to, MasController masController,
+	public Agent(String id, Vehicle vehicle, Vertex from, Vertex to, MasController masController,
 			SumoTraciConnection connection) {
 		this.id = id;
 		this.vehicle = vehicle;
@@ -63,7 +63,7 @@ public abstract class Agent implements Runnable {
 				route.getEdges().stream().map(Edge::getId).collect(Collectors.toList()));
 		connection.do_job_set(de.tudresden.sumo.cmd.Route.add(route.getId(), edges));
 		connection.do_job_set(de.tudresden.sumo.cmd.Vehicle.add(vehicle.getId(), vehicle.getTypeId(), route.getId(), 0,
-				0.0, vehicle.getMaxSpeed(), Byte.valueOf("0")));
+				0.0, 1, Byte.valueOf("0")));
 	}
 
 	protected boolean isFinished() {
@@ -102,19 +102,19 @@ public abstract class Agent implements Runnable {
 		this.vehicle = vehicle;
 	}
 
-	public Node getFrom() {
+	public Vertex getFrom() {
 		return from;
 	}
 
-	public void setFrom(Node from) {
+	public void setFrom(Vertex from) {
 		this.from = from;
 	}
 
-	public Node getTo() {
+	public Vertex getTo() {
 		return to;
 	}
 
-	public void setTo(Node to) {
+	public void setTo(Vertex to) {
 		this.to = to;
 	}
 

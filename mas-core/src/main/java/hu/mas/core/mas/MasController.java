@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
@@ -25,7 +24,6 @@ import hu.mas.core.agent.message.RouteStartedAnswer;
 import hu.mas.core.agent.message.RouteStartedRequest;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.MasException;
-import hu.mas.core.mas.model.Node;
 import hu.mas.core.util.TimeCalculator;
 
 public class MasController implements Runnable {
@@ -55,7 +53,10 @@ public class MasController implements Runnable {
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
 				mas.updateData(currentTime);
+				logger.info(mas.get("-201138751#3"));
+				logger.info(mas.get("-155220675#6"));
 
+				
 				if (i % 100 == 0) {
 					logger.info("Mas iteration: {}, current time: {}", i, currentTime);
 				}
@@ -65,7 +66,7 @@ public class MasController implements Runnable {
 					processMessage(message, currentTime);
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
-
+				
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
@@ -85,8 +86,9 @@ public class MasController implements Runnable {
 		switch (message.getType()) {
 		case ROUTE_INFO_REQUEST:
 			RouteInfoRequest request = (RouteInfoRequest) message.getBody();
-			answer = new Message(message.getAgentId(), MessageType.ROUTE_RECOMMENDATION, new RouteInfoAnswer(
-					mas.getShortestPath(request.getFrom(), request.getTo(), request.getVehicle(), currentTime)));
+			answer = new Message(message.getAgentId(), MessageType.ROUTE_RECOMMENDATION,
+					new RouteInfoAnswer(mas.getShortestPath(request.getFrom().getId(), request.getTo().getId(),
+							request.getVehicle(), currentTime)));
 			break;
 		case ROUTE_SELECTION_REQUEST:
 			RouteSelectionRequest selection = (RouteSelectionRequest) message.getBody();
@@ -137,10 +139,6 @@ public class MasController implements Runnable {
 		this.incomingAgentMessageQueue.add(message);
 	}
 
-	public Optional<Node> findNode(String id) {
-		return mas.findNode(id);
-	}
-
 	public void writeStatisticsToFile(File file) throws IOException {
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			try (PrintWriter printWriter = new PrintWriter(fileWriter)) {
@@ -152,15 +150,6 @@ public class MasController implements Runnable {
 						.map(e -> "Vehicle: " + e.getKey().getId() + ", start: "
 								+ e.getValue().getStatistics().getActualStart() + ", finish: "
 								+ e.getValue().getStatistics().getActualFinish())
-						.forEach(printWriter::println);
-
-				printWriter.println();
-				printWriter.println("Historical travel weigth matrixes:");
-
-				mas.getHistoricalTravelWeigthMatrix().entrySet().stream()
-						.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-						.map(e -> e.getKey() + " : "
-								+ e.getValue().stream().map(Arrays::deepToString).collect(Collectors.toList()))
 						.forEach(printWriter::println);
 			}
 		}
