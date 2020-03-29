@@ -3,6 +3,7 @@ package hu.mas.core.path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jgrapht.GraphPath;
@@ -15,6 +16,7 @@ import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.MasGraph;
 import hu.mas.core.mas.model.Vertex;
 import hu.mas.core.util.Pair;
+import hu.mas.core.util.TriFunction;
 
 public class KShortestSimplePathsFinder implements PathFinder {
 
@@ -22,16 +24,18 @@ public class KShortestSimplePathsFinder implements PathFinder {
 
 	@Override
 	public List<Pair<Double, Route>> getShortestPaths(Vertex from, Vertex to, Vehicle vehicle, double currentTime,
-			MasGraph masGraph) {
+			MasGraph masGraph,
+			TriFunction<List<Edge>, Vehicle, Double, Map<Edge, Pair<Double, Double>>> calculateTravelTimeForEdges) {
 		KShortestSimplePaths<String, DefaultWeightedEdge> alg = new KShortestSimplePaths<>(masGraph.getGraph());
 		List<GraphPath<String, DefaultWeightedEdge>> paths = alg.getPaths(from.getId(), to.getId(), K);
-		return paths.stream().map(e -> toRoute(e, masGraph, vehicle, currentTime))
+		return paths.stream().map(e -> toRoute(e, masGraph, vehicle, currentTime, calculateTravelTimeForEdges))
 				.map(e -> new Pair<>(calculateCost(e), e)).sorted((a, b) -> a.getLeft().compareTo(b.getLeft()))
 				.collect(Collectors.toList());
 	}
 
 	private Route toRoute(GraphPath<String, DefaultWeightedEdge> path, MasGraph masGraph, Vehicle vehicle,
-			double currentTime) {
+			double currentTime,
+			TriFunction<List<Edge>, Vehicle, Double, Map<Edge, Pair<Double, Double>>> calculateTravelTimeForEdges) {
 		List<Vertex> vertexes = path.getVertexList().stream().map(e -> masGraph.findVertex(e).orElseThrow())
 				.collect(Collectors.toList());
 		List<Edge> edges = new ArrayList<>();
@@ -46,7 +50,7 @@ public class KShortestSimplePathsFinder implements PathFinder {
 			current = next;
 		}
 
-		return new Route(vertexes, edges, calculateTravelTimeForEdges(edges, vehicle, currentTime));
+		return new Route(vertexes, edges, calculateTravelTimeForEdges.apply(edges, vehicle, currentTime));
 	}
 
 }

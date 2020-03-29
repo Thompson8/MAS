@@ -2,6 +2,7 @@ package hu.mas.core.mas;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -49,12 +50,14 @@ public abstract class AbstractMas {
 	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception;
 
 	public List<Pair<Double, Route>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
-		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph);
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
 	}
 
 	public List<Pair<Double, Route>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
-		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph);
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
 	}
+	
+	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle, double currentTime);
 
 	public void updateData(double currentTime) throws Exception {
 		updateVehicleData(currentTime);
