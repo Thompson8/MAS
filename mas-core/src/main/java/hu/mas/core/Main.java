@@ -31,7 +31,7 @@ import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
 import hu.mas.core.mas.intention.simple.SimpleIntentionMas;
 import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.mas.nointention.avg.AvgMas;
+import hu.mas.core.mas.nointention.base.BaseMas;
 import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
 import hu.mas.core.path.KShortestSimplePathsFinder;
 import hu.mas.core.path.PathFinder;
@@ -41,6 +41,8 @@ import it.polito.appeal.traci.SumoTraciConnection;
 public class Main {
 
 	private static final Logger logger = LogManager.getLogger();
+
+	private static final String INPUT_ARG_LIST_DELIMETER = ",";
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
@@ -86,16 +88,19 @@ public class Main {
 				configuration.setSumoConfigPath(sumoConfigFile.substring(0, sumoConfigFile.lastIndexOf('/') + 1));
 			} else if (arg.startsWith("--agent_config_file=")) {
 				configuration.setAgentConfigFile(arg.replace("--agent_config_file=", "").trim());
-			} else if (arg.startsWith("--simulation-iteration=")) {
-				configuration.setIterationCount(Integer.parseInt(arg.replace("--simulation-iteration=", "").trim()));
-			} else if (arg.startsWith("--step-length=")) {
-				configuration.setStepLength(Double.parseDouble(arg.replace("--step-length=", "").trim()));
+			} else if (arg.startsWith("--simulation_iteration=")) {
+				configuration.setIterationCount(Integer.parseInt(arg.replace("--simulation_iteration=", "").trim()));
+			} else if (arg.startsWith("--step_length=")) {
+				configuration.setStepLength(Double.parseDouble(arg.replace("--step_length=", "").trim()));
 			} else if (arg.startsWith("--output_file=")) {
 				configuration.setOutputFile(arg.replace("--output_file=", "").trim());
 			} else if (arg.startsWith("--path_finder_alg=")) {
 				configuration.setPathFinderAlgorithm(PathFinders.valueOf(arg.replace("--path_finder_alg=", "").trim()));
 			} else if (arg.startsWith("--mas=")) {
 				configuration.setMasToUse(Mas.valueOf(arg.replace("--mas=", "").trim()));
+			} else if (arg.startsWith("--road_types_to_include=")) {
+				configuration.setRoadTypesToInclude(Arrays
+						.asList(arg.replace("--road_types_to_include=", "").trim().split(INPUT_ARG_LIST_DELIMETER)));
 			}
 		}
 
@@ -181,8 +186,8 @@ public class Main {
 			return new SimpleIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case SUMO_DELEGATED_MAS:
 			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm));
-		case AVG_MAS:
-			return new AvgMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+		case BASE_MAS:
+			return new BaseMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		default:
 			throw new UnsupportedOperationException();
 		}

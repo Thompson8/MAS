@@ -36,6 +36,7 @@ public class SimpleAgent extends Agent {
 	public void selectRoute(List<Pair<Double, Route>> routes) {
 		Optional<Pair<Double, Route>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
 		if (route.isPresent()) {
+			logger.info("Predicted time for route: {}", route.get().getLeft());
 			this.route = route.get().getRigth();
 		}
 	}

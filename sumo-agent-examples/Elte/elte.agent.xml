@@ -1,8 +1,11 @@
 <configuration>
-    <agent from="465223283" to="36265378" agentStartInterval="2000">
+    <agent from="268745971" to="cluster_1178038244_1903761245" agentStartInterval="10000">
+        <vehicle typeId="MEDIUM"/>
+    </agent>
+    <agent from="268798064" to="cluster_1178038244_1903761245" agentStartInterval="2000">
         <vehicle typeId="SLOW"/>
     </agent>
-    <agent from="465223283" to="36265378" agentStartInterval="3000">
+    <agent from="4801911873" to="cluster_1178038244_1903761245" agentStartInterval="2000">
         <vehicle typeId="FAST"/>
     </agent>
 </configuration>

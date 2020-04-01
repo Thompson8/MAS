@@ -1,4 +1,4 @@
-package hu.mas.core.mas.nointention.avg;
+package hu.mas.core.mas.nointention;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,22 +13,17 @@ import hu.mas.core.path.PathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class AvgMas extends AbstractMas {
+public abstract class SimpleNoIntentionMas extends AbstractMas {
 
-	public AvgMas(MasGraph graph, SumoTraciConnection connection, PathFinder pathFinder) {
+	public SimpleNoIntentionMas(MasGraph graph, SumoTraciConnection connection, PathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
-
-	@Override
-	protected double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception {
-		return edge.calculateAvgTravelTime();
-	}
-
+	
 	@Override
 	protected void registerRouteOperations(Vehicle vehicle, Route route) {
-		// No operation to do here
+		// Not needed for this Mas implementation
 	}
-
+	
 	@Override
 	protected Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle,
 			double currentTime) {
@@ -43,7 +38,7 @@ public class AvgMas extends AbstractMas {
 			startTime = finishTime;
 			result.put(edge, calculatedTravelTime);
 		}
-		
+
 		return result;
 	}
 

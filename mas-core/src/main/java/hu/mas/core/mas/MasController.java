@@ -53,9 +53,6 @@ public class MasController implements Runnable {
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
 				mas.updateData(currentTime);
-				logger.info(mas.get("-201138751#3"));
-				logger.info(mas.get("-155220675#6"));
-
 				
 				if (i % 100 == 0) {
 					logger.info("Mas iteration: {}, current time: {}", i, currentTime);

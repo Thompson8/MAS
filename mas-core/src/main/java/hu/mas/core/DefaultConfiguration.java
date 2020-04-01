@@ -1,5 +1,9 @@
 package hu.mas.core;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import hu.mas.core.mas.Mas;
 import hu.mas.core.path.PathFinders;
 
@@ -14,6 +18,9 @@ public class DefaultConfiguration {
 	public static final PathFinders DEFAULT_PATH_FINDER_ALGORITHM = PathFinders.K_SHORTEST_SIMPLE_PATHS;
 
 	public static final Mas DEFAULT_MAS = Mas.SIMPLE_INTENTION_MAS;
+
+	public static final List<String> DEFAULT_ROAD_TYPES_TO_INCLUDE = Collections
+			.unmodifiableList(Arrays.asList("highway.residential", "highway.tertiary"));
 
 	private DefaultConfiguration() {
 	}

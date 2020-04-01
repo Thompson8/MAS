@@ -25,10 +25,10 @@ public class Edge {
 		this.to = to;
 		this.speed = speed;
 		this.length = length;
-		this.weigth = calculateAvgTravelTime();
+		this.weigth = calculateBaseTravelTime();
 	}
 
-	public double calculateAvgTravelTime() {
+	public double calculateBaseTravelTime() {
 		return length / speed;
 	}
 

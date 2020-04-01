@@ -53,18 +53,19 @@ public class SimpleIntentionMas extends AbstractMas {
 	}
 
 	protected double calculateEdgeTravelTime(Edge edge, double time) {
-		double edgeAdaptedAvgTravelTime = edge.calculateAvgTravelTime();
+		double edgeAdaptedAvgTravelTime = edge.calculateBaseTravelTime();
 		Optional<Double> lastVehicleFinishTime;
 		Optional<List<Intention>> intentionsForEdge = intentions.findIntentions(edge);
 		if (intentionsForEdge.isPresent()) {
-			lastVehicleFinishTime = intentionsForEdge.get().stream().filter(e -> e.getStart() > time)
-					.map(e -> e.getFinish() - e.getStart()).max((a, b) -> a.compareTo(b));
+			lastVehicleFinishTime = intentionsForEdge.get().stream()
+					.filter(e -> e.getStart() <= time && e.getFinish() >= time).map(e -> e.getFinish() - time)
+					.max((a, b) -> a.compareTo(b));
 		} else {
 			lastVehicleFinishTime = Optional.empty();
 		}
 
 		if (lastVehicleFinishTime.isPresent()) {
-			double vehiclesTravelTime = lastVehicleFinishTime.get() - time;
+			double vehiclesTravelTime = lastVehicleFinishTime.get();
 			return vehiclesTravelTime > edgeAdaptedAvgTravelTime ? vehiclesTravelTime : edgeAdaptedAvgTravelTime;
 		} else {
 			return edgeAdaptedAvgTravelTime;

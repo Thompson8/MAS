@@ -1,5 +1,7 @@
 package hu.mas.core;
 
+import java.util.List;
+
 import hu.mas.core.mas.Mas;
 import hu.mas.core.path.PathFinders;
 
@@ -22,6 +24,8 @@ public class Configuration {
 	private Mas masToUse;
 	
 	private String outputFile;
+	
+	private List<String> roadTypesToInclude;
 
 	public Configuration() {
 		this.sumoStartCommand = DefaultConfiguration.DEFAULT_SUMO_START_COMMAND;
@@ -29,6 +33,7 @@ public class Configuration {
 		this.iterationCount = DefaultConfiguration.DEFAULT_ITERATION_COUNT;
 		this.pathFinderAlgorithm = DefaultConfiguration.DEFAULT_PATH_FINDER_ALGORITHM;
 		this.masToUse = DefaultConfiguration.DEFAULT_MAS;
+		this.roadTypesToInclude = DefaultConfiguration.DEFAULT_ROAD_TYPES_TO_INCLUDE;
 	}
 
 	public String getSumoConfigFile() {
@@ -101,6 +106,14 @@ public class Configuration {
 
 	public void setOutputFile(String outputFile) {
 		this.outputFile = outputFile;
+	}
+
+	public List<String> getRoadTypesToInclude() {
+		return roadTypesToInclude;
+	}
+
+	public void setRoadTypesToInclude(List<String> roadTypesToInclude) {
+		this.roadTypesToInclude = roadTypesToInclude;
 	}
 
 }
