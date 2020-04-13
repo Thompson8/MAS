@@ -2,6 +2,8 @@ package hu.mas.core.mas.model.graph;
 
 import java.util.Objects;
 
+import hu.mas.core.mas.util.CalculatorUtil;
+
 public class Edge {
 
 	private String id;
@@ -13,9 +15,9 @@ public class Edge {
 	private double speed;
 
 	private double length;
-	
-	private double weigth;
 
+	private double weigth;
+	
 	public Edge(String id, Vertex from, Vertex to, double speed, double length) {
 		if (id == null || from == null || to == null || speed <= 0 || length <= 0) {
 			throw new IllegalArgumentException();
@@ -25,11 +27,11 @@ public class Edge {
 		this.to = to;
 		this.speed = speed;
 		this.length = length;
-		this.weigth = calculateBaseTravelTime();
+		this.weigth = calculateEmptyEdgeTravelTime();
 	}
 
-	public double calculateBaseTravelTime() {
-		return length / speed;
+	public double calculateEmptyEdgeTravelTime() {
+		return CalculatorUtil.calculateTravelTimeOnEdge(this);
 	}
 
 	public String getId() {
@@ -102,6 +104,5 @@ public class Edge {
 		Edge other = (Edge) obj;
 		return Objects.equals(id, other.id);
 	}
-
 
 }

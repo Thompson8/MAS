@@ -96,6 +96,9 @@ public abstract class AbstractMas {
 					logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
 							vehicleData.getKey().getId());
 				}
+
+				vehicleData.getValue().setCurrentSpeed((Double) connection
+						.do_job_get(de.tudresden.sumo.cmd.Vehicle.getSpeed(vehicleData.getKey().getId())));
 			} else if (vehicleData.getValue().getStatistics().getActualStart() != null) {
 				logger.info("Vehicle: {} finished it's route, finish: {}", vehicleData.getKey().getId(), currentTime);
 				vehicleData.getValue().getStatistics().setActualFinish(currentTime);
@@ -137,6 +140,13 @@ public abstract class AbstractMas {
 	}
 
 	protected abstract void registerRouteOperations(Vehicle vehicle, Route route);
+
+	protected List<Double> getVehiclesSpeedsCurrentlyOnEdge(Edge edge) {
+		return vehiclesData.getData().values().stream()
+				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() == null)
+				.filter(e -> e.getCurrentEdge() != null && e.getCurrentEdge().equals(edge))
+				.map(VehicleData::getCurrentSpeed).collect(Collectors.toList());
+	}
 
 	public void doTimeStep() throws Exception {
 		connection.do_timestep();

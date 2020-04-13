@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.util.CalculatorUtil;
 
 public class Vehicle {
 
@@ -16,6 +17,8 @@ public class Vehicle {
 	private double maxSpeed;
 
 	private double length;
+
+	private double minGap;
 
 	public Vehicle(String typeId, double maxSpeed, double length) {
 		this(generateId(), typeId, maxSpeed, length);
@@ -33,11 +36,11 @@ public class Vehicle {
 	}
 
 	public double calculateSpeed(Edge edge) {
-		return edge.getSpeed() >= this.maxSpeed ? this.maxSpeed : edge.getSpeed();
+		return CalculatorUtil.calculateSpeedOnEdge(edge, this);
 	}
 
 	public double calculateTravelTime(Edge edge) {
-		return edge.getLength() / calculateSpeed(edge);
+		return CalculatorUtil.calculateTravelTimeOnEdge(edge, this);
 	}
 
 	public String getId() {
@@ -72,9 +75,18 @@ public class Vehicle {
 		this.length = length;
 	}
 
+	public double getMinGap() {
+		return minGap;
+	}
+
+	public void setMinGap(double minGap) {
+		this.minGap = minGap;
+	}
+
 	@Override
 	public String toString() {
-		return "Vehicle [id=" + id + ", typeId=" + typeId + ", maxSpeed=" + maxSpeed + ", length=" + length + "]";
+		return "Vehicle [id=" + id + ", typeId=" + typeId + ", maxSpeed=" + maxSpeed + ", length=" + length
+				+ ", minGap=" + minGap + "]";
 	}
 
 	@Override

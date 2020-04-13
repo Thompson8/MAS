@@ -8,6 +8,8 @@ public class VehicleData {
 	private Route route;
 
 	private Edge currentEdge;
+	
+	private Double currentSpeed;
 
 	private final VehicleStatistics statistics;
 
@@ -35,6 +37,14 @@ public class VehicleData {
 		this.currentEdge = currentEdge;
 	}
 
+	public Double getCurrentSpeed() {
+		return currentSpeed;
+	}
+
+	public void setCurrentSpeed(Double currentSpeed) {
+		this.currentSpeed = currentSpeed;
+	}
+
 	public VehicleStatistics getStatistics() {
 		return statistics;
 	}
@@ -57,7 +67,9 @@ public class VehicleData {
 
 	@Override
 	public String toString() {
-		return "VehicleData [route=" + route + ", currentEdge=" + currentEdge + ", statistics=" + statistics + "]";
+		return "VehicleData [route=" + route + ", currentEdge=" + currentEdge + ", currentSpeed=" + currentSpeed
+				+ ", statistics=" + statistics + ", expectedStartIteration=" + expectedStartIteration
+				+ ", expectedFinishIteration=" + expectedFinishIteration + "]";
 	}
 
 }

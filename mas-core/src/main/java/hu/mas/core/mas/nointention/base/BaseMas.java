@@ -4,6 +4,7 @@ import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.nointention.SimpleNoIntentionMas;
 import hu.mas.core.mas.path.AbstractPathFinder;
+import hu.mas.core.mas.util.CalculatorUtil;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class BaseMas extends SimpleNoIntentionMas {
@@ -14,7 +15,7 @@ public class BaseMas extends SimpleNoIntentionMas {
 
 	@Override
 	protected double getValueForWeigthUpdate(Edge edge, double currentTime) {
-		return edge.calculateBaseTravelTime();
+		return CalculatorUtil.calculateTravelTimeOnEdge(edge);
 	}
 
 }
