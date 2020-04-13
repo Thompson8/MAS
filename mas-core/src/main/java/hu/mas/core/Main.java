@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import hu.mas.core.agent.Agent;
 import hu.mas.core.agent.AgentPopulator;
+import hu.mas.core.config.Configuration;
 import hu.mas.core.config.agent.xml.AgentConverter;
 import hu.mas.core.config.agent.xml.ParseAgent;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
@@ -29,13 +30,14 @@ import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.Mas;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
+import hu.mas.core.mas.intention.routing.speed.RoutingSpeedIntentionMas;
 import hu.mas.core.mas.intention.simple.SimpleIntentionMas;
 import hu.mas.core.mas.model.MasGraph;
 import hu.mas.core.mas.nointention.base.BaseMas;
 import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
+import hu.mas.core.path.AbstractPathFinder;
 import hu.mas.core.path.KShortestSimplePathsFinder;
 import hu.mas.core.path.PathFinder;
-import hu.mas.core.path.PathFinders;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {
@@ -95,7 +97,7 @@ public class Main {
 			} else if (arg.startsWith("--output_file=")) {
 				configuration.setOutputFile(arg.replace("--output_file=", "").trim());
 			} else if (arg.startsWith("--path_finder_alg=")) {
-				configuration.setPathFinderAlgorithm(PathFinders.valueOf(arg.replace("--path_finder_alg=", "").trim()));
+				configuration.setPathFinderAlgorithm(PathFinder.valueOf(arg.replace("--path_finder_alg=", "").trim()));
 			} else if (arg.startsWith("--mas=")) {
 				configuration.setMasToUse(Mas.valueOf(arg.replace("--mas=", "").trim()));
 			} else if (arg.startsWith("--road_types_to_include=")) {
@@ -180,7 +182,7 @@ public class Main {
 	}
 
 	private static AbstractMas createMas(Mas masToUse, MasGraph graph, SumoTraciConnection conn,
-			PathFinders pathFinderAlgorithm) {
+			PathFinder pathFinderAlgorithm) {
 		switch (masToUse) {
 		case SIMPLE_INTENTION_MAS:
 			return new SimpleIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
@@ -188,12 +190,14 @@ public class Main {
 			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case BASE_MAS:
 			return new BaseMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+		case ROUTING_SPEED_INTENTION_MAS:
+			return new RoutingSpeedIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		default:
 			throw new UnsupportedOperationException();
 		}
 	}
 
-	private static PathFinder getPathFinder(PathFinders pathFinderAlgorithm) {
+	private static AbstractPathFinder getPathFinder(PathFinder pathFinderAlgorithm) {
 		switch (pathFinderAlgorithm) {
 		case K_SHORTEST_SIMPLE_PATHS:
 			return new KShortestSimplePathsFinder();

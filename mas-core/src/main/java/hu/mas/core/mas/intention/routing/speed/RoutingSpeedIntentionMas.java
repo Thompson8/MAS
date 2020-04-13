@@ -1,4 +1,4 @@
-package hu.mas.core.mas.intention.simple;
+package hu.mas.core.mas.intention.routing.speed;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +14,23 @@ import hu.mas.core.path.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class SimpleIntentionMas extends AbstractIntentionMas {
+public class RoutingSpeedIntentionMas extends AbstractIntentionMas {
 
-	public SimpleIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public RoutingSpeedIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 
 	@Override
 	protected double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception {
-		return edge.getWeigth();
+		List<Vehicle> vehicles = vehiclesCurrentlyOnEdge(edge);
+		if (!vehicles.isEmpty()) {
+			return Math.max(
+					edge.getLength()
+							/ vehicles.stream().mapToDouble(e -> e.calculateSpeed(edge)).average().getAsDouble(),
+					edge.calculateBaseTravelTime());
+		} else {
+			return edge.calculateBaseTravelTime();
+		}
 	}
 
 	@Override
@@ -44,7 +52,7 @@ public class SimpleIntentionMas extends AbstractIntentionMas {
 	}
 
 	protected double calculateEdgeTravelTime(Edge edge, double time) {
-		double edgeAdaptedAvgTravelTime = edge.calculateBaseTravelTime();
+		double edgeAdaptedAvgTravelTime = calculateEdgeTravelTimeBasedOnRoutingSpeed(edge, time);
 		Optional<Double> lastVehicleFinishTime;
 		Optional<List<Intention>> intentionsForEdge = intentions.findIntentions(edge);
 		if (intentionsForEdge.isPresent()) {
@@ -60,6 +68,19 @@ public class SimpleIntentionMas extends AbstractIntentionMas {
 			return vehiclesTravelTime > edgeAdaptedAvgTravelTime ? vehiclesTravelTime : edgeAdaptedAvgTravelTime;
 		} else {
 			return edgeAdaptedAvgTravelTime;
+		}
+	}
+
+	protected double calculateEdgeTravelTimeBasedOnRoutingSpeed(Edge edge, double time) {
+		double baseTravelTime = edge.calculateBaseTravelTime();
+		List<Vehicle> vehicles = findVehiclesOnEdge(edge, time);
+		if (!vehicles.isEmpty()) {
+			return Math.max(
+					edge.getLength()
+							/ vehicles.stream().mapToDouble(e -> e.calculateSpeed(edge)).average().getAsDouble(),
+					baseTravelTime);
+		} else {
+			return baseTravelTime;
 		}
 	}
 

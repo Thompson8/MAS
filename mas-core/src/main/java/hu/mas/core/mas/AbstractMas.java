@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +17,7 @@ import hu.mas.core.agent.Vehicle;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.MasGraph;
 import hu.mas.core.mas.model.Vertex;
-import hu.mas.core.path.PathFinder;
+import hu.mas.core.path.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -29,9 +31,9 @@ public abstract class AbstractMas {
 
 	protected final VehiclesData vehiclesData;
 
-	protected final PathFinder pathFinder;
+	protected final AbstractPathFinder pathFinder;
 
-	public AbstractMas(MasGraph graph, SumoTraciConnection connection, PathFinder pathFinder) {
+	public AbstractMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		if (graph == null || connection == null || pathFinder == null) {
 			throw new IllegalArgumentException();
 		}
@@ -56,8 +58,9 @@ public abstract class AbstractMas {
 	public List<Pair<Double, Route>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
 	}
-	
-	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle, double currentTime);
+
+	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle,
+			double currentTime);
 
 	public void updateData(double currentTime) throws Exception {
 		updateVehicleData(currentTime);
@@ -119,6 +122,18 @@ public abstract class AbstractMas {
 		registerRouteOperations(vehicle, route);
 	}
 
+	public List<Vehicle> vehiclesCurrentlyOnEdge(Edge edge) {
+		return currentyOnEdgeVehicleData(edge).map(Map.Entry::getKey).collect(Collectors.toList());
+	}
+
+	protected List<Map.Entry<Vehicle, VehicleData>> vehicleDataCurrentlyOnEdge(Edge edge) {
+		return currentyOnEdgeVehicleData(edge).collect(Collectors.toList());
+	}
+
+	protected Stream<Map.Entry<Vehicle, VehicleData>> currentyOnEdgeVehicleData(Edge edge) {
+		return vehiclesData.getData().entrySet().stream().filter(e -> edge.equals(e.getValue().getCurrentEdge()));
+	}
+
 	protected abstract void registerRouteOperations(Vehicle vehicle, Route route);
 
 	public void doTimeStep() throws Exception {
@@ -136,7 +151,7 @@ public abstract class AbstractMas {
 	public VehiclesData getVehiclesData() {
 		return vehiclesData;
 	}
-	
+
 	public Optional<Edge> get(String id) {
 		return graph.findEdge(id);
 	}

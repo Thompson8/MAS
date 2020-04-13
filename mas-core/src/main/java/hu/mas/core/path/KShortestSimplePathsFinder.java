@@ -18,7 +18,7 @@ import hu.mas.core.mas.model.Vertex;
 import hu.mas.core.util.Pair;
 import hu.mas.core.util.TriFunction;
 
-public class KShortestSimplePathsFinder implements PathFinder {
+public class KShortestSimplePathsFinder implements AbstractPathFinder {
 
 	private static final int K = 100;
 

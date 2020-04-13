@@ -32,9 +32,12 @@ public class Vehicle {
 		return "Vehicle_" + SEQUENCE.getAndIncrement();
 	}
 
+	public double calculateSpeed(Edge edge) {
+		return edge.getSpeed() >= this.maxSpeed ? this.maxSpeed : edge.getSpeed();
+	}
+
 	public double calculateTravelTime(Edge edge) {
-		double speedOnEdge = edge.getSpeed() >= this.maxSpeed ? this.maxSpeed : edge.getSpeed();
-		return edge.getLength() / speedOnEdge;
+		return edge.getLength() / calculateSpeed(edge);
 	}
 
 	public String getId() {

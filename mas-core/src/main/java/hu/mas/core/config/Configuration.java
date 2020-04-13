@@ -1,9 +1,9 @@
-package hu.mas.core;
+package hu.mas.core.config;
 
 import java.util.List;
 
 import hu.mas.core.mas.Mas;
-import hu.mas.core.path.PathFinders;
+import hu.mas.core.path.PathFinder;
 
 public class Configuration {
 
@@ -19,7 +19,7 @@ public class Configuration {
 
 	private int iterationCount;
 
-	private PathFinders pathFinderAlgorithm;
+	private PathFinder pathFinderAlgorithm;
 
 	private Mas masToUse;
 	
@@ -84,11 +84,11 @@ public class Configuration {
 		this.iterationCount = iterationCount;
 	}
 
-	public PathFinders getPathFinderAlgorithm() {
+	public PathFinder getPathFinderAlgorithm() {
 		return pathFinderAlgorithm;
 	}
 
-	public void setPathFinderAlgorithm(PathFinders pathFinderAlgorithm) {
+	public void setPathFinderAlgorithm(PathFinder pathFinderAlgorithm) {
 		this.pathFinderAlgorithm = pathFinderAlgorithm;
 	}
 

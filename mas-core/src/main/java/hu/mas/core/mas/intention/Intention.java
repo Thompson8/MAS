@@ -1,4 +1,4 @@
-package hu.mas.core.mas.intention.simple;
+package hu.mas.core.mas.intention;
 
 import hu.mas.core.agent.Vehicle;
 

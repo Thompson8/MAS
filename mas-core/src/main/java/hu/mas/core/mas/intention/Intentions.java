@@ -1,4 +1,4 @@
-package hu.mas.core.mas.intention.simple;
+package hu.mas.core.mas.intention;
 
 import java.util.ArrayList;
 import java.util.HashMap;

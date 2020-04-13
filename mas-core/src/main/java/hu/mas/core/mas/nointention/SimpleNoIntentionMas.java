@@ -9,13 +9,13 @@ import hu.mas.core.agent.Vehicle;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.model.Edge;
 import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.path.PathFinder;
+import hu.mas.core.path.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public abstract class SimpleNoIntentionMas extends AbstractMas {
 
-	public SimpleNoIntentionMas(MasGraph graph, SumoTraciConnection connection, PathFinder pathFinder) {
+	public SimpleNoIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 	
