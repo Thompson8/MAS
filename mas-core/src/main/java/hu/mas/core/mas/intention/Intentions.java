@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import hu.mas.core.mas.model.Edge;
+import hu.mas.core.mas.model.graph.Edge;
 
 public class Intentions {
 

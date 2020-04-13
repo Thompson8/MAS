@@ -1,4 +1,4 @@
-package hu.mas.core.agent;
+package hu.mas.core.agent.model.agent;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,9 +6,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import de.tudresden.ws.container.SumoStringList;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.MasController;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 

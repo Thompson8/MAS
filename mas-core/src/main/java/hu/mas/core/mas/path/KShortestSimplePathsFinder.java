@@ -1,4 +1,4 @@
-package hu.mas.core.path;
+package hu.mas.core.mas.path;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,11 +10,11 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.KShortestSimplePaths;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import hu.mas.core.agent.Route;
-import hu.mas.core.agent.Vehicle;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
 import hu.mas.core.util.TriFunction;
 

@@ -1,6 +1,6 @@
 package hu.mas.core.mas.intention;
 
-import hu.mas.core.agent.Vehicle;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class Intention {
 

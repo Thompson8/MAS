@@ -1,12 +1,12 @@
-package hu.mas.core.agent;
+package hu.mas.core.agent.model.route;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
 
 public class Route {

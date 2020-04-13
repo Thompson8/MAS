@@ -1,7 +1,7 @@
-package hu.mas.core.agent.message;
+package hu.mas.core.agent.model.message;
 
-import hu.mas.core.agent.Route;
-import hu.mas.core.agent.Vehicle;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class RouteSelectionRequest implements MessageBody {
 

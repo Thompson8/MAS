@@ -14,8 +14,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.Agent;
-import hu.mas.core.agent.AgentPopulator;
+import hu.mas.core.agent.model.agent.Agent;
+import hu.mas.core.agent.model.agent.AgentPopulator;
 import hu.mas.core.config.Configuration;
 import hu.mas.core.config.agent.xml.AgentConverter;
 import hu.mas.core.config.agent.xml.ParseAgent;
@@ -32,12 +32,12 @@ import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
 import hu.mas.core.mas.intention.routing.speed.RoutingSpeedIntentionMas;
 import hu.mas.core.mas.intention.simple.SimpleIntentionMas;
-import hu.mas.core.mas.model.MasGraph;
+import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.nointention.base.BaseMas;
 import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
-import hu.mas.core.path.AbstractPathFinder;
-import hu.mas.core.path.KShortestSimplePathsFinder;
-import hu.mas.core.path.PathFinder;
+import hu.mas.core.mas.path.AbstractPathFinder;
+import hu.mas.core.mas.path.KShortestSimplePathsFinder;
+import hu.mas.core.mas.path.PathFinder;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {

@@ -1,7 +1,7 @@
 package hu.mas.core.mas;
 
-import hu.mas.core.agent.Route;
-import hu.mas.core.mas.model.Edge;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.mas.model.graph.Edge;
 
 public class VehicleData {
 

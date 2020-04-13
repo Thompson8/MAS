@@ -1,4 +1,4 @@
-package hu.mas.core.agent;
+package hu.mas.core.agent.model.exception;
 
 public class AgentException extends RuntimeException {
 

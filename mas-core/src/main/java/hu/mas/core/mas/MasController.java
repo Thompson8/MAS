@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.Vehicle;
-import hu.mas.core.agent.message.Message;
-import hu.mas.core.agent.message.MessageType;
-import hu.mas.core.agent.message.RouteInfoAnswer;
-import hu.mas.core.agent.message.RouteInfoRequest;
-import hu.mas.core.agent.message.RouteSelectionAnswer;
-import hu.mas.core.agent.message.RouteSelectionRequest;
-import hu.mas.core.agent.message.RouteStartedAnswer;
-import hu.mas.core.agent.message.RouteStartedRequest;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.MasException;
+import hu.mas.core.agent.model.message.Message;
+import hu.mas.core.agent.model.message.MessageType;
+import hu.mas.core.agent.model.message.RouteInfoAnswer;
+import hu.mas.core.agent.model.message.RouteInfoRequest;
+import hu.mas.core.agent.model.message.RouteSelectionAnswer;
+import hu.mas.core.agent.model.message.RouteSelectionRequest;
+import hu.mas.core.agent.model.message.RouteStartedAnswer;
+import hu.mas.core.agent.model.message.RouteStartedRequest;
+import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.exception.MasRuntimeException;
+import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.util.TimeCalculator;
 
 public class MasController implements Runnable {
@@ -53,7 +53,7 @@ public class MasController implements Runnable {
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
 				mas.updateData(currentTime);
-				
+
 				if (i % 100 == 0) {
 					logger.info("Mas iteration: {}, current time: {}", i, currentTime);
 				}
@@ -63,7 +63,7 @@ public class MasController implements Runnable {
 					processMessage(message, currentTime);
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
-				
+
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
@@ -71,7 +71,7 @@ public class MasController implements Runnable {
 			mas.updateData(TimeCalculator.calculateTime(simulationIterationLimit, stepLength));
 		} catch (Exception e) {
 			logger.error("Exception during Mas execution", e);
-			throw new MasException(e);
+			throw new MasRuntimeException(e);
 		} finally {
 			mas.close();
 		}

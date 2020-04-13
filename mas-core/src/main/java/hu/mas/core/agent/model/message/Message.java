@@ -1,4 +1,4 @@
-package hu.mas.core.agent.message;
+package hu.mas.core.agent.model.message;
 
 import java.util.concurrent.SynchronousQueue;
 

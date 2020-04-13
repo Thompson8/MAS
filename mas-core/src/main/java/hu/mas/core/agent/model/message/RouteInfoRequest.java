@@ -1,7 +1,7 @@
-package hu.mas.core.agent.message;
+package hu.mas.core.agent.model.message;
 
-import hu.mas.core.agent.Vehicle;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.graph.Vertex;
 
 public class RouteInfoRequest implements MessageBody {
 

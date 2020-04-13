@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import hu.mas.core.agent.SimpleAgent;
-import hu.mas.core.agent.Vehicle;
+import hu.mas.core.agent.model.agent.SimpleAgent;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
 import hu.mas.core.config.route.xml.model.RoutesConfig;
 import hu.mas.core.config.route.xml.model.VehicleType;
-import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.model.graph.Vertex;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class AgentConverter {

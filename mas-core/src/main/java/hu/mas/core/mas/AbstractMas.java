@@ -12,12 +12,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.tudresden.ws.container.SumoStringList;
-import hu.mas.core.agent.Route;
-import hu.mas.core.agent.Vehicle;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.mas.model.Vertex;
-import hu.mas.core.path.AbstractPathFinder;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.exception.MasException;
+import hu.mas.core.mas.model.exception.MasRuntimeException;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.model.graph.Vertex;
+import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -43,13 +45,13 @@ public abstract class AbstractMas {
 		this.pathFinder = pathFinder;
 	}
 
-	protected void updateTravelWeigthMatrix(double currentTime) throws Exception {
+	protected void updateTravelWeigthMatrix(double currentTime) throws MasException {
 		for (Edge edge : graph.getEdges()) {
 			graph.updateEdgeWeight(edge, getValueForWeigthUpdate(edge, currentTime));
 		}
 	}
 
-	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception;
+	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
 
 	public List<Pair<Double, Route>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
@@ -70,37 +72,37 @@ public abstract class AbstractMas {
 	protected void updateVehicleData(double currentTime) throws Exception {
 		SumoStringList vehicles = (SumoStringList) connection.do_job_get(de.tudresden.sumo.cmd.Vehicle.getIDList());
 		vehiclesData.getData().entrySet().stream().filter(e -> e.getValue().getStatistics().getActualFinish() == null)
-				.forEach(e -> {
-					try {
-						handleVehicleDataUpdate(e, vehicles, currentTime);
-					} catch (Exception ex) {
-						throw new RuntimeException(ex);
-					}
-				});
+				.forEach(e -> handleVehicleDataUpdate(e, vehicles, currentTime));
 	}
 
 	public void handleVehicleDataUpdate(Entry<Vehicle, VehicleData> vehicleData, SumoStringList vehicles,
-			double currentTime) throws Exception {
-		Optional<String> contains = vehicles.stream().filter(e -> vehicleData.getKey().getId().equals(e)).findFirst();
+			double currentTime) {
+		try {
+			Optional<String> contains = vehicles.stream().filter(e -> vehicleData.getKey().getId().equals(e))
+					.findFirst();
 
-		if (contains.isPresent()) {
-			if (vehicleData.getValue().getStatistics().getActualStart() == null) {
-				registerActualVehicleStart(vehicleData, currentTime);
-			}
-			String edgeId = (String) connection
-					.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(vehicleData.getKey().getId()));
-			Optional<Edge> edge = graph.findEdge(edgeId);
+			if (contains.isPresent()) {
+				if (vehicleData.getValue().getStatistics().getActualStart() == null) {
+					registerActualVehicleStart(vehicleData, currentTime);
+				}
+				String edgeId = (String) connection
+						.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(vehicleData.getKey().getId()));
+				Optional<Edge> edge = graph.findEdge(edgeId);
 
-			if (edge.isPresent()) {
-				logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
-				vehicleData.getValue().setCurrentEdge(edge.get());
-			} else {
-				logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
-						vehicleData.getKey().getId());
+				if (edge.isPresent()) {
+					logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
+					vehicleData.getValue().setCurrentEdge(edge.get());
+				} else {
+					logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
+							vehicleData.getKey().getId());
+				}
+			} else if (vehicleData.getValue().getStatistics().getActualStart() != null) {
+				logger.info("Vehicle: {} finished it's route, finish: {}", vehicleData.getKey().getId(), currentTime);
+				vehicleData.getValue().getStatistics().setActualFinish(currentTime);
 			}
-		} else if (vehicleData.getValue().getStatistics().getActualStart() != null) {
-			logger.info("Vehicle: {} finished it's route, finish: {}", vehicleData.getKey().getId(), currentTime);
-			vehicleData.getValue().getStatistics().setActualFinish(currentTime);
+		} catch (Exception e) {
+			logger.error("Exception during vehicle date update", e);
+			throw new MasRuntimeException(e);
 		}
 	}
 

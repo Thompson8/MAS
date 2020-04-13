@@ -3,7 +3,7 @@ package hu.mas.core.mas;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import hu.mas.core.agent.Vehicle;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class VehiclesData {
 

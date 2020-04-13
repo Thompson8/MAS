@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import hu.mas.core.config.net.xml.model.Edge;
 import hu.mas.core.config.net.xml.model.Lane;
 import hu.mas.core.config.net.xml.model.Net;
-import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.mas.model.MasGraphImpl;
+import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.model.graph.MasGraphImpl;
 
 public class Converter {
 

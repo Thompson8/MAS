@@ -1,10 +1,9 @@
-package hu.mas.core.agent.message;
+package hu.mas.core.agent.model.message;
 
+import hu.mas.core.agent.model.route.Route;
 import hu.mas.core.util.Pair;
 
 import java.util.List;
-
-import hu.mas.core.agent.Route;
 
 public class RouteInfoAnswer implements MessageBody {
 

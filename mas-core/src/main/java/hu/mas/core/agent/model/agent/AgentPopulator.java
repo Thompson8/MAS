@@ -1,10 +1,12 @@
-package hu.mas.core.agent;
+package hu.mas.core.agent.model.agent;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class AgentPopulator implements Runnable {
 

@@ -1,4 +1,4 @@
-package hu.mas.core.agent;
+package hu.mas.core.agent.model.agent;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,15 +6,18 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.message.Message;
-import hu.mas.core.agent.message.MessageType;
-import hu.mas.core.agent.message.RouteInfoAnswer;
-import hu.mas.core.agent.message.RouteInfoRequest;
-import hu.mas.core.agent.message.RouteSelectionRequest;
-import hu.mas.core.agent.message.RouteStartedRequest;
+import hu.mas.core.agent.model.exception.AgentException;
+import hu.mas.core.agent.model.message.Message;
+import hu.mas.core.agent.model.message.MessageType;
+import hu.mas.core.agent.model.message.RouteInfoAnswer;
+import hu.mas.core.agent.model.message.RouteInfoRequest;
+import hu.mas.core.agent.model.message.RouteSelectionRequest;
+import hu.mas.core.agent.model.message.RouteStartedRequest;
+import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.MasController;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.Vertex;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 

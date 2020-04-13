@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import hu.mas.core.agent.Vehicle;
+import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.intention.AbstractIntentionMas;
 import hu.mas.core.mas.intention.Intention;
-import hu.mas.core.mas.model.Edge;
-import hu.mas.core.mas.model.MasGraph;
-import hu.mas.core.path.AbstractPathFinder;
+import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -21,7 +21,7 @@ public class RoutingSpeedIntentionMas extends AbstractIntentionMas {
 	}
 
 	@Override
-	protected double getValueForWeigthUpdate(Edge edge, double currentTime) throws Exception {
+	protected double getValueForWeigthUpdate(Edge edge, double currentTime) {
 		List<Vehicle> vehicles = vehiclesCurrentlyOnEdge(edge);
 		if (!vehicles.isEmpty()) {
 			return Math.max(

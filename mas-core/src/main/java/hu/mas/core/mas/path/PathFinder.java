@@ -1,4 +1,4 @@
-package hu.mas.core.path;
+package hu.mas.core.mas.path;
 
 public enum PathFinder {
 

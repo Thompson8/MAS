@@ -1,4 +1,4 @@
-package hu.mas.core.mas.model;
+package hu.mas.core.mas.model.graph;
 
 import java.util.Objects;
 
