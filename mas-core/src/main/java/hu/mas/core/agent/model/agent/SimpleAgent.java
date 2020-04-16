@@ -23,7 +23,7 @@ import it.polito.appeal.traci.SumoTraciConnection;
 
 public class SimpleAgent extends Agent {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger(SimpleAgent.class);
 
 	public SimpleAgent(Vehicle vehicle, Vertex from, Vertex to, MasController masController,
 			SumoTraciConnection connection) {

@@ -28,7 +28,7 @@ import hu.mas.core.util.TimeCalculator;
 
 public class MasController implements Runnable {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger(MasController.class);
 
 	private final AbstractMas mas;
 

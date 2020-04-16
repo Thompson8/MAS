@@ -42,7 +42,7 @@ import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger(Main.class);
 
 	private static final String INPUT_ARG_LIST_DELIMETER = ",";
 
@@ -137,7 +137,6 @@ public class Main {
 		SumoTraciConnection conn = new SumoTraciConnection(config.getSumoStartCommand(), config.getSumoConfigFile());
 		conn.addOption("step-length", Double.toString(config.getStepLength()));
 		conn.addOption("start", "true");
-		conn.addOption("tripinfo-output", "/home/tom/Dokumentumok/SUMO/test.xml");
 		List<Agent> agents = loadAgents(config.getAgentConfigFile(), graph, conn, routes);
 
 		AbstractMas mas = createMas(config.getMasToUse(), graph, conn, config.getPathFinderAlgorithm());

@@ -25,7 +25,7 @@ import it.polito.appeal.traci.SumoTraciConnection;
 
 public abstract class AbstractMas {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger(AbstractMas.class);
 
 	protected final SumoTraciConnection connection;
 

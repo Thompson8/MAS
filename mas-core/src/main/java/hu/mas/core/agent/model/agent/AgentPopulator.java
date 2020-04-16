@@ -10,7 +10,7 @@ import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class AgentPopulator implements Runnable {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger(AgentPopulator.class);
 
 	private final Agent templateAgent;
 
