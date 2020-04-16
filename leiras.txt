@@ -1,0 +1,22 @@
+Futtatás:
+parancs:
+java -jar mas-core-jar-with-dependencies.jar --sumo_config_file=./Elte/elte.sumocfg --agent_config_file=./Elte/elte.agent.xml --output_file=./output.txt --mas=ROUTING_SPEED_INTENTION_MAS --simulation_iteration=500 --step_length=0.5
+
+Paraméterek:
+--sumo_config_file: sumo config file helye
+--agent_config_file: agent config file helye
+--output_file: a szimuláció kimenetének helye
+--mas: Az algoritmus implementáció, amely alapján az program routol-jon, lehetséges értékek: SIMPLE_INTENTION_MAS, SUMO_DELEGATED_MAS, BASE_MAS, ROUTING_SPEED_INTENTION_MAS
+--simulation_iteration: Ez az érték mondja meg hogy hány lépésből áljon a szimuláció
+--step_length: Ez a paraméter mondja meg hogy 1 szimulációs lépés a Sumo-ban mennyi időnek felel meg
+
+Futtatási függőségek:
+- minimum Java 8
+- Sumo
+
+Fordítás:
+parancs:
+mvn clean install
+
+Fordítási függőségek:
+- Maven (Apache Maven 3.X.X (https://maven.apache.org/download.cgi))
