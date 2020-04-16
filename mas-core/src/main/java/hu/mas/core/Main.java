@@ -137,6 +137,7 @@ public class Main {
 		SumoTraciConnection conn = new SumoTraciConnection(config.getSumoStartCommand(), config.getSumoConfigFile());
 		conn.addOption("step-length", Double.toString(config.getStepLength()));
 		conn.addOption("start", "true");
+		conn.addOption("tripinfo-output", "/home/tom/Dokumentumok/SUMO/test.xml");
 		List<Agent> agents = loadAgents(config.getAgentConfigFile(), graph, conn, routes);
 
 		AbstractMas mas = createMas(config.getMasToUse(), graph, conn, config.getPathFinderAlgorithm());
