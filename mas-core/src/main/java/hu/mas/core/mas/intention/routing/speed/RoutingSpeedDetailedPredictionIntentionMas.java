@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import hu.mas.core.mas.intention.AbstractIntentionMas;
 import hu.mas.core.mas.intention.Intention;
+import hu.mas.core.mas.intention.prediction.detailed.AbstractDetailedPredictionIntentionMas;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.mas.util.CalculatorUtil;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class RoutingSpeedIntentionMas extends AbstractIntentionMas {
+public class RoutingSpeedDetailedPredictionIntentionMas extends AbstractDetailedPredictionIntentionMas {
 
 	private static final double ALPHA = 0.1;
 
-	public RoutingSpeedIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public RoutingSpeedDetailedPredictionIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 

@@ -1,17 +1,17 @@
-package hu.mas.core.mas.intention.simple;
+package hu.mas.core.mas.intention.travel.time;
 
 import java.util.Optional;
 
-import hu.mas.core.mas.intention.AbstractIntentionMas;
+import hu.mas.core.mas.intention.prediction.detailed.AbstractDetailedPredictionIntentionMas;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.mas.util.CalculatorUtil;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class SimpleIntentionMas extends AbstractIntentionMas {
+public class TravelTimeDetailedPredictionIntentionMas extends AbstractDetailedPredictionIntentionMas {
 
-	public SimpleIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public TravelTimeDetailedPredictionIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 

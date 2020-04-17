@@ -54,14 +54,14 @@ public abstract class AbstractMas {
 	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
 
 	public List<Pair<Double, Route>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
-		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
 
 	public List<Pair<Double, Route>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
-		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTimeForEdges);
+		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
 
-	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle,
+	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTime(List<Edge> edges, Vehicle vehicle,
 			double currentTime);
 
 	public void updateData(double currentTime) throws Exception {

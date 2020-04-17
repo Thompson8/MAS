@@ -25,7 +25,7 @@ public abstract class SimpleNoIntentionMas extends AbstractMas {
 	}
 	
 	@Override
-	protected Map<Edge, Pair<Double, Double>> calculateTravelTimeForEdges(List<Edge> edges, Vehicle vehicle,
+	protected Map<Edge, Pair<Double, Double>> calculateTravelTime(List<Edge> edges, Vehicle vehicle,
 			double currentTime) {
 		Map<Edge, Pair<Double, Double>> result = new HashMap<>();
 		double startTime = currentTime;

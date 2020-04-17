@@ -30,8 +30,8 @@ import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.Mas;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
-import hu.mas.core.mas.intention.routing.speed.RoutingSpeedIntentionMas;
-import hu.mas.core.mas.intention.simple.SimpleIntentionMas;
+import hu.mas.core.mas.intention.routing.speed.RoutingSpeedDetailedPredictionIntentionMas;
+import hu.mas.core.mas.intention.travel.time.TravelTimeDetailedPredictionIntentionMas;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.nointention.base.BaseMas;
 import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
@@ -185,13 +185,13 @@ public class Main {
 			PathFinder pathFinderAlgorithm) {
 		switch (masToUse) {
 		case SIMPLE_INTENTION_MAS:
-			return new SimpleIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new TravelTimeDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case SUMO_DELEGATED_MAS:
 			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case BASE_MAS:
 			return new BaseMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case ROUTING_SPEED_INTENTION_MAS:
-			return new RoutingSpeedIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new RoutingSpeedDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		default:
 			throw new UnsupportedOperationException();
 		}
