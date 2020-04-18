@@ -2,6 +2,7 @@ package hu.mas.core.mas.model.graph;
 
 import java.util.Objects;
 
+import hu.mas.core.mas.intention.model.Road;
 import hu.mas.core.mas.util.CalculatorUtil;
 
 public class Edge {
@@ -18,6 +19,8 @@ public class Edge {
 
 	private double weigth;
 	
+	private final Road road;
+	
 	public Edge(String id, Vertex from, Vertex to, double speed, double length) {
 		if (id == null || from == null || to == null || speed <= 0 || length <= 0) {
 			throw new IllegalArgumentException();
@@ -28,6 +31,7 @@ public class Edge {
 		this.speed = speed;
 		this.length = length;
 		this.weigth = calculateEmptyEdgeTravelTime();
+		this.road = new Road(this);
 	}
 
 	public double calculateEmptyEdgeTravelTime() {
@@ -80,6 +84,10 @@ public class Edge {
 
 	public void setWeigth(double weigth) {
 		this.weigth = weigth;
+	}
+
+	public Road getRoad() {
+		return road;
 	}
 
 	@Override

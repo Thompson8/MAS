@@ -1,5 +1,7 @@
 package hu.mas.core.util;
 
+import java.util.Objects;
+
 public class Pair<L, R> {
 
 	private final L left;
@@ -17,6 +19,23 @@ public class Pair<L, R> {
 
 	public R getRigth() {
 		return rigth;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(left, rigth);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Pair)) {
+			return false;
+		}
+		Pair<?, ?> other = (Pair<?, ?>) obj;
+		return Objects.equals(left, other.left) && Objects.equals(rigth, other.rigth);
 	}
 
 	@Override

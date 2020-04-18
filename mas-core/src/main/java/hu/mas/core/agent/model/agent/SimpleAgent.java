@@ -13,7 +13,7 @@ import hu.mas.core.agent.model.message.RouteInfoAnswer;
 import hu.mas.core.agent.model.message.RouteInfoRequest;
 import hu.mas.core.agent.model.message.RouteSelectionRequest;
 import hu.mas.core.agent.model.message.RouteStartedRequest;
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.model.graph.Edge;
@@ -36,8 +36,8 @@ public class SimpleAgent extends Agent {
 	}
 
 	@Override
-	public void selectRoute(List<Pair<Double, Route>> routes) {
-		Optional<Pair<Double, Route>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
+	public void selectRoute(List<Pair<Double, MasRoute>> routes) {
+		Optional<Pair<Double, MasRoute>> route = routes.stream().min((a, b) -> a.getLeft().compareTo(b.getLeft()));
 		if (route.isPresent()) {
 			logger.info("Predicted time for route: {}", route.get().getLeft());
 			this.route = route.get().getRigth();

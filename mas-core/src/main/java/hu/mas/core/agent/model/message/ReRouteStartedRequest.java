@@ -1,20 +1,20 @@
 package hu.mas.core.agent.model.message;
 
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 
 public class ReRouteStartedRequest implements MessageBody {
 	
-	private final Route route;
+	private final MasRoute route;
 
 	private final Vehicle vehicle;
 
-	public ReRouteStartedRequest(Route route, Vehicle vehicle) {
+	public ReRouteStartedRequest(MasRoute route, Vehicle vehicle) {
 		this.route = route;
 		this.vehicle = vehicle;
 	}
 
-	public Route getRoute() {
+	public MasRoute getRoute() {
 		return route;
 	}
 

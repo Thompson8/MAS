@@ -89,7 +89,7 @@ public class MasController implements Runnable {
 			break;
 		case ROUTE_SELECTION_REQUEST:
 			RouteSelectionRequest selection = (RouteSelectionRequest) message.getBody();
-			mas.registerRoute(selection.getVehicle(), selection.getRoute());
+			mas.registerRoute(selection.getVehicle(), selection.getRoute(), currentTime);
 			answer = new Message(message.getAgentId(), MessageType.ROUTE_SELECTION_ANSWER,
 					new RouteSelectionAnswer("Route registered in iteration: " + currentTime));
 			mas.updateData(currentTime);

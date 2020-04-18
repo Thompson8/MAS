@@ -1,11 +1,9 @@
 package hu.mas.core.mas.path;
 
 import java.util.List;
-import java.util.Map;
 
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
@@ -13,18 +11,13 @@ import hu.mas.core.util.TriFunction;
 
 public interface AbstractPathFinder {
 
-	public default List<Pair<Double, Route>> getShortestPaths(String from, String to, Vehicle vehicle,
-			double currentTime, MasGraph masGraph, TriFunction<List<Edge>, Vehicle, Double, Map<Edge, Pair<Double, Double>>> calculateTravelTimeForEdges) {
+	public default List<Pair<Double, MasRoute>> getShortestPaths(String from, String to, Vehicle vehicle,
+			double time, MasGraph masGraph, TriFunction<MasRoute, Vehicle, Double, Double> calculateRouteCost) {
 		return getShortestPaths(masGraph.findVertex(from).orElseThrow(), masGraph.findVertex(to).orElseThrow(), vehicle,
-				currentTime, masGraph, calculateTravelTimeForEdges);
+				time, masGraph, calculateRouteCost);
 	}
 
-	public List<Pair<Double, Route>> getShortestPaths(Vertex from, Vertex to, Vehicle vehicle, double currentTime,
-			MasGraph masGraph, TriFunction<List<Edge>, Vehicle, Double, Map<Edge, Pair<Double, Double>>> calculateTravelTimeForEdges);
-
-	default double calculateCost(Route route) {
-		return route.getTravelTimeForEdges().values().stream().map(Pair::getRigth).max((a, b) -> a.compareTo(b))
-				.orElseThrow();
-	}
+	public List<Pair<Double, MasRoute>> getShortestPaths(Vertex from, Vertex to, Vehicle vehicle, double time,
+			MasGraph masGraph, TriFunction<MasRoute, Vehicle, Double, Double> calculateRouteCost);
 
 }

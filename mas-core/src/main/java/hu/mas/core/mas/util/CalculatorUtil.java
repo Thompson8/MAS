@@ -17,7 +17,8 @@ public class CalculatorUtil {
 	}
 
 	public static double calculateTravelTimeOnEdge(Edge edge, Vehicle vehicle) {
-		return edge.getLength() / calculateSpeedOnEdge(edge, vehicle);
+		return vehicle != null ? edge.getLength() / calculateSpeedOnEdge(edge, vehicle)
+				: calculateTravelTimeOnEdge(edge);
 	}
 
 	public static double calculateRoutingSpeed(Edge edge, List<Double> vehiclesOnEdgeSpeeds) {

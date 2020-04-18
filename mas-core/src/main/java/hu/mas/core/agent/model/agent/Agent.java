@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import de.tudresden.ws.container.SumoStringList;
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.model.graph.Edge;
@@ -30,7 +30,7 @@ public abstract class Agent implements Runnable {
 
 	protected Vertex to;
 
-	protected Route route;
+	protected MasRoute route;
 
 	protected MasController masController;
 
@@ -58,7 +58,7 @@ public abstract class Agent implements Runnable {
 		return "Agent_" + SEQUENCE.getAndIncrement();
 	}
 
-	protected abstract void selectRoute(List<Pair<Double, Route>> routes);
+	protected abstract void selectRoute(List<Pair<Double, MasRoute>> routes);
 
 	protected void startRoute() throws Exception {
 		SumoStringList edges = new SumoStringList(
@@ -120,11 +120,11 @@ public abstract class Agent implements Runnable {
 		this.to = to;
 	}
 
-	public Route getRoute() {
+	public MasRoute getRoute() {
 		return route;
 	}
 
-	public void setRoute(Route route) {
+	public void setRoute(MasRoute route) {
 		this.route = route;
 	}
 

@@ -5,50 +5,41 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import hu.mas.core.mas.intention.Intention;
+import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.intention.model.Road;
 import hu.mas.core.mas.intention.prediction.detailed.AbstractDetailedPredictionIntentionMas;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.mas.util.CalculatorUtil;
+import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class RoutingSpeedDetailedPredictionIntentionMas extends AbstractDetailedPredictionIntentionMas {
 
 	private static final double ALPHA = 0.1;
 
-	public RoutingSpeedDetailedPredictionIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public RoutingSpeedDetailedPredictionIntentionMas(MasGraph graph, SumoTraciConnection connection,
+			AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 
 	@Override
-	protected double getValueForWeigthUpdate(Edge edge, double currentTime) {
-		return CalculatorUtil.calculateRoutingSpeed(edge, getVehiclesSpeedsCurrentlyOnEdge(edge));
-	}
+	protected double calculateTravelTimeFromRoadCharacteristics(Road road, Vehicle vehicle, double time) {
+		Edge edge = road.getEdge();
+		List<Pair<Vehicle, Pair<Double, Double>>> onRoad = getVehiclesOnRoadByIntention(road, time);
 
-	@Override
-	protected double calculateEdgeTravelTime(Edge edge, double time) {
-		double edgeTravelTimeByRoutingSpeed = calculateEdgeTravelTimeBasedOnRoutingSpeed(edge, time);
-		Optional<Double> lastVehicleFinishTimeOnEdge = getLastVehicleFinishTimeOnEdge(edge, time).map(e -> e - time);
+		if (!onRoad.isEmpty()) {
+			List<Pair<Vehicle, Pair<Double, Double>>> sortedIntentions = onRoad.stream()
+					.sorted(Comparator.comparingDouble(e -> e.getRigth().getRigth())).collect(Collectors.toList());
 
-		return lastVehicleFinishTimeOnEdge.isPresent()
-				? Math.max(lastVehicleFinishTimeOnEdge.get(), edgeTravelTimeByRoutingSpeed)
-				: edgeTravelTimeByRoutingSpeed;
-	}
-
-	protected double calculateEdgeTravelTimeBasedOnRoutingSpeed(Edge edge, double time) {
-		List<Intention> intentionsOnEdge = getIntentionsOnEdge(edge, time);
-		if (!intentionsOnEdge.isEmpty()) {
-			List<Intention> sortedIntentions = intentionsOnEdge.stream()
-					.sorted(Comparator.comparingDouble(Intention::getFinish)).collect(Collectors.toList());
 			List<Double> estimatedSpeeds = new ArrayList<>();
-			Iterator<Intention> iterator = sortedIntentions.iterator();
-			Intention current = iterator.next();
-			Intention previous = null;
-			double previousEstimation = CalculatorUtil.calculateSpeedOnEdge(edge, current.getVehicle());
+			Iterator<Pair<Vehicle, Pair<Double, Double>>> iterator = sortedIntentions.iterator();
+			Pair<Vehicle, Pair<Double, Double>> current = iterator.next();
+			Pair<Vehicle, Pair<Double, Double>> previous = null;
+			double previousEstimation = CalculatorUtil.calculateSpeedOnEdge(edge, current.getLeft());
 			estimatedSpeeds.add(previousEstimation);
 
 			while (iterator.hasNext()) {
@@ -58,21 +49,22 @@ public class RoutingSpeedDetailedPredictionIntentionMas extends AbstractDetailed
 				estimatedSpeeds.add(previousEstimation);
 			}
 
-			return CalculatorUtil.calculateRoutingSpeed(edge, estimatedSpeeds);
+			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
+					CalculatorUtil.calculateRoutingSpeed(edge, estimatedSpeeds));
 		} else {
-			return CalculatorUtil.calculateRoutingSpeed(edge, Collections.emptyList());
+			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
+					CalculatorUtil.calculateRoutingSpeed(edge, Collections.emptyList()));
 		}
 	}
 
-	protected double estimateSpeedForVehicle(Edge edge, Intention currentVehicleIntention,
-			Intention beforeVehicleIntention, double previousEstimation, double time) {
-		double currentVehicleBaseSpeed = CalculatorUtil.calculateSpeedOnEdge(edge,
-				currentVehicleIntention.getVehicle());
+	protected double estimateSpeedForVehicle(Edge edge, Pair<Vehicle, Pair<Double, Double>> currentVehicleIntention,
+			Pair<Vehicle, Pair<Double, Double>> beforeVehicleIntention, double previousEstimation, double time) {
+		double currentVehicleBaseSpeed = CalculatorUtil.calculateSpeedOnEdge(edge, currentVehicleIntention.getLeft());
 		if (currentVehicleBaseSpeed < previousEstimation) {
 			return currentVehicleBaseSpeed;
 		} else {
-			double beforeFinishTimeDiff = beforeVehicleIntention.getFinish() - time;
-			double currentFinishTimeDiff = currentVehicleIntention.getFinish() - time;
+			double beforeFinishTimeDiff = beforeVehicleIntention.getRigth().getRigth() - time;
+			double currentFinishTimeDiff = currentVehicleIntention.getRigth().getRigth() - time;
 			double finishTimeDiff = Math.abs(currentFinishTimeDiff - beforeFinishTimeDiff) / currentFinishTimeDiff;
 
 			return currentVehicleBaseSpeed * finishTimeDiff * (1 - ALPHA)

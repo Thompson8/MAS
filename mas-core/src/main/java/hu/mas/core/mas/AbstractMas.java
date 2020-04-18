@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.tudresden.ws.container.SumoStringList;
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.model.exception.MasException;
 import hu.mas.core.mas.model.exception.MasRuntimeException;
@@ -46,23 +46,26 @@ public abstract class AbstractMas {
 	}
 
 	protected void updateTravelWeigthMatrix(double currentTime) throws MasException {
+		beforeUpdateTravelWeigthMatrix(currentTime);
 		for (Edge edge : graph.getEdges()) {
 			graph.updateEdgeWeight(edge, getValueForWeigthUpdate(edge, currentTime));
 		}
 	}
 
+	protected void beforeUpdateTravelWeigthMatrix(double currentTime) {
+	}
+
 	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
 
-	public List<Pair<Double, Route>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
+	public List<Pair<Double, MasRoute>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
 
-	public List<Pair<Double, Route>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
+	public List<Pair<Double, MasRoute>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
 
-	protected abstract Map<Edge, Pair<Double, Double>> calculateTravelTime(List<Edge> edges, Vehicle vehicle,
-			double currentTime);
+	protected abstract double calculateTravelTime(MasRoute route, Vehicle vehicle, double time);
 
 	public void updateData(double currentTime) throws Exception {
 		updateVehicleData(currentTime);
@@ -119,12 +122,12 @@ public abstract class AbstractMas {
 		entry.getStatistics().setAgentStart(currentTime);
 	}
 
-	public void registerRoute(Vehicle vehicle, Route route) {
+	public void registerRoute(Vehicle vehicle, MasRoute route, double currentTime) {
 		VehicleData data = new VehicleData();
 		data.setRoute(route);
 		data.setCurrentEdge(route.getEdges().get(0));
 		vehiclesData.put(vehicle, data);
-		registerRouteOperations(vehicle, route);
+		registerRouteOperations(vehicle, route, currentTime);
 	}
 
 	public List<Vehicle> vehiclesCurrentlyOnEdge(Edge edge) {
@@ -139,7 +142,7 @@ public abstract class AbstractMas {
 		return vehiclesData.getData().entrySet().stream().filter(e -> edge.equals(e.getValue().getCurrentEdge()));
 	}
 
-	protected abstract void registerRouteOperations(Vehicle vehicle, Route route);
+	protected abstract void registerRouteOperations(Vehicle vehicle, MasRoute route, double currentTime);
 
 	protected List<Double> getVehiclesSpeedsCurrentlyOnEdge(Edge edge) {
 		return vehiclesData.getData().values().stream()

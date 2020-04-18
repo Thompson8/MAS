@@ -1,11 +1,11 @@
 package hu.mas.core.mas;
 
-import hu.mas.core.agent.model.route.Route;
+import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.mas.model.graph.Edge;
 
 public class VehicleData {
 
-	private Route route;
+	private MasRoute route;
 
 	private Edge currentEdge;
 	
@@ -21,11 +21,11 @@ public class VehicleData {
 		this.statistics = new VehicleStatistics();
 	}
 
-	public Route getRoute() {
+	public MasRoute getRoute() {
 		return route;
 	}
 
-	public void setRoute(Route route) {
+	public void setRoute(MasRoute route) {
 		this.route = route;
 	}
 
