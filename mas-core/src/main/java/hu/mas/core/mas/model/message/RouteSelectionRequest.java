@@ -1,15 +1,15 @@
-package hu.mas.core.agent.model.message;
+package hu.mas.core.mas.model.message;
 
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 
-public class ReRouteStartedRequest implements MessageBody {
-	
+public class RouteSelectionRequest implements MessageBody {
+
 	private final MasRoute route;
 
 	private final Vehicle vehicle;
 
-	public ReRouteStartedRequest(MasRoute route, Vehicle vehicle) {
+	public RouteSelectionRequest(MasRoute route, Vehicle vehicle) {
 		this.route = route;
 		this.vehicle = vehicle;
 	}
@@ -24,7 +24,7 @@ public class ReRouteStartedRequest implements MessageBody {
 
 	@Override
 	public String toString() {
-		return "ReRouteRequest [route=" + route + ", vehicle=" + vehicle + "]";
+		return "RouteSelection [route=" + route + ", vehicle=" + vehicle + "]";
 	}
-	
+
 }

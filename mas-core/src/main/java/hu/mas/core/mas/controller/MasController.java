@@ -1,4 +1,4 @@
-package hu.mas.core.mas;
+package hu.mas.core.mas.controller;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,18 +13,19 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.model.message.Message;
-import hu.mas.core.agent.model.message.MessageType;
-import hu.mas.core.agent.model.message.RouteInfoAnswer;
-import hu.mas.core.agent.model.message.RouteInfoRequest;
-import hu.mas.core.agent.model.message.RouteSelectionAnswer;
-import hu.mas.core.agent.model.message.RouteSelectionRequest;
-import hu.mas.core.agent.model.message.RouteStartedAnswer;
-import hu.mas.core.agent.model.message.RouteStartedRequest;
 import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.model.exception.MasRuntimeException;
 import hu.mas.core.mas.model.graph.Edge;
-import hu.mas.core.util.TimeCalculator;
+import hu.mas.core.mas.model.message.Message;
+import hu.mas.core.mas.model.message.MessageType;
+import hu.mas.core.mas.model.message.RouteInfoAnswer;
+import hu.mas.core.mas.model.message.RouteInfoRequest;
+import hu.mas.core.mas.model.message.RouteSelectionAnswer;
+import hu.mas.core.mas.model.message.RouteSelectionRequest;
+import hu.mas.core.mas.model.message.RouteStartedAnswer;
+import hu.mas.core.mas.model.message.RouteStartedRequest;
+import hu.mas.core.mas.util.TimeCalculator;
 
 public class MasController implements Runnable {
 

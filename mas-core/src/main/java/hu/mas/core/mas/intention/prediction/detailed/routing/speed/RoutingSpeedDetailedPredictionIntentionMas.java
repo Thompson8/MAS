@@ -7,7 +7,7 @@ import hu.mas.core.mas.intention.model.Road;
 import hu.mas.core.mas.intention.prediction.detailed.AbstractDetailedPredictionIntentionMas;
 import hu.mas.core.mas.intention.prediction.routing.speed.RoutingSpeedIntentionUtil;
 import hu.mas.core.mas.model.graph.MasGraph;
-import hu.mas.core.mas.path.AbstractPathFinder;
+import hu.mas.core.mas.pathfinder.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 

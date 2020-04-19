@@ -7,17 +7,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.mas.core.agent.model.exception.AgentException;
-import hu.mas.core.agent.model.message.Message;
-import hu.mas.core.agent.model.message.MessageType;
-import hu.mas.core.agent.model.message.RouteInfoAnswer;
-import hu.mas.core.agent.model.message.RouteInfoRequest;
-import hu.mas.core.agent.model.message.RouteSelectionRequest;
-import hu.mas.core.agent.model.message.RouteStartedRequest;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.MasController;
+import hu.mas.core.mas.controller.MasController;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.Vertex;
+import hu.mas.core.mas.model.message.Message;
+import hu.mas.core.mas.model.message.MessageType;
+import hu.mas.core.mas.model.message.RouteInfoAnswer;
+import hu.mas.core.mas.model.message.RouteInfoRequest;
+import hu.mas.core.mas.model.message.RouteSelectionRequest;
+import hu.mas.core.mas.model.message.RouteStartedRequest;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 

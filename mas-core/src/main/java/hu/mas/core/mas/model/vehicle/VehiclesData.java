@@ -1,4 +1,4 @@
-package hu.mas.core.mas;
+package hu.mas.core.mas.model.vehicle;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

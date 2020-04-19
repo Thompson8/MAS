@@ -1,15 +1,15 @@
-package hu.mas.core.mas.nointention.sumodelegate;
+package hu.mas.core.mas.nointention.sumo.delegate;
 
 import hu.mas.core.mas.model.exception.MasException;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.nointention.AbstractNoIntentionMas;
-import hu.mas.core.mas.path.AbstractPathFinder;
+import hu.mas.core.mas.pathfinder.AbstractPathFinder;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class SumoDelegatedMas extends AbstractNoIntentionMas {
+public class SumoDelegatedNoIntentionMas extends AbstractNoIntentionMas {
 
-	public SumoDelegatedMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public SumoDelegatedNoIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 

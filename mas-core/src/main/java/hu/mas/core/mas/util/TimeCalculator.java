@@ -1,4 +1,4 @@
-package hu.mas.core.util;
+package hu.mas.core.mas.util;
 
 public class TimeCalculator {
 

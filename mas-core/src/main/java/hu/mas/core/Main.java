@@ -28,18 +28,18 @@ import hu.mas.core.config.sumo.xml.ParseSumoConfiguration;
 import hu.mas.core.config.sumo.xml.model.SumoConfiguration;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.Mas;
-import hu.mas.core.mas.MasController;
+import hu.mas.core.mas.controller.MasController;
 import hu.mas.core.mas.converter.Converter;
 import hu.mas.core.mas.intention.prediction.detailed.routing.speed.RoutingSpeedDetailedPredictionIntentionMas;
 import hu.mas.core.mas.intention.prediction.detailed.travel.time.TravelTimeDetailedPredictionIntentionMas;
 import hu.mas.core.mas.intention.prediction.simple.routing.speed.RoutingSpeedSimplePredictionIntentionMas;
 import hu.mas.core.mas.intention.prediction.simple.travel.time.TravelTimeSimplePredictionIntentionMas;
 import hu.mas.core.mas.model.graph.MasGraph;
-import hu.mas.core.mas.nointention.base.NoIntentionTravelTimeMas;
-import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
-import hu.mas.core.mas.path.AbstractPathFinder;
-import hu.mas.core.mas.path.KShortestSimplePathsFinder;
-import hu.mas.core.mas.path.PathFinder;
+import hu.mas.core.mas.nointention.sumo.delegate.SumoDelegatedNoIntentionMas;
+import hu.mas.core.mas.nointention.travel.time.TravelTimeNoIntentionMas;
+import hu.mas.core.mas.pathfinder.AbstractPathFinder;
+import hu.mas.core.mas.pathfinder.KShortestSimplePathsFinder;
+import hu.mas.core.mas.pathfinder.PathFinder;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {
@@ -189,9 +189,9 @@ public class Main {
 		case DETAILED_INTENTION_TRAVEL_TIME_MAS:
 			return new TravelTimeDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case NO_INTENTION_SUMO_DELEGATED_MAS:
-			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new SumoDelegatedNoIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case NO_INTENTION_TRAVEL_TIME_MAS:
-			return new NoIntentionTravelTimeMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new TravelTimeNoIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case DETAILED_INTENTION_ROUTING_SPEED_MAS:
 			return new RoutingSpeedDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case SIMPLE_INTENTION_TRAVEL_TIME_MAS:

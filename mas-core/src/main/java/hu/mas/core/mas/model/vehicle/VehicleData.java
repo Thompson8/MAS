@@ -1,4 +1,4 @@
-package hu.mas.core.mas;
+package hu.mas.core.mas.model.vehicle;
 
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.mas.model.graph.Edge;

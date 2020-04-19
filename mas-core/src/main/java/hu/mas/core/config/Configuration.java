@@ -3,7 +3,7 @@ package hu.mas.core.config;
 import java.util.List;
 
 import hu.mas.core.mas.Mas;
-import hu.mas.core.mas.path.PathFinder;
+import hu.mas.core.mas.pathfinder.PathFinder;
 
 public class Configuration {
 

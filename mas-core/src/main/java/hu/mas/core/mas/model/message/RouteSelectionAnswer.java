@@ -1,4 +1,4 @@
-package hu.mas.core.agent.model.message;
+package hu.mas.core.mas.model.message;
 
 public class RouteSelectionAnswer implements MessageBody {
 

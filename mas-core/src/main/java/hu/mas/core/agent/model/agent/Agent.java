@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import de.tudresden.ws.container.SumoStringList;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.MasController;
+import hu.mas.core.mas.controller.MasController;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
