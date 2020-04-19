@@ -161,14 +161,17 @@ public class Main {
 			return Optional.empty();
 		} finally {
 			try {
-				MAS_EXECUTER.shutdownNow();
-			} catch (Exception e) {
-				logger.error("Error during mass executor shutdown", e);
-			}
-			try {
 				AGENT_EXECUTER.shutdownNow();
 			} catch (Exception e) {
-				logger.error("Error during agent executor shutdown", e);
+				//Not real errors
+				logger.debug("Error during agent executor shutdown", e);
+			}
+			controller.clearUpIncomingMessages();
+			try {
+				MAS_EXECUTER.shutdownNow();
+			} catch (Exception e) {
+				//Not real errors
+				logger.debug("Error during mass executor shutdown", e);
 			}
 		}
 	}

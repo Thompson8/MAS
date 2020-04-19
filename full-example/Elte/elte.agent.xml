@@ -2,7 +2,7 @@
     <agent from="268745971" to="cluster_1178038244_1903761245" agentStartInterval="20">
         <vehicle typeId="MEDIUM"/>
     </agent>
-    <agent from="268798064" to="cluster_1178038244_1903761245" agentStartInterval="50">
+    <agent from="268798064" to="cluster_1178038244_1903761245" agentStartInterval="40">
         <vehicle typeId="SLOW"/>
     </agent>
     <agent from="4801911873" to="cluster_1178038244_1903761245" agentStartInterval="20">

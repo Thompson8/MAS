@@ -80,7 +80,7 @@ public class SimpleAgent extends Agent {
 				new RouteInfoRequest(this.from, this.to, this.vehicle));
 		masController.sendMessage(infoRequest);
 
-		Message infoRequestMessageAnswer = infoRequest.getConnection().take();
+		Message infoRequestMessageAnswer = checkIfMasIsTerminated(infoRequest.getConnection().take());
 		RouteInfoAnswer infoRequestMessageAnswerBody = (RouteInfoAnswer) infoRequestMessageAnswer.getBody();
 
 		logger.info("Agent: {} recived routes to choose from: {}", this.id, infoRequestMessageAnswerBody.getRoutes());
@@ -92,14 +92,14 @@ public class SimpleAgent extends Agent {
 		masController.sendMessage(routeSelection);
 		logger.info("Agent: {} sent chosen route to Mas", this.id);
 
-		Message routeSelectionAnswer = routeSelection.getConnection().take();
+		Message routeSelectionAnswer = checkIfMasIsTerminated(routeSelection.getConnection().take());
 		logger.info("Agent: {} route selection answer: {}", this.id, routeSelectionAnswer);
 
 		Message routeStartedRequest = new Message(this.id, MessageType.ROUTE_STARTED_REQUEST,
 				new RouteStartedRequest(this.vehicle));
 		logger.info("Agent: {} sent route started signal", this.id);
 		masController.sendMessage(routeStartedRequest);
-		Message routeStartedAnswer = routeStartedRequest.getConnection().take();
+		Message routeStartedAnswer = checkIfMasIsTerminated(routeStartedRequest.getConnection().take());
 		logger.info("Agent: {} recived acknowledgement signal: {}", this.id, routeStartedAnswer);
 	}
 
@@ -141,6 +141,14 @@ public class SimpleAgent extends Agent {
 		}
 
 		return finish;
+	}
+
+	protected Message checkIfMasIsTerminated(Message message) {
+		if (MessageType.MAS_TERMINATED.equals(message.getType())) {
+			throw new AgentException("Mas is terminated!");
+		} else {
+			return message;
+		}
 	}
 
 	@Override

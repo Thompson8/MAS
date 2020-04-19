@@ -1,75 +1,40 @@
 Statistics
-Finished vehicles: 48/68
-Avg time: 118.91666666666667
-Min time: 20.5
-Max time: 408.5
+Finished vehicles: 22/33
+Avg time: 29.65909090909091
+Min time: 19.5
+Max time: 39.5
 
 Tracked vehicle data:
-Vehicle: Vehicle_41, start: 198.5, finish: null
-Vehicle: Vehicle_40, start: 180.5, finish: 219.5
-Vehicle: Vehicle_47, start: 353.0, finish: 390.0
-Vehicle: Vehicle_46, start: 344.5, finish: null
-Vehicle: Vehicle_49, start: 364.0, finish: 404.5
-Vehicle: Vehicle_48, start: 354.5, finish: null
-Vehicle: Vehicle_43, start: 266.0, finish: null
-Vehicle: Vehicle_42, start: 223.0, finish: 261.0
-Vehicle: Vehicle_45, start: 326.0, finish: 360.0
-Vehicle: Vehicle_44, start: 311.0, finish: 347.0
-Vehicle: Vehicle_30, start: 140.0, finish: 448.0
-Vehicle: Vehicle_36, start: 142.0, finish: 174.0
-Vehicle: Vehicle_35, start: 160.5, finish: null
-Vehicle: Vehicle_38, start: 160.5, finish: 194.0
-Vehicle: Vehicle_37, start: 171.0, finish: null
-Vehicle: Vehicle_32, start: 150.0, finish: 459.5
-Vehicle: Vehicle_31, start: 117.5, finish: 150.5
-Vehicle: Vehicle_34, start: 136.0, finish: 167.5
-Vehicle: Vehicle_33, start: 127.0, finish: 158.0
-Vehicle: Vehicle_39, start: 181.0, finish: null
-Vehicle: Vehicle_61, start: 456.0, finish: null
-Vehicle: Vehicle_60, start: 450.5, finish: 488.0
-Vehicle: Vehicle_8, start: 31.0, finish: 339.0
-Vehicle: Vehicle_63, start: 466.0, finish: null
-Vehicle: Vehicle_9, start: 26.0, finish: 59.0
-Vehicle: Vehicle_62, start: 460.0, finish: 495.0
-Vehicle: Vehicle_6, start: 21.0, finish: 418.0
-Vehicle: Vehicle_7, start: 17.0, finish: 51.5
-Vehicle: Vehicle_4, start: 11.5, finish: 320.5
-Vehicle: Vehicle_5, start: 8.0, finish: 39.0
-Vehicle: Vehicle_25, start: 90.0, finish: 125.0
-Vehicle: Vehicle_24, start: 110.5, finish: 479.5
-Vehicle: Vehicle_68, start: 498.0, finish: null
-Vehicle: Vehicle_27, start: 99.5, finish: 132.5
-Vehicle: Vehicle_26, start: 120.5, finish: null
-Vehicle: Vehicle_21, start: 95.0, finish: 407.5
-Vehicle: Vehicle_65, start: 476.0, finish: null
-Vehicle: Vehicle_20, start: 72.5, finish: 103.0
-Vehicle: Vehicle_64, start: 473.0, finish: null
-Vehicle: Vehicle_23, start: 89.0, finish: 109.5
-Vehicle: Vehicle_67, start: 493.0, finish: null
-Vehicle: Vehicle_22, start: 81.0, finish: 112.0
-Vehicle: Vehicle_66, start: 486.0, finish: null
-Vehicle: Vehicle_29, start: 108.5, finish: 139.0
-Vehicle: Vehicle_28, start: 130.5, finish: 437.5
-Vehicle: Vehicle_50, start: 367.0, finish: null
-Vehicle: Vehicle_52, start: 394.5, finish: null
-Vehicle: Vehicle_51, start: 381.5, finish: 422.5
-Vehicle: Vehicle_14, start: 43.5, finish: 80.5
-Vehicle: Vehicle_2, start: 1.5, finish: 308.5
-Vehicle: Vehicle_58, start: 438.0, finish: 472.0
-Vehicle: Vehicle_3, start: 1.5, finish: 33.5
-Vehicle: Vehicle_13, start: 44.5, finish: 74.5
-Vehicle: Vehicle_57, start: 428.5, finish: null
-Vehicle: Vehicle_16, start: 53.5, finish: 84.5
-Vehicle: Vehicle_15, start: 61.0, finish: 469.5
-Vehicle: Vehicle_1, start: 1.5, finish: 22.5
-Vehicle: Vehicle_59, start: 440.5, finish: null
-Vehicle: Vehicle_10, start: 41.0, finish: 349.0
-Vehicle: Vehicle_54, start: 411.0, finish: null
-Vehicle: Vehicle_53, start: 395.5, finish: 432.0
-Vehicle: Vehicle_12, start: 51.0, finish: 360.5
-Vehicle: Vehicle_56, start: 422.5, finish: 457.0
-Vehicle: Vehicle_11, start: 35.0, finish: 68.0
-Vehicle: Vehicle_55, start: 413.5, finish: 450.0
-Vehicle: Vehicle_18, start: 63.0, finish: 96.0
-Vehicle: Vehicle_17, start: 71.0, finish: 378.5
-Vehicle: Vehicle_19, start: 81.5, finish: 392.5
+Vehicle: Vehicle_8, start: 41.5, finish: 72.5
+Vehicle: Vehicle_9, start: 61.5, finish: 83.5
+Vehicle: Vehicle_6, start: 41.5, finish: 63.5
+Vehicle: Vehicle_7, start: 41.5, finish: null
+Vehicle: Vehicle_4, start: 21.5, finish: 41.0
+Vehicle: Vehicle_5, start: 21.5, finish: 52.0
+Vehicle: Vehicle_25, start: 181.5, finish: 221.0
+Vehicle: Vehicle_24, start: 181.5, finish: 219.0
+Vehicle: Vehicle_27, start: 201.5, finish: null
+Vehicle: Vehicle_26, start: 201.5, finish: 237.5
+Vehicle: Vehicle_21, start: 161.5, finish: 195.5
+Vehicle: Vehicle_20, start: 141.5, finish: 174.0
+Vehicle: Vehicle_23, start: 162.0, finish: 199.5
+Vehicle: Vehicle_22, start: 161.5, finish: null
+Vehicle: Vehicle_29, start: 221.5, finish: null
+Vehicle: Vehicle_28, start: 201.5, finish: 240.0
+Vehicle: Vehicle_30, start: 222.0, finish: null
+Vehicle: Vehicle_2, start: 1.5, finish: null
+Vehicle: Vehicle_14, start: 101.5, finish: 122.0
+Vehicle: Vehicle_13, start: 81.5, finish: 112.5
+Vehicle: Vehicle_3, start: 1.5, finish: 32.0
+Vehicle: Vehicle_16, start: 121.5, finish: 143.5
+Vehicle: Vehicle_1, start: 1.5, finish: 23.0
+Vehicle: Vehicle_15, start: 101.5, finish: 131.0
+Vehicle: Vehicle_10, start: 61.5, finish: 94.0
+Vehicle: Vehicle_32, start: 241.5, finish: null
+Vehicle: Vehicle_31, start: 241.5, finish: null
+Vehicle: Vehicle_12, start: 81.5, finish: null
+Vehicle: Vehicle_11, start: 81.5, finish: 101.5
+Vehicle: Vehicle_33, start: 241.5, finish: null
+Vehicle: Vehicle_18, start: 121.5, finish: 154.0
+Vehicle: Vehicle_17, start: 121.5, finish: null
+Vehicle: Vehicle_19, start: 141.5, finish: 173.5

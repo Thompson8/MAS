@@ -71,7 +71,7 @@ public class MasController implements Runnable {
 				}
 
 				populate(currentTime);
-				
+
 				previousTime = currentTime;
 				mas.doTimeStep();
 				Thread.sleep(100);
@@ -122,6 +122,15 @@ public class MasController implements Runnable {
 			return Optional.of(location);
 		} else {
 			return Optional.of(null);
+		}
+	}
+
+	public void clearUpIncomingMessages() {
+		while (!incomingAgentMessageQueue.isEmpty()) {
+			Message message = incomingAgentMessageQueue.remove();
+			logger.info("Recived message {}, from agent: {} after termination", message.getType(),
+					message.getAgentId());
+			message.getConnection().add(new Message(message.getAgentId(), MessageType.MAS_TERMINATED, null));
 		}
 	}
 
