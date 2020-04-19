@@ -1,40 +1,40 @@
 Statistics
 Finished vehicles: 22/33
-Avg time: 29.65909090909091
+Avg time: 30.022727272727273
 Min time: 19.5
-Max time: 39.5
+Max time: 41.0
 
 Tracked vehicle data:
-Vehicle: Vehicle_8, start: 41.5, finish: 72.5
-Vehicle: Vehicle_9, start: 61.5, finish: 83.5
-Vehicle: Vehicle_6, start: 41.5, finish: 63.5
+Vehicle: Vehicle_8, start: 41.5, finish: 74.0
+Vehicle: Vehicle_9, start: 61.5, finish: 82.5
+Vehicle: Vehicle_6, start: 41.0, finish: 63.0
 Vehicle: Vehicle_7, start: 41.5, finish: null
 Vehicle: Vehicle_4, start: 21.5, finish: 41.0
-Vehicle: Vehicle_5, start: 21.5, finish: 52.0
-Vehicle: Vehicle_25, start: 181.5, finish: 221.0
-Vehicle: Vehicle_24, start: 181.5, finish: 219.0
+Vehicle: Vehicle_5, start: 22.5, finish: 53.0
+Vehicle: Vehicle_25, start: 182.0, finish: 223.0
+Vehicle: Vehicle_24, start: 182.0, finish: 218.5
 Vehicle: Vehicle_27, start: 201.5, finish: null
-Vehicle: Vehicle_26, start: 201.5, finish: 237.5
-Vehicle: Vehicle_21, start: 161.5, finish: 195.5
-Vehicle: Vehicle_20, start: 141.5, finish: 174.0
+Vehicle: Vehicle_26, start: 201.5, finish: 237.0
+Vehicle: Vehicle_21, start: 161.5, finish: 196.0
+Vehicle: Vehicle_20, start: 142.0, finish: 171.0
 Vehicle: Vehicle_23, start: 162.0, finish: 199.5
 Vehicle: Vehicle_22, start: 161.5, finish: null
-Vehicle: Vehicle_29, start: 221.5, finish: null
-Vehicle: Vehicle_28, start: 201.5, finish: 240.0
-Vehicle: Vehicle_30, start: 222.0, finish: null
+Vehicle: Vehicle_29, start: 222.0, finish: null
+Vehicle: Vehicle_28, start: 201.5, finish: 242.0
+Vehicle: Vehicle_30, start: 222.5, finish: null
+Vehicle: Vehicle_14, start: 102.0, finish: 122.0
 Vehicle: Vehicle_2, start: 1.5, finish: null
-Vehicle: Vehicle_14, start: 101.5, finish: 122.0
+Vehicle: Vehicle_3, start: 1.5, finish: 33.5
 Vehicle: Vehicle_13, start: 81.5, finish: 112.5
-Vehicle: Vehicle_3, start: 1.5, finish: 32.0
-Vehicle: Vehicle_16, start: 121.5, finish: 143.5
-Vehicle: Vehicle_1, start: 1.5, finish: 23.0
-Vehicle: Vehicle_15, start: 101.5, finish: 131.0
-Vehicle: Vehicle_10, start: 61.5, finish: 94.0
+Vehicle: Vehicle_16, start: 121.5, finish: 142.0
+Vehicle: Vehicle_1, start: 1.5, finish: 22.5
+Vehicle: Vehicle_15, start: 102.0, finish: 134.0
+Vehicle: Vehicle_10, start: 61.5, finish: 95.5
 Vehicle: Vehicle_32, start: 241.5, finish: null
 Vehicle: Vehicle_31, start: 241.5, finish: null
 Vehicle: Vehicle_12, start: 81.5, finish: null
-Vehicle: Vehicle_11, start: 81.5, finish: 101.5
+Vehicle: Vehicle_11, start: 81.0, finish: 101.0
 Vehicle: Vehicle_33, start: 241.5, finish: null
-Vehicle: Vehicle_18, start: 121.5, finish: 154.0
+Vehicle: Vehicle_18, start: 121.5, finish: 155.5
 Vehicle: Vehicle_17, start: 121.5, finish: null
-Vehicle: Vehicle_19, start: 141.5, finish: 173.5
+Vehicle: Vehicle_19, start: 142.0, finish: 178.0

@@ -21,3 +21,4 @@ mvn clean install
 
 Fordítási függőségek:
 - Maven (Apache Maven 3.X.X (https://maven.apache.org/download.cgi))
+- https://github.com/eclipse/sumo/tree/master/tools/contributed/traas (Sumo féla Java interface, le kell tölteni és mvn clean install parancs-al buildelni kell)
