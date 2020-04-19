@@ -33,6 +33,8 @@ public class MasController implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(MasController.class);
 
+	private static final int PROPAGATION_SKIP_THRESHOLD = 10;
+
 	private final AbstractMas mas;
 
 	private final int simulationIterationLimit;
@@ -55,6 +57,7 @@ public class MasController implements Runnable {
 	public void run() {
 		try {
 			mas.runServer();
+			double endTime = TimeCalculator.calculateTime(simulationIterationLimit, stepLength);
 			double previousTime = 0;
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
@@ -70,14 +73,16 @@ public class MasController implements Runnable {
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
 
-				populate(currentTime);
+				if ((endTime - currentTime) > PROPAGATION_SKIP_THRESHOLD) {
+					populate(currentTime);
+				}
 
 				previousTime = currentTime;
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
 
-			mas.updateData(previousTime, TimeCalculator.calculateTime(simulationIterationLimit, stepLength));
+			mas.updateData(previousTime, endTime);
 		} catch (Exception e) {
 			logger.error("Exception during Mas execution", e);
 			throw new MasRuntimeException(e);
@@ -183,8 +188,8 @@ public class MasController implements Runnable {
 				.collect(Collectors.toList());
 		if (!times.isEmpty()) {
 			builder.append("Avg time: " + times.stream().reduce(0.0, (a, b) -> a + b) / times.size() + "\n");
-			builder.append("Min time: " + times.stream().min((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
-			builder.append("Max time: " + times.stream().max((a, b) -> a.compareTo(b)).orElseThrow() + "\n");
+			builder.append("Min time: " + times.stream().min((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
+			builder.append("Max time: " + times.stream().max((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
 		} else {
 			builder.append("No time data to process\n");
 		}

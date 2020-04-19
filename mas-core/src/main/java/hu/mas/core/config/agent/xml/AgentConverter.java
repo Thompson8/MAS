@@ -18,20 +18,21 @@ public class AgentConverter {
 
 	public static List<SimpleAgent> toSimpleAgents(AgentConfiguration configuration, MasGraph graph,
 			SumoTraciConnection connection, RoutesConfig routes) {
-		return configuration.getAgents().stream()
-				.map(e -> toSimpleAgent(e, graph.getVertexes(), connection, routes))
+		return configuration.getAgents().stream().map(e -> toSimpleAgent(e, graph.getVertexes(), connection, routes))
 				.collect(Collectors.toList());
 	}
 
 	private static SimpleAgent toSimpleAgent(hu.mas.core.config.agent.xml.model.Agent agent, Collection<Vertex> nodes,
 			SumoTraciConnection connection, RoutesConfig routes) {
-		VehicleType type = findVehicleType(agent.getVehicle().getTypeId(), routes).orElseThrow();
+		VehicleType type = findVehicleType(agent.getVehicle().getTypeId(), routes).orElseThrow(RuntimeException::new);
 
 		SimpleAgent result = new SimpleAgent(agent.getId(),
 				new Vehicle(agent.getVehicle().getId(), type.getId(), type.getMaxSpeed(), type.getLength()),
-				nodes.stream().filter(e -> e.getId().equals(agent.getFrom())).findFirst().orElseThrow(),
-				nodes.stream().filter(e -> e.getId().equals(agent.getTo())).findFirst().orElseThrow(), null,
-				connection);
+				nodes.stream().filter(e -> e.getId().equals(agent.getFrom())).findFirst()
+						.orElseThrow(RuntimeException::new),
+				nodes.stream().filter(e -> e.getId().equals(agent.getTo())).findFirst()
+						.orElseThrow(RuntimeException::new),
+				null, connection);
 		result.setSleepTime(agent.getSleepTime());
 		result.setAgentStartInterval(agent.getAgentStartInterval());
 		return result;

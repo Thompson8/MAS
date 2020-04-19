@@ -33,8 +33,8 @@ public class KShortestSimplePathsFinder implements AbstractPathFinder {
 	}
 
 	private MasRoute toRoute(GraphPath<String, DefaultWeightedEdge> path, MasGraph masGraph, Vertex from, Vertex to) {
-		List<Vertex> vertexes = path.getVertexList().stream().map(e -> masGraph.findVertex(e).orElseThrow())
-				.collect(Collectors.toList());
+		List<Vertex> vertexes = path.getVertexList().stream()
+				.map(e -> masGraph.findVertex(e).orElseThrow(RuntimeException::new)).collect(Collectors.toList());
 		List<Edge> edges = new ArrayList<>();
 		Iterator<Vertex> vertexIt = vertexes.iterator();
 		Vertex current = vertexIt.next();
@@ -43,7 +43,7 @@ public class KShortestSimplePathsFinder implements AbstractPathFinder {
 			next = vertexIt.next();
 			final String nextId = next.getId();
 			edges.add(current.getOutgoingEdges().stream().filter(e -> e.getTo().getId().equals(nextId)).findFirst()
-					.orElseThrow());
+					.orElseThrow(RuntimeException::new));
 			current = next;
 		}
 

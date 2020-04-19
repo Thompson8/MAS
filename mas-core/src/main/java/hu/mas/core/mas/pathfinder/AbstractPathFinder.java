@@ -11,10 +11,11 @@ import hu.mas.core.util.TriFunction;
 
 public interface AbstractPathFinder {
 
-	public default List<Pair<Double, MasRoute>> getShortestPaths(String from, String to, Vehicle vehicle,
-			double time, MasGraph masGraph, TriFunction<MasRoute, Vehicle, Double, Double> calculateRouteCost) {
-		return getShortestPaths(masGraph.findVertex(from).orElseThrow(), masGraph.findVertex(to).orElseThrow(), vehicle,
-				time, masGraph, calculateRouteCost);
+	public default List<Pair<Double, MasRoute>> getShortestPaths(String from, String to, Vehicle vehicle, double time,
+			MasGraph masGraph, TriFunction<MasRoute, Vehicle, Double, Double> calculateRouteCost) {
+		return getShortestPaths(masGraph.findVertex(from).orElseThrow(RuntimeException::new),
+				masGraph.findVertex(to).orElseThrow(RuntimeException::new), vehicle, time, masGraph,
+				calculateRouteCost);
 	}
 
 	public List<Pair<Double, MasRoute>> getShortestPaths(Vertex from, Vertex to, Vehicle vehicle, double time,
