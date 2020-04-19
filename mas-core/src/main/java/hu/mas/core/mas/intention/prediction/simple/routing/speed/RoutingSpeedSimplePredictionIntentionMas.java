@@ -1,4 +1,4 @@
-package hu.mas.core.mas.intention.routing.speed;
+package hu.mas.core.mas.intention.prediction.simple.routing.speed;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.intention.model.Road;
-import hu.mas.core.mas.intention.prediction.detailed.AbstractDetailedPredictionIntentionMas;
+import hu.mas.core.mas.intention.prediction.simple.AbstractSimplePredictionIntentionMas;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.path.AbstractPathFinder;
@@ -17,11 +17,11 @@ import hu.mas.core.mas.util.CalculatorUtil;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class RoutingSpeedDetailedPredictionIntentionMas extends AbstractDetailedPredictionIntentionMas {
+public class RoutingSpeedSimplePredictionIntentionMas extends AbstractSimplePredictionIntentionMas {
 
 	private static final double ALPHA = 0.1;
 
-	public RoutingSpeedDetailedPredictionIntentionMas(MasGraph graph, SumoTraciConnection connection,
+	public RoutingSpeedSimplePredictionIntentionMas(MasGraph graph, SumoTraciConnection connection,
 			AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}

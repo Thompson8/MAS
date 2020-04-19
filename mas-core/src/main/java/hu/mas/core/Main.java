@@ -30,10 +30,12 @@ import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.Mas;
 import hu.mas.core.mas.MasController;
 import hu.mas.core.mas.converter.Converter;
-import hu.mas.core.mas.intention.routing.speed.RoutingSpeedDetailedPredictionIntentionMas;
-import hu.mas.core.mas.intention.travel.time.TravelTimeDetailedPredictionIntentionMas;
+import hu.mas.core.mas.intention.prediction.detailed.routing.speed.RoutingSpeedDetailedPredictionIntentionMas;
+import hu.mas.core.mas.intention.prediction.detailed.travel.time.TravelTimeDetailedPredictionIntentionMas;
+import hu.mas.core.mas.intention.prediction.simple.routing.speed.RoutingSpeedSimplePredictionIntentionMas;
+import hu.mas.core.mas.intention.prediction.simple.travel.time.TravelTimeSimplePredictionIntentionMas;
 import hu.mas.core.mas.model.graph.MasGraph;
-import hu.mas.core.mas.nointention.base.BaseMas;
+import hu.mas.core.mas.nointention.base.NoIntentionTravelTimeMas;
 import hu.mas.core.mas.nointention.sumodelegate.SumoDelegatedMas;
 import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.mas.path.KShortestSimplePathsFinder;
@@ -184,14 +186,18 @@ public class Main {
 	private static AbstractMas createMas(Mas masToUse, MasGraph graph, SumoTraciConnection conn,
 			PathFinder pathFinderAlgorithm) {
 		switch (masToUse) {
-		case SIMPLE_INTENTION_MAS:
+		case DETAILED_INTENTION_TRAVEL_TIME_MAS:
 			return new TravelTimeDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
-		case SUMO_DELEGATED_MAS:
+		case NO_INTENTION_SUMO_DELEGATED_MAS:
 			return new SumoDelegatedMas(graph, conn, getPathFinder(pathFinderAlgorithm));
-		case BASE_MAS:
-			return new BaseMas(graph, conn, getPathFinder(pathFinderAlgorithm));
-		case ROUTING_SPEED_INTENTION_MAS:
+		case NO_INTENTION_TRAVEL_TIME_MAS:
+			return new NoIntentionTravelTimeMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+		case DETAILED_INTENTION_ROUTING_SPEED_MAS:
 			return new RoutingSpeedDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+		case SIMPLE_INTENTION_TRAVEL_TIME_MAS:
+			return new TravelTimeSimplePredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+		case SIMPLE_INTENTION_ROUTING_SPEED_MAS:
+			return new RoutingSpeedSimplePredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		default:
 			throw new UnsupportedOperationException();
 		}

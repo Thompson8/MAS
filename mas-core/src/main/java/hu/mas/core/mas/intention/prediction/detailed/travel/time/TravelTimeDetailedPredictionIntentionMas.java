@@ -1,4 +1,4 @@
-package hu.mas.core.mas.intention.travel.time;
+package hu.mas.core.mas.intention.prediction.detailed.travel.time;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.intention.model.Road;

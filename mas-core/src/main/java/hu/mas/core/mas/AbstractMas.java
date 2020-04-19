@@ -45,14 +45,14 @@ public abstract class AbstractMas {
 		this.pathFinder = pathFinder;
 	}
 
-	protected void updateTravelWeigthMatrix(double currentTime) throws MasException {
-		beforeUpdateTravelWeigthMatrix(currentTime);
+	protected void updateTravelWeigthMatrix(double previousTime, double currentTime) throws MasException {
+		beforeUpdateTravelWeigthMatrix(previousTime, currentTime);
 		for (Edge edge : graph.getEdges()) {
 			graph.updateEdgeWeight(edge, getValueForWeigthUpdate(edge, currentTime));
 		}
 	}
 
-	protected void beforeUpdateTravelWeigthMatrix(double currentTime) {
+	protected void beforeUpdateTravelWeigthMatrix(double previousTime, double currentTime) {
 	}
 
 	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
@@ -67,9 +67,9 @@ public abstract class AbstractMas {
 
 	protected abstract double calculateTravelTime(MasRoute route, Vehicle vehicle, double time);
 
-	public void updateData(double currentTime) throws Exception {
+	public void updateData(double previousTime, double currentTime) throws Exception {
 		updateVehicleData(currentTime);
-		updateTravelWeigthMatrix(currentTime);
+		updateTravelWeigthMatrix(previousTime, currentTime);
 	}
 
 	protected void updateVehicleData(double currentTime) throws Exception {

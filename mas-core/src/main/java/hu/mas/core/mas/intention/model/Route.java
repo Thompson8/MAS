@@ -11,13 +11,14 @@ public class Route {
 	private final Vertex to;
 
 	private final List<Road> roads;
-	
+
 	private Double predictedTravelTime;
 
 	public Route(Vertex from, Vertex to, List<Road> roads) {
 		this.from = from;
 		this.to = to;
 		this.roads = roads;
+		this.predictedTravelTime = this.roads.stream().mapToDouble(Road::getPredictedTravelTime).sum();
 	}
 
 	public Vertex getFrom() {

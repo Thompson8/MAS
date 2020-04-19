@@ -49,10 +49,10 @@ public class MasController implements Runnable {
 	public void run() {
 		try {
 			mas.runServer();
-
+			double previousTime = 0;
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
-				mas.updateData(currentTime);
+				mas.updateData(previousTime, currentTime);
 
 				if (i % 100 == 0) {
 					logger.info("Mas iteration: {}, current time: {}", i, currentTime);
@@ -60,15 +60,16 @@ public class MasController implements Runnable {
 				while (!incomingAgentMessageQueue.isEmpty()) {
 					Message message = incomingAgentMessageQueue.remove();
 					logger.info("Recived message {}, from agent: {}", message.getType(), message.getAgentId());
-					processMessage(message, currentTime);
+					processMessage(message, previousTime, currentTime);
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
 
+				previousTime = currentTime;
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
 
-			mas.updateData(TimeCalculator.calculateTime(simulationIterationLimit, stepLength));
+			mas.updateData(previousTime, TimeCalculator.calculateTime(simulationIterationLimit, stepLength));
 		} catch (Exception e) {
 			logger.error("Exception during Mas execution", e);
 			throw new MasRuntimeException(e);
@@ -77,7 +78,7 @@ public class MasController implements Runnable {
 		}
 	}
 
-	private void processMessage(Message message, double currentTime) throws Exception {
+	private void processMessage(Message message, double previousTime, double currentTime) throws Exception {
 		Message answer = null;
 
 		switch (message.getType()) {
@@ -92,7 +93,7 @@ public class MasController implements Runnable {
 			mas.registerRoute(selection.getVehicle(), selection.getRoute(), currentTime);
 			answer = new Message(message.getAgentId(), MessageType.ROUTE_SELECTION_ANSWER,
 					new RouteSelectionAnswer("Route registered in iteration: " + currentTime));
-			mas.updateData(currentTime);
+			mas.updateData(previousTime, currentTime);
 			break;
 		case ROUTE_STARTED_REQUEST:
 			RouteStartedRequest startedRequest = (RouteStartedRequest) message.getBody();

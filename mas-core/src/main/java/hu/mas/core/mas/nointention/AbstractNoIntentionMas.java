@@ -9,9 +9,9 @@ import hu.mas.core.mas.path.AbstractPathFinder;
 import hu.mas.core.mas.util.CalculatorUtil;
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public abstract class SimpleNoIntentionMas extends AbstractMas {
+public abstract class AbstractNoIntentionMas extends AbstractMas {
 
-	public SimpleNoIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
+	public AbstractNoIntentionMas(MasGraph graph, SumoTraciConnection connection, AbstractPathFinder pathFinder) {
 		super(graph, connection, pathFinder);
 	}
 

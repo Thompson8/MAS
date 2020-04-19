@@ -30,7 +30,7 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 	protected void registerRouteOperations(Vehicle vehicle, MasRoute route, double currentTime) {
 		propagateIntention(vehicle, getRoute(route), currentTime);
 	}
-	
+
 	@Override
 	protected double getValueForWeigthUpdate(Edge edge, double currentTime) {
 		return edge.getRoad().getPredictedTravelTime();
@@ -57,8 +57,8 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 	}
 
 	@Override
-	protected void beforeUpdateTravelWeigthMatrix(double currentTime) {
-		updatePredictedTravelTimes(currentTime);
+	protected void beforeUpdateTravelWeigthMatrix(double previousTime, double currentTime) {
+		updatePredictedTravelTimes(previousTime);
 	}
 
 	protected Route getRoute(MasRoute route) {

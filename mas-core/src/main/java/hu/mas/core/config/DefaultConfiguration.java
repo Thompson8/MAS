@@ -17,7 +17,7 @@ public class DefaultConfiguration {
 
 	public static final PathFinder DEFAULT_PATH_FINDER_ALGORITHM = PathFinder.K_SHORTEST_SIMPLE_PATHS;
 
-	public static final Mas DEFAULT_MAS = Mas.ROUTING_SPEED_INTENTION_MAS;
+	public static final Mas DEFAULT_MAS = Mas.SIMPLE_INTENTION_ROUTING_SPEED_MAS;
 
 	public static final List<String> DEFAULT_ROAD_TYPES_TO_INCLUDE = Collections
 			.unmodifiableList(Arrays.asList("highway.residential", "highway.tertiary"));
