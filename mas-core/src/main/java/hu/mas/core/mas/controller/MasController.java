@@ -187,7 +187,7 @@ public class MasController implements Runnable {
 	}
 
 	private void populate(double currentTime) {
-		this.agentPopulators.forEach(e -> e.populate(currentTime));
+		this.agentPopulators.forEach(e -> e.populate(currentTime, stepLength));
 	}
 
 }

@@ -23,8 +23,8 @@ public class AgentPopulator {
 		this.agentExecuter = agentExecuter;
 	}
 
-	public void populate(double time) {
-		if (time % interval < 1) {
+	public void populate(double time, double stepLength) {
+		if (time % interval < stepLength) {
 			try {
 				Agent newAgent = copy(templateAgent);
 				logger.info("Populator created new agent: {}", newAgent);
