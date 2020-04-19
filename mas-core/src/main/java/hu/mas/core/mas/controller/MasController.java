@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.mas.core.agent.model.agent.AgentPopulator;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.model.exception.MasRuntimeException;
@@ -39,11 +41,14 @@ public class MasController implements Runnable {
 
 	private final double stepLength;
 
+	private final List<AgentPopulator> agentPopulators;
+
 	public MasController(AbstractMas mas, int simulationIterationLimit, double stepLength) {
 		this.mas = mas;
 		this.simulationIterationLimit = simulationIterationLimit;
 		this.incomingAgentMessageQueue = new ConcurrentLinkedQueue<>();
 		this.stepLength = stepLength;
+		this.agentPopulators = new ArrayList<>();
 	}
 
 	@Override
@@ -65,6 +70,8 @@ public class MasController implements Runnable {
 					logger.info("Processed message {}, from agent: {}", message.getType(), message.getAgentId());
 				}
 
+				populate(currentTime);
+				
 				previousTime = currentTime;
 				mas.doTimeStep();
 				Thread.sleep(100);
@@ -173,6 +180,14 @@ public class MasController implements Runnable {
 			builder.append("No time data to process\n");
 		}
 		return builder.toString();
+	}
+
+	public void addAgentPopulator(AgentPopulator agentPopulator) {
+		this.agentPopulators.add(agentPopulator);
+	}
+
+	private void populate(double currentTime) {
+		this.agentPopulators.forEach(e -> e.populate(currentTime));
 	}
 
 }

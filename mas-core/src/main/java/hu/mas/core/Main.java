@@ -50,14 +50,9 @@ public class Main {
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
-	private static final int AGENT_POPULATOR_THREAD_POOL_SIZE = 10;
-
 	private static final int AGENT_THREAD_POOL_SIZE = 20;
 
 	private static final ExecutorService MAS_EXECUTER = Executors.newFixedThreadPool(MAS_THREAD_POOL_SIZE);
-
-	private static final ExecutorService AGENT_POPULATOR_EXECUTER = Executors
-			.newFixedThreadPool(AGENT_POPULATOR_THREAD_POOL_SIZE);
 
 	private static final ExecutorService AGENT_EXECUTER = Executors.newFixedThreadPool(AGENT_THREAD_POOL_SIZE);
 
@@ -152,7 +147,7 @@ public class Main {
 				if (e.getAgentStartInterval() == null) {
 					AGENT_EXECUTER.submit(e);
 				} else {
-					AGENT_POPULATOR_EXECUTER.submit(new AgentPopulator(e, e.getAgentStartInterval(), AGENT_EXECUTER));
+					controller.addAgentPopulator(new AgentPopulator(e, e.getAgentStartInterval(), AGENT_EXECUTER));
 				}
 			});
 
@@ -174,11 +169,6 @@ public class Main {
 				AGENT_EXECUTER.shutdownNow();
 			} catch (Exception e) {
 				logger.error("Error during agent executor shutdown", e);
-			}
-			try {
-				AGENT_POPULATOR_EXECUTER.shutdownNow();
-			} catch (Exception e) {
-				logger.error("Error during agent populator executor shutdown", e);
 			}
 		}
 	}
