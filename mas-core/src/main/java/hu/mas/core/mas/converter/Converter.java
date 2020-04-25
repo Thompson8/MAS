@@ -3,13 +3,19 @@ package hu.mas.core.mas.converter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import hu.mas.core.config.net.xml.model.Connection;
 import hu.mas.core.config.net.xml.model.Edge;
+import hu.mas.core.config.net.xml.model.Junction;
 import hu.mas.core.config.net.xml.model.Lane;
 import hu.mas.core.config.net.xml.model.Net;
+import hu.mas.core.mas.model.graph.InternalEdge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.model.graph.MasGraphImpl;
+import hu.mas.core.mas.model.graph.Vertex;
+import hu.mas.core.util.Pair;
 
 public class Converter {
 
@@ -26,7 +32,47 @@ public class Converter {
 			}
 		});
 
+		createJunctions(net, graph);
+
 		return graph;
+	}
+
+	protected static void createJunctions(Net net, MasGraph graph) {
+		List<Pair<Edge, Lane>> lanes = net.getEdges().stream()
+				.map(e -> e.getLanes().stream().map(a -> new Pair<>(e, a))).flatMap(x -> x)
+				.collect(Collectors.toList());
+
+		for (Junction junction : net.getJunctions()) {
+			Optional<Vertex> optVertex = graph.findVertex(junction.getId());
+			if (optVertex.isPresent()) {
+				createJunction(optVertex.get(), lanes, net, graph);
+			}
+		}
+	}
+
+	protected static void createJunction(Vertex vertex, List<Pair<Edge, Lane>> lanes, Net net, MasGraph graph) {
+		hu.mas.core.mas.model.graph.Junction internalJunction = new hu.mas.core.mas.model.graph.Junction(vertex);
+
+		for (hu.mas.core.mas.model.graph.Edge incomingEdge : vertex.getIncomingEdges()) {
+			List<Connection> connections = net.getConnections().stream().filter(e -> e.getVia() != null)
+					.filter(e -> e.getFrom().equals(incomingEdge.getId())).collect(Collectors.toList());
+
+			for (Connection connection : connections) {
+				Optional<Pair<Edge, Lane>> optLane = lanes.stream()
+						.filter(e -> e.getRigth().getId().equals(connection.getVia())).findFirst();
+
+				if (optLane.isPresent()) {
+					Pair<Edge, Lane> lane = optLane.get();
+					Optional<hu.mas.core.mas.model.graph.Edge> to = graph.findEdge(connection.getTo());
+					if (to.isPresent()) {
+						InternalEdge internalEdge = new InternalEdge(lane.getLeft().getId(), incomingEdge, to.get(),
+								lane.getRigth().getSpeed(), lane.getRigth().getLength());
+						internalJunction.getInternalEdges().add(internalEdge);
+						graph.addInternalEdge(internalEdge);
+					}
+				}
+			}
+		}
 	}
 
 	protected static List<Edge> getValidEdges(Net net, List<String> allowList) {

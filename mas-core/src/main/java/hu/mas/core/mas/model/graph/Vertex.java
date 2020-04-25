@@ -11,12 +11,18 @@ public class Vertex {
 
 	private List<Edge> edges;
 
+	private Junction junction;
+
 	public Vertex(String id) {
 		if (id == null) {
 			throw new IllegalArgumentException();
 		}
 		this.id = id;
 		this.edges = new ArrayList<>();
+	}
+
+	public boolean isJunction() {
+		return junction != null;
 	}
 
 	public String getId() {
@@ -41,6 +47,14 @@ public class Vertex {
 
 	public List<Edge> getOutgoingEdges() {
 		return edges.stream().filter(e -> e.getFrom().getId().equals(this.getId())).collect(Collectors.toList());
+	}
+
+	public Junction getJunction() {
+		return junction;
+	}
+
+	public void setJunction(Junction junction) {
+		this.junction = junction;
 	}
 
 	@Override

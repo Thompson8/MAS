@@ -3,7 +3,7 @@ package hu.mas.core.mas.nointention;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.AbstractMas;
-import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.pathfinder.AbstractPathFinder;
 import hu.mas.core.mas.util.CalculatorUtil;
@@ -23,7 +23,7 @@ public abstract class AbstractNoIntentionMas extends AbstractMas {
 	@Override
 	protected double calculateTravelTime(MasRoute route, Vehicle vehicle, double time) {
 		double travelTime = 0;
-		for (Edge edge : route.getEdges()) {
+		for (AbstractEdge edge : getEdgesWihtInternalEdgesIncluded(route)) {
 			travelTime = travelTime + CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle);
 		}
 

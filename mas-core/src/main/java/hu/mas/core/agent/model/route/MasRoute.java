@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.Vertex;
 
@@ -20,7 +21,7 @@ public class MasRoute {
 	private List<Vertex> nodes;
 
 	private List<Edge> edges;
-
+	
 	public MasRoute(Vertex from, Vertex to, List<Vertex> nodes, List<Edge> edges) {
 		this(generateId(), from, to, nodes, edges);
 	}

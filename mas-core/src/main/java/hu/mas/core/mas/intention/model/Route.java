@@ -2,6 +2,7 @@ package hu.mas.core.mas.intention.model;
 
 import java.util.List;
 
+import hu.mas.core.mas.model.graph.Road;
 import hu.mas.core.mas.model.graph.Vertex;
 
 public class Route {

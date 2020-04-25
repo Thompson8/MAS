@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.graph.Road;
 import hu.mas.core.mas.model.graph.Vertex;
 
 public interface RoutePredictionHolder {

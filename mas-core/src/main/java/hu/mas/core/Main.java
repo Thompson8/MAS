@@ -100,6 +100,8 @@ public class Main {
 			} else if (arg.startsWith("--road_types_to_include=")) {
 				configuration.setRoadTypesToInclude(Arrays
 						.asList(arg.replace("--road_types_to_include=", "").trim().split(INPUT_ARG_LIST_DELIMETER)));
+			} else if (arg.startsWith("--trip_info_output_file=")) {
+				configuration.setTripInfoOutputFile(arg.replace("--trip_info_output_file=", "").trim());
 			}
 		}
 
@@ -120,7 +122,7 @@ public class Main {
 			logger.error("--output_file parameter cannot be null!");
 			validConfig = false;
 		}
-
+		
 		return validConfig;
 	}
 
@@ -134,6 +136,9 @@ public class Main {
 		SumoTraciConnection conn = new SumoTraciConnection(config.getSumoStartCommand(), config.getSumoConfigFile());
 		conn.addOption("step-length", Double.toString(config.getStepLength()));
 		conn.addOption("start", "true");
+		if (config.getTripInfoOutputFile() != null) {
+			conn.addOption("tripinfo-output", config.getTripInfoOutputFile());
+		}
 		List<Agent> agents = loadAgents(config.getAgentConfigFile(), graph, conn, routes);
 
 		AbstractMas mas = createMas(config.getMasToUse(), graph, conn, config.getPathFinderAlgorithm());
@@ -163,14 +168,14 @@ public class Main {
 			try {
 				AGENT_EXECUTER.shutdownNow();
 			} catch (Exception e) {
-				//Not real errors
+				// Not real errors
 				logger.debug("Error during agent executor shutdown", e);
 			}
 			controller.clearUpIncomingMessages();
 			try {
 				MAS_EXECUTER.shutdownNow();
 			} catch (Exception e) {
-				//Not real errors
+				// Not real errors
 				logger.debug("Error during mass executor shutdown", e);
 			}
 		}

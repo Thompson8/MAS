@@ -14,6 +14,8 @@ public class MasGraphImpl implements MasGraph {
 	private final Map<String, Vertex> vertexes;
 
 	private final Map<String, Edge> edges;
+	
+	private final Map<String, InternalEdge> internalEdges;
 
 	private final Graph<String, DefaultWeightedEdge> graph;
 
@@ -21,6 +23,7 @@ public class MasGraphImpl implements MasGraph {
 		this.graph = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		this.vertexes = new HashMap<>();
 		this.edges = new HashMap<>();
+		this.internalEdges = new HashMap<>();
 	}
 
 	@Override
@@ -102,6 +105,26 @@ public class MasGraphImpl implements MasGraph {
 	@Override
 	public Collection<Edge> getEdges() {
 		return edges.values();
+	}
+	
+	@Override
+	public boolean containsInternalEdge(String id) {
+		return internalEdges.get(id) != null;
+	}
+
+	@Override
+	public Optional<InternalEdge> findInternalEdge(String id) {
+		return Optional.ofNullable(internalEdges.get(id));
+	}
+
+	@Override
+	public boolean addInternalEdge(InternalEdge internalEdge) {
+		if(!containsInternalEdge(internalEdge.getId())) {
+			internalEdges.put(internalEdge.getId(), internalEdge);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public Graph<String, DefaultWeightedEdge> getGraph() {

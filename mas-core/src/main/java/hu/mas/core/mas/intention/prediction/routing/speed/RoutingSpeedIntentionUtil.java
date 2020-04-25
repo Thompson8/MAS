@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.intention.model.Road;
-import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.AbstractEdge;
+import hu.mas.core.mas.model.graph.Road;
 import hu.mas.core.mas.util.CalculatorUtil;
 import hu.mas.core.util.Pair;
 
@@ -29,7 +29,7 @@ public class RoutingSpeedIntentionUtil {
 
 	public double estimaTravelTimeUsingRoutingSpeed(Road road, Vehicle vehicle,
 			List<Pair<Vehicle, Pair<Double, Double>>> onRoad, double time) {
-		Edge edge = road.getEdge();
+		AbstractEdge edge = road.getEdge();
 		if (!onRoad.isEmpty()) {
 			List<Pair<Vehicle, Pair<Double, Double>>> sortedIntentions = onRoad.stream()
 					.sorted(Comparator.comparingDouble(e -> e.getRigth().getRigth())).collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class RoutingSpeedIntentionUtil {
 		}
 	}
 
-	private double estimateSpeedForVehicle(Edge edge, Pair<Vehicle, Pair<Double, Double>> currentVehicleIntention,
+	private double estimateSpeedForVehicle(AbstractEdge edge, Pair<Vehicle, Pair<Double, Double>> currentVehicleIntention,
 			Pair<Vehicle, Pair<Double, Double>> beforeVehicleIntention, double previousEstimation, double time) {
 		double currentVehicleBaseSpeed = CalculatorUtil.calculateSpeedOnEdge(edge, currentVehicleIntention.getLeft());
 		if (currentVehicleBaseSpeed < previousEstimation) {

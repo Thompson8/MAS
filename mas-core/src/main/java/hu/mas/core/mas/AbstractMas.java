@@ -1,6 +1,8 @@
 package hu.mas.core.mas;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,7 +18,9 @@ import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.model.exception.MasException;
 import hu.mas.core.mas.model.exception.MasRuntimeException;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.InternalEdge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.mas.model.vehicle.VehicleData;
@@ -151,6 +155,31 @@ public abstract class AbstractMas {
 				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() == null)
 				.filter(e -> e.getCurrentEdge() != null && e.getCurrentEdge().equals(edge))
 				.map(VehicleData::getCurrentSpeed).collect(Collectors.toList());
+	}
+
+	protected List<AbstractEdge> getEdgesWihtInternalEdgesIncluded(MasRoute route) {
+		List<AbstractEdge> result = new ArrayList<>();
+
+		Iterator<Edge> iterator = route.getEdges().iterator();
+		Edge current = iterator.next();
+		Edge next = null;
+		while (iterator.hasNext()) {
+			result.add(current);
+			next = iterator.next();
+
+			if (current.getTo().isJunction()) {
+				Optional<InternalEdge> internalEdge = current.getTo().getJunction().getInternalEdge(current, next);
+				if (internalEdge.isPresent()) {
+					result.add(internalEdge.get());
+				}
+			}
+
+			current = next;
+		}
+
+		result.add(current);
+
+		return result;
 	}
 
 	public void doTimeStep() throws Exception {

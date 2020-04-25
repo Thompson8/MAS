@@ -26,6 +26,8 @@ public class Configuration {
 	private String outputFile;
 	
 	private List<String> roadTypesToInclude;
+	
+	private String tripInfoOutputFile;
 
 	public Configuration() {
 		this.sumoStartCommand = DefaultConfiguration.DEFAULT_SUMO_START_COMMAND;
@@ -114,6 +116,14 @@ public class Configuration {
 
 	public void setRoadTypesToInclude(List<String> roadTypesToInclude) {
 		this.roadTypesToInclude = roadTypesToInclude;
+	}
+
+	public String getTripInfoOutputFile() {
+		return tripInfoOutputFile;
+	}
+
+	public void setTripInfoOutputFile(String tripInfoFile) {
+		this.tripInfoOutputFile = tripInfoFile;
 	}
 
 }

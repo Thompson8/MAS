@@ -1,24 +1,26 @@
-package hu.mas.core.mas.intention.model;
+package hu.mas.core.mas.model.graph;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.util.CalculatorUtil;
 import hu.mas.core.util.Pair;
 
 public class Road {
 
-	private final Edge edge;
+	private final AbstractEdge edge;
 
 	private final List<Pair<Vehicle, Pair<Double, Double>>> arrivalList;
 
+	private final List<Pair<Vehicle, Pair<Double, Double>>> vehiclesOnRoad;
+	
 	private Double predictedTravelTime;
 
-	public Road(Edge edge) {
+	public Road(AbstractEdge edge) {
 		this.edge = edge;
 		this.arrivalList = new ArrayList<>();
+		this.vehiclesOnRoad = new ArrayList<>();
 		this.predictedTravelTime = CalculatorUtil.calculateTravelTimeOnEdge(edge);
 	}
 
@@ -26,7 +28,7 @@ public class Road {
 		return arrivalList;
 	}
 
-	public Edge getEdge() {
+	public AbstractEdge getEdge() {
 		return edge;
 	}
 
@@ -36,6 +38,10 @@ public class Road {
 
 	public void setPredictedTravelTime(Double predictedTravelTime) {
 		this.predictedTravelTime = predictedTravelTime;
+	}
+
+	public List<Pair<Vehicle, Pair<Double, Double>>> getVehiclesOnRoad() {
+		return vehiclesOnRoad;
 	}
 
 	@Override

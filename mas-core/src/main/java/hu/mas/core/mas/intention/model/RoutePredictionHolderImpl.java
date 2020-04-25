@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
+import hu.mas.core.mas.model.graph.Road;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
 

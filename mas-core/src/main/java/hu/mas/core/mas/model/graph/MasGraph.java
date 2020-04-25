@@ -31,5 +31,11 @@ public interface MasGraph {
 	public Collection<Edge> getEdges();
 
 	public Graph<String, DefaultWeightedEdge> getGraph();
+	
+	public boolean containsInternalEdge(String id);
+
+	public Optional<InternalEdge> findInternalEdge(String id);
+	
+	public boolean addInternalEdge(InternalEdge internalEdge);
 
 }

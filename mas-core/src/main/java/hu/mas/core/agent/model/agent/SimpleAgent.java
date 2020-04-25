@@ -61,6 +61,8 @@ public class SimpleAgent extends Agent {
 			logger.info("Agent: {} finished it's route, finish time: {}", this.id, finish);
 
 			logger.info("Agent: {} total travel time: {}", this.id, finish - start);
+		} catch (InterruptedException e) {
+			// Ignore this error since it only means that the agent should be terminated
 		} catch (Exception e) {
 			logger.error("Exception during agent execution", e);
 			throw new AgentException(e);

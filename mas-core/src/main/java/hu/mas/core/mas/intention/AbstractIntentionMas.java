@@ -7,12 +7,13 @@ import java.util.stream.Collectors;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.AbstractMas;
-import hu.mas.core.mas.intention.model.Road;
 import hu.mas.core.mas.intention.model.Route;
 import hu.mas.core.mas.intention.model.RoutePredictionHolder;
 import hu.mas.core.mas.intention.model.RoutePredictionHolderImpl;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.MasGraph;
+import hu.mas.core.mas.model.graph.Road;
 import hu.mas.core.mas.pathfinder.AbstractPathFinder;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
@@ -63,7 +64,7 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 
 	protected Route getRoute(MasRoute route) {
 		Optional<List<Route>> routes = routePredictionHolder.getRoutes(route.getFrom(), route.getTo());
-		List<Road> roads = route.getEdges().stream().map(Edge::getRoad).collect(Collectors.toList());
+		List<Road> roads = getRoads(route);
 
 		if (routes.isPresent()) {
 			Optional<Route> existingRoute = routes.get().stream().filter(e -> e.getRoads().equals(roads)).findAny();
@@ -79,6 +80,10 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 			routePredictionHolder.addRoute(route.getFrom(), route.getTo(), newRoute);
 			return newRoute;
 		}
+	}
+
+	protected List<Road> getRoads(MasRoute route) {
+		return getEdgesWihtInternalEdgesIncluded(route).stream().map(AbstractEdge::getRoad).collect(Collectors.toList());
 	}
 
 	protected double getRemaningTravelTime(Road road, double time) {
