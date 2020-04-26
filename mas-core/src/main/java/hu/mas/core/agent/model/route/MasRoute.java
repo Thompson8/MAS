@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.Vertex;
 

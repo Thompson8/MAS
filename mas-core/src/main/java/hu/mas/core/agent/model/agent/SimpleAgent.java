@@ -10,7 +10,7 @@ import hu.mas.core.agent.model.exception.AgentException;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.controller.MasController;
-import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.mas.model.message.Message;
 import hu.mas.core.mas.model.message.MessageType;
@@ -133,7 +133,7 @@ public class SimpleAgent extends Agent {
 			finish = getFinish();
 
 			if (finish == null) {
-				Optional<Edge> edge = getLocation();
+				Optional<AbstractEdge> edge = getLocation();
 				if (edge.isPresent()) {
 					logger.info("Agent: {} is still executing it's route, location: {}", this.id, edge.get().getId());
 				} else {

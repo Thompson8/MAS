@@ -5,6 +5,7 @@ import java.util.List;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.util.CalculatorUtil;
+import hu.mas.core.util.MutablePair;
 import hu.mas.core.util.Pair;
 
 public class Road {
@@ -13,8 +14,8 @@ public class Road {
 
 	private final List<Pair<Vehicle, Pair<Double, Double>>> arrivalList;
 
-	private final List<Pair<Vehicle, Pair<Double, Double>>> vehiclesOnRoad;
-	
+	private final List<Pair<Vehicle, MutablePair<Double, Double>>> vehiclesOnRoad;
+
 	private Double predictedTravelTime;
 
 	public Road(AbstractEdge edge) {
@@ -40,7 +41,7 @@ public class Road {
 		this.predictedTravelTime = predictedTravelTime;
 	}
 
-	public List<Pair<Vehicle, Pair<Double, Double>>> getVehiclesOnRoad() {
+	public List<Pair<Vehicle, MutablePair<Double, Double>>> getVehiclesOnRoad() {
 		return vehiclesOnRoad;
 	}
 

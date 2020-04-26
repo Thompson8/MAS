@@ -22,12 +22,14 @@ public class Configuration {
 	private PathFinder pathFinderAlgorithm;
 
 	private Mas masToUse;
-	
+
 	private String outputFile;
-	
+
 	private List<String> roadTypesToInclude;
-	
+
 	private String tripInfoOutputFile;
+
+	private Double timeFrameForFlowCalculation;
 
 	public Configuration() {
 		this.sumoStartCommand = DefaultConfiguration.DEFAULT_SUMO_START_COMMAND;
@@ -36,6 +38,7 @@ public class Configuration {
 		this.pathFinderAlgorithm = DefaultConfiguration.DEFAULT_PATH_FINDER_ALGORITHM;
 		this.masToUse = DefaultConfiguration.DEFAULT_MAS;
 		this.roadTypesToInclude = DefaultConfiguration.DEFAULT_ROAD_TYPES_TO_INCLUDE;
+		this.timeFrameForFlowCalculation = DefaultConfiguration.DEFAULT_TIME_FRAME_FOR_FLOW_CALCULATION;
 	}
 
 	public String getSumoConfigFile() {
@@ -124,6 +127,14 @@ public class Configuration {
 
 	public void setTripInfoOutputFile(String tripInfoFile) {
 		this.tripInfoOutputFile = tripInfoFile;
+	}
+
+	public Double getTimeFrameForFlowCalculation() {
+		return timeFrameForFlowCalculation;
+	}
+
+	public void setTimeFrameForFlowCalculation(Double timeFrameForFlowCalculation) {
+		this.timeFrameForFlowCalculation = timeFrameForFlowCalculation;
 	}
 
 }

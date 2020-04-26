@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Pair<L, R> {
 
 	private final L left;
-	
+
 	private final R rigth;
 
 	public Pair(L left, R rigth) {
@@ -42,5 +42,5 @@ public class Pair<L, R> {
 	public String toString() {
 		return "Pair [left=" + left + ", rigth=" + rigth + "]";
 	}
-	
+
 }

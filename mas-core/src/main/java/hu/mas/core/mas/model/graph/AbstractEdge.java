@@ -13,7 +13,7 @@ public abstract class AbstractEdge {
 	protected double weigth;
 
 	protected final Road road;
-	
+
 	public AbstractEdge(String id, double speed, double length) {
 		if (id == null || speed <= 0 || length <= 0) {
 			throw new IllegalArgumentException();
@@ -24,7 +24,7 @@ public abstract class AbstractEdge {
 		this.weigth = calculateEmptyEdgeTravelTime();
 		this.road = new Road(this);
 	}
-	
+
 	public double calculateEmptyEdgeTravelTime() {
 		return CalculatorUtil.calculateTravelTimeOnEdge(this);
 	}
@@ -64,5 +64,5 @@ public abstract class AbstractEdge {
 	public Road getRoad() {
 		return road;
 	}
-	
+
 }

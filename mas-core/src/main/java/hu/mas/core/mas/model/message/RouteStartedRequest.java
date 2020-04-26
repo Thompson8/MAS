@@ -18,5 +18,5 @@ public class RouteStartedRequest implements MessageBody {
 	public String toString() {
 		return "RouteStartedRequest [vehicle=" + vehicle + "]";
 	}
-	
+
 }

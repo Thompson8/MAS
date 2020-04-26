@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.mas.core.agent.model.agent.AgentPopulator;
+import hu.mas.core.agent.model.agent.populator.AgentPopulator;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.model.exception.MasRuntimeException;
-import hu.mas.core.mas.model.graph.Edge;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.message.Message;
 import hu.mas.core.mas.model.message.MessageType;
 import hu.mas.core.mas.model.message.RouteInfoAnswer;
@@ -121,8 +121,8 @@ public class MasController implements Runnable {
 		message.getConnection().put(answer);
 	}
 
-	public Optional<Edge> findCurrentLocation(Vehicle vehicle) {
-		Edge location = mas.getVehiclesData().get(vehicle).getCurrentEdge();
+	public Optional<AbstractEdge> findCurrentLocation(Vehicle vehicle) {
+		AbstractEdge location = mas.getVehiclesData().get(vehicle).getCurrentEdge();
 		if (location != null) {
 			return Optional.of(location);
 		} else {

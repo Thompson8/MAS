@@ -9,6 +9,7 @@ import de.tudresden.ws.container.SumoStringList;
 import hu.mas.core.agent.model.route.MasRoute;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.mas.controller.MasController;
+import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.Edge;
 import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.util.Pair;
@@ -22,6 +23,8 @@ public abstract class Agent implements Runnable {
 
 	protected final SumoTraciConnection connection;
 
+	protected final MasController masController;
+
 	protected String id;
 
 	protected Vehicle vehicle;
@@ -31,8 +34,6 @@ public abstract class Agent implements Runnable {
 	protected Vertex to;
 
 	protected MasRoute route;
-
-	protected MasController masController;
 
 	protected Integer sleepTime;
 
@@ -84,7 +85,7 @@ public abstract class Agent implements Runnable {
 		return masController.getStart(vehicle);
 	}
 
-	protected Optional<Edge> getLocation() {
+	protected Optional<AbstractEdge> getLocation() {
 		return masController.findCurrentLocation(vehicle);
 	}
 
@@ -140,16 +141,16 @@ public abstract class Agent implements Runnable {
 		return masController;
 	}
 
-	public void setMasController(MasController masController) {
-		this.masController = masController;
-	}
-
 	public Integer getAgentStartInterval() {
 		return agentStartInterval;
 	}
 
 	public void setAgentStartInterval(Integer agentStartInterval) {
 		this.agentStartInterval = agentStartInterval;
+	}
+
+	public SumoTraciConnection getConnection() {
+		return connection;
 	}
 
 	@Override

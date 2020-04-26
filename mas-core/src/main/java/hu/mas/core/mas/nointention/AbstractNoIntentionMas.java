@@ -6,7 +6,6 @@ import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.model.graph.AbstractEdge;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.pathfinder.AbstractPathFinder;
-import hu.mas.core.mas.util.CalculatorUtil;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public abstract class AbstractNoIntentionMas extends AbstractMas {
@@ -24,10 +23,13 @@ public abstract class AbstractNoIntentionMas extends AbstractMas {
 	protected double calculateTravelTime(MasRoute route, Vehicle vehicle, double time) {
 		double travelTime = 0;
 		for (AbstractEdge edge : getEdgesWihtInternalEdgesIncluded(route)) {
-			travelTime = travelTime + CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle);
+			travelTime = travelTime + calculateTravelTimeFromRoadCharacteristics(edge, vehicle, time);
 		}
 
 		return travelTime;
 	}
+
+	protected abstract double calculateTravelTimeFromRoadCharacteristics(AbstractEdge edge, Vehicle vehicle,
+			double time);
 
 }

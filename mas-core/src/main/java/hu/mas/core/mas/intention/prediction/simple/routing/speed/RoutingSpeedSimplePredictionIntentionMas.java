@@ -3,7 +3,7 @@ package hu.mas.core.mas.intention.prediction.simple.routing.speed;
 import java.util.List;
 
 import hu.mas.core.agent.model.vehicle.Vehicle;
-import hu.mas.core.mas.intention.prediction.routing.speed.RoutingSpeedIntentionUtil;
+import hu.mas.core.mas.calculations.RoutingSpeedIntentionUtil;
 import hu.mas.core.mas.intention.prediction.simple.AbstractSimplePredictionIntentionMas;
 import hu.mas.core.mas.model.graph.MasGraph;
 import hu.mas.core.mas.model.graph.Road;

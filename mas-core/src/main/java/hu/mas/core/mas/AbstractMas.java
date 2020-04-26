@@ -26,6 +26,7 @@ import hu.mas.core.mas.model.graph.Vertex;
 import hu.mas.core.mas.model.vehicle.VehicleData;
 import hu.mas.core.mas.model.vehicle.VehiclesData;
 import hu.mas.core.mas.pathfinder.AbstractPathFinder;
+import hu.mas.core.util.MutablePair;
 import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -96,15 +97,8 @@ public abstract class AbstractMas {
 				}
 				String edgeId = (String) connection
 						.do_job_get(de.tudresden.sumo.cmd.Vehicle.getRoadID(vehicleData.getKey().getId()));
-				Optional<Edge> edge = graph.findEdge(edgeId);
 
-				if (edge.isPresent()) {
-					logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
-					vehicleData.getValue().setCurrentEdge(edge.get());
-				} else {
-					logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
-							vehicleData.getKey().getId());
-				}
+				handleVehicleEdgeUpdate(vehicleData, edgeId, currentTime);
 
 				vehicleData.getValue().setCurrentSpeed((Double) connection
 						.do_job_get(de.tudresden.sumo.cmd.Vehicle.getSpeed(vehicleData.getKey().getId())));
@@ -118,9 +112,46 @@ public abstract class AbstractMas {
 		}
 	}
 
+	protected void handleVehicleEdgeUpdate(Entry<Vehicle, VehicleData> vehicleData, String edgeId, Double time) {
+		Optional<Edge> optEdge = graph.findEdge(edgeId);
+		AbstractEdge currentEdge = vehicleData.getValue().getCurrentEdge();
+		logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
+
+		if (optEdge.isPresent()) {
+			handleVehicleEdgeDataUpdate(vehicleData, optEdge.get(), currentEdge, time);
+		} else {
+			Optional<InternalEdge> internalEdge = graph.findInternalEdge(edgeId);
+			if (internalEdge.isPresent()) {
+				handleVehicleEdgeDataUpdate(vehicleData, internalEdge.get(), currentEdge, time);
+			} else {
+				logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
+						vehicleData.getKey().getId());
+			}
+		}
+	}
+
+	protected void handleVehicleEdgeDataUpdate(Entry<Vehicle, VehicleData> vehicleData, AbstractEdge edge,
+			AbstractEdge currentEdge, Double time) {
+		if (currentEdge == null) {
+			edge.getRoad().getVehiclesOnRoad().add(new Pair<>(vehicleData.getKey(), new MutablePair<>(time, null)));
+			vehicleData.getValue().setCurrentEdge(edge);
+		} else if (!currentEdge.equals(edge)) {
+			Optional<MutablePair<Double, Double>> storedOnRoadData = currentEdge.getRoad().getVehiclesOnRoad().stream()
+					.filter(e -> e.getLeft().equals(vehicleData.getKey())).findFirst().map(Pair::getRigth);
+
+			if (storedOnRoadData.isPresent()) {
+				storedOnRoadData.get().setRigth(time);
+			} else {
+				logger.warn("Stored on road data is missing! {}", currentEdge.getId());
+			}
+
+			edge.getRoad().getVehiclesOnRoad().add(new Pair<>(vehicleData.getKey(), new MutablePair<>(time, null)));
+			vehicleData.getValue().setCurrentEdge(edge);
+		}
+	}
+
 	public void registerActualVehicleStart(Entry<Vehicle, VehicleData> data, double currentTime) {
 		data.getValue().getStatistics().setActualStart(currentTime);
-		data.getValue().setCurrentEdge(data.getValue().getRoute().getEdges().get(0));
 	}
 
 	public void registerVehicleStart(Vehicle vehicle, double currentTime) {

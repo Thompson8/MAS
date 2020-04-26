@@ -83,7 +83,8 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 	}
 
 	protected List<Road> getRoads(MasRoute route) {
-		return getEdgesWihtInternalEdgesIncluded(route).stream().map(AbstractEdge::getRoad).collect(Collectors.toList());
+		return getEdgesWihtInternalEdgesIncluded(route).stream().map(AbstractEdge::getRoad)
+				.collect(Collectors.toList());
 	}
 
 	protected double getRemaningTravelTime(Road road, double time) {

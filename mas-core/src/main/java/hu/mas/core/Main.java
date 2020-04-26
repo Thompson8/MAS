@@ -1,6 +1,10 @@
 package hu.mas.core;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.mas.core.agent.model.agent.Agent;
-import hu.mas.core.agent.model.agent.AgentPopulator;
+import hu.mas.core.agent.model.agent.populator.AgentPopulator;
 import hu.mas.core.config.Configuration;
 import hu.mas.core.config.agent.xml.AgentConverter;
 import hu.mas.core.config.agent.xml.ParseAgent;
@@ -28,6 +32,7 @@ import hu.mas.core.config.sumo.xml.ParseSumoConfiguration;
 import hu.mas.core.config.sumo.xml.model.SumoConfiguration;
 import hu.mas.core.mas.AbstractMas;
 import hu.mas.core.mas.Mas;
+import hu.mas.core.mas.calculations.TravelTimeUtil;
 import hu.mas.core.mas.controller.MasController;
 import hu.mas.core.mas.converter.Converter;
 import hu.mas.core.mas.intention.prediction.detailed.routing.speed.RoutingSpeedDetailedPredictionIntentionMas;
@@ -40,6 +45,7 @@ import hu.mas.core.mas.nointention.travel.time.TravelTimeNoIntentionMas;
 import hu.mas.core.mas.pathfinder.AbstractPathFinder;
 import hu.mas.core.mas.pathfinder.KShortestSimplePathsFinder;
 import hu.mas.core.mas.pathfinder.PathFinder;
+import hu.mas.core.util.Pair;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Main {
@@ -56,23 +62,28 @@ public class Main {
 
 	private static final ExecutorService AGENT_EXECUTER = Executors.newFixedThreadPool(AGENT_THREAD_POOL_SIZE);
 
-	public static void main(String[] args) throws JAXBException {
+	public static void main(String[] args) throws JAXBException, IOException {
 		Configuration configuration = parseArgs(args);
 
 		if (validateConfiguration(configuration)) {
-			Optional<MasController> controller = startSimulation(configuration);
-			if (controller.isPresent()) {
+			Optional<Pair<MasController, SumoTraciConnection>> controllerAndConnectionOpt = startSimulation(
+					configuration);
+			if (controllerAndConnectionOpt.isPresent()) {
+				Pair<MasController, SumoTraciConnection> controllerAndConnection = controllerAndConnectionOpt.get();
 				try {
 					logger.info("Output file: {}, start writing", configuration.getOutputFile());
-					controller.get().writeStatisticsToFile(new File(configuration.getOutputFile()));
+					controllerAndConnection.getLeft().writeStatisticsToFile(new File(configuration.getOutputFile()));
 					logger.info("Output witing finished");
 				} catch (Exception e) {
 					logger.error("Exception during simulation output file creation", e);
 				}
+
+				closeSumo(controllerAndConnection.getRigth());
 			}
 		} else {
 			logger.error("Invalid configuration, failed to start simulation!");
 		}
+
 	}
 
 	private static Configuration parseArgs(String[] args) {
@@ -102,6 +113,9 @@ public class Main {
 						.asList(arg.replace("--road_types_to_include=", "").trim().split(INPUT_ARG_LIST_DELIMETER)));
 			} else if (arg.startsWith("--trip_info_output_file=")) {
 				configuration.setTripInfoOutputFile(arg.replace("--trip_info_output_file=", "").trim());
+			} else if (arg.startsWith("--time_frame_for_flow_calculation=")) {
+				configuration.setTimeFrameForFlowCalculation(
+						Double.parseDouble(arg.replace("--time_frame_for_flow_calculation=", "").trim()));
 			}
 		}
 
@@ -122,11 +136,31 @@ public class Main {
 			logger.error("--output_file parameter cannot be null!");
 			validConfig = false;
 		}
-		
+
 		return validConfig;
 	}
 
-	private static Optional<MasController> startSimulation(Configuration config) throws JAXBException {
+	private static void closeSumo(SumoTraciConnection connection) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+			String input = null;
+			do {
+				logger.info("Press enter to close the application and SUMO");
+				input = reader.readLine();
+			} while (!"".equals(input));
+		}
+
+		try {
+			Field field = SumoTraciConnection.class.getDeclaredField("sumoProcess");
+			field.setAccessible(true);
+			Process process = (Process) field.get(connection);
+			process.destroy();
+		} catch (Exception e) {
+			logger.error("Error during SUMO closing", e);
+		}
+	}
+
+	private static Optional<Pair<MasController, SumoTraciConnection>> startSimulation(Configuration config)
+			throws JAXBException {
 		SumoConfiguration configuration = ParseSumoConfiguration.parseConfiguation(config.getSumoConfigFile());
 		Net net = ParseNet.parseNet(config.getSumoConfigPath() + configuration.getInput().getNetFile().getValue());
 		RoutesConfig routes = ParseRoutesConfig
@@ -139,12 +173,11 @@ public class Main {
 		if (config.getTripInfoOutputFile() != null) {
 			conn.addOption("tripinfo-output", config.getTripInfoOutputFile());
 		}
-		List<Agent> agents = loadAgents(config.getAgentConfigFile(), graph, conn, routes);
-
-		AbstractMas mas = createMas(config.getMasToUse(), graph, conn, config.getPathFinderAlgorithm());
+		AbstractMas mas = createMas(config.getMasToUse(), graph, conn, config.getPathFinderAlgorithm(), config);
 
 		MasController controller = new MasController(mas, config.getIterationCount(), config.getStepLength());
-		linkAgentsWithController(agents, controller);
+
+		List<Agent> agents = loadAgents(config.getAgentConfigFile(), graph, conn, routes, controller);
 
 		try {
 			Future<?> controllerTask = MAS_EXECUTER.submit(controller);
@@ -160,7 +193,7 @@ public class Main {
 
 			logger.info("Simulation over, shutting down unfinished agents");
 
-			return Optional.of(controller);
+			return Optional.of(new Pair<>(controller, conn));
 		} catch (Exception e) {
 			logger.error("Exception during simulation", e);
 			return Optional.empty();
@@ -171,29 +204,35 @@ public class Main {
 				// Not real errors
 				logger.debug("Error during agent executor shutdown", e);
 			}
-			controller.clearUpIncomingMessages();
 			try {
 				MAS_EXECUTER.shutdownNow();
 			} catch (Exception e) {
 				// Not real errors
 				logger.debug("Error during mass executor shutdown", e);
 			}
+
+			if (!conn.isClosed()) {
+				conn.close();
+			}
 		}
 	}
 
 	private static AbstractMas createMas(Mas masToUse, MasGraph graph, SumoTraciConnection conn,
-			PathFinder pathFinderAlgorithm) {
+			PathFinder pathFinderAlgorithm, Configuration config) {
 		switch (masToUse) {
 		case DETAILED_INTENTION_TRAVEL_TIME_MAS:
-			return new TravelTimeDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new TravelTimeDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm),
+					new TravelTimeUtil(config.getTimeFrameForFlowCalculation()));
 		case NO_INTENTION_SUMO_DELEGATED_MAS:
 			return new SumoDelegatedNoIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case NO_INTENTION_TRAVEL_TIME_MAS:
-			return new TravelTimeNoIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new TravelTimeNoIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm),
+					new TravelTimeUtil(config.getTimeFrameForFlowCalculation()));
 		case DETAILED_INTENTION_ROUTING_SPEED_MAS:
 			return new RoutingSpeedDetailedPredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		case SIMPLE_INTENTION_TRAVEL_TIME_MAS:
-			return new TravelTimeSimplePredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
+			return new TravelTimeSimplePredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm),
+					new TravelTimeUtil(config.getTimeFrameForFlowCalculation()));
 		case SIMPLE_INTENTION_ROUTING_SPEED_MAS:
 			return new RoutingSpeedSimplePredictionIntentionMas(graph, conn, getPathFinder(pathFinderAlgorithm));
 		default:
@@ -211,14 +250,10 @@ public class Main {
 	}
 
 	private static List<Agent> loadAgents(String configFile, MasGraph graph, SumoTraciConnection connection,
-			RoutesConfig routes) throws JAXBException {
+			RoutesConfig routes, MasController controller) throws JAXBException {
 		AgentConfiguration agentConfiguration = ParseAgent.parseAgentConfiguration(configFile);
-		return AgentConverter.toSimpleAgents(agentConfiguration, graph, connection, routes).stream().map(e -> (Agent) e)
-				.collect(Collectors.toList());
-	}
-
-	private static void linkAgentsWithController(List<Agent> agents, MasController controller) {
-		agents.forEach(e -> e.setMasController(controller));
+		return AgentConverter.toSimpleAgents(agentConfiguration, graph, connection, routes, controller).stream()
+				.map(e -> (Agent) e).collect(Collectors.toList());
 	}
 
 }
