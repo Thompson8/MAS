@@ -19,7 +19,7 @@ public class Route {
 		this.from = from;
 		this.to = to;
 		this.roads = roads;
-		this.predictedTravelTime = this.roads.stream().mapToDouble(Road::getPredictedTravelTime).sum();
+		this.predictedTravelTime = null;
 	}
 
 	public Vertex getFrom() {

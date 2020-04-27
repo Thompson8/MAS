@@ -40,10 +40,6 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 	// ALG 1
 	protected abstract void propagateIntention(Vehicle vehicle, Route route, double currentTime);
 
-	protected double predictRoadTravelTime(Road road, double time) {
-		return predictRoadTravelTime(road, null, time);
-	}
-
 	// ALG 2
 	protected abstract double predictRoadTravelTime(Road road, Vehicle vehicle, double time);
 
@@ -52,14 +48,13 @@ public abstract class AbstractIntentionMas extends AbstractMas {
 
 	protected abstract double predictRouteTravelTime(MasRoute route, Vehicle vehicle, double time);
 
-	@Override
-	protected double calculateTravelTime(MasRoute route, Vehicle vehicle, double time) {
-		return predictRouteTravelTime(route, vehicle, time);
+	protected double predictRoadTravelTime(Road road, double time) {
+		return predictRoadTravelTime(road, null, time);
 	}
 
 	@Override
-	protected void beforeUpdateTravelWeigthMatrix(double previousTime, double currentTime) {
-		updatePredictedTravelTimes(previousTime);
+	protected double calculateTravelTime(MasRoute route, Vehicle vehicle, double time) {
+		return predictRouteTravelTime(route, vehicle, time);
 	}
 
 	protected Route getRoute(MasRoute route) {

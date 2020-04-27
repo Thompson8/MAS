@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import hu.mas.core.agent.model.agent.SimpleAgent;
+import hu.mas.core.agent.model.agent.Agent;
 import hu.mas.core.agent.model.vehicle.Vehicle;
 import hu.mas.core.config.agent.xml.model.AgentConfiguration;
 import hu.mas.core.config.route.xml.model.RoutesConfig;
@@ -17,18 +17,17 @@ import it.polito.appeal.traci.SumoTraciConnection;
 
 public class AgentConverter {
 
-	public static List<SimpleAgent> toSimpleAgents(AgentConfiguration configuration, MasGraph graph,
-			SumoTraciConnection connection, RoutesConfig routes, MasController controller) {
+	public static List<Agent> toAgents(AgentConfiguration configuration, MasGraph graph, SumoTraciConnection connection,
+			RoutesConfig routes, MasController controller) {
 		return configuration.getAgents().stream()
-				.map(e -> toSimpleAgent(e, graph.getVertexes(), connection, routes, controller))
-				.collect(Collectors.toList());
+				.map(e -> toAgent(e, graph.getVertexes(), connection, routes, controller)).collect(Collectors.toList());
 	}
 
-	private static SimpleAgent toSimpleAgent(hu.mas.core.config.agent.xml.model.Agent agent, Collection<Vertex> nodes,
+	private static Agent toAgent(hu.mas.core.config.agent.xml.model.Agent agent, Collection<Vertex> nodes,
 			SumoTraciConnection connection, RoutesConfig routes, MasController controller) {
 		VehicleType type = findVehicleType(agent.getVehicle().getTypeId(), routes).orElseThrow(RuntimeException::new);
 
-		SimpleAgent result = new SimpleAgent(agent.getId(),
+		Agent result = new Agent(agent.getId(),
 				new Vehicle(agent.getVehicle().getId(), type.getId(), type.getMaxSpeed(), type.getLength()),
 				nodes.stream().filter(e -> e.getId().equals(agent.getFrom())).findFirst()
 						.orElseThrow(RuntimeException::new),

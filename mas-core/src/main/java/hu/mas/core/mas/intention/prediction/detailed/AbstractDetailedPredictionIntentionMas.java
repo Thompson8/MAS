@@ -17,6 +17,8 @@ public abstract class AbstractDetailedPredictionIntentionMas extends AbstractInt
 		super(graph, connection, pathFinder);
 	}
 
+	protected abstract double calculateTravelTimeFromRoadCharacteristics(Road road, Vehicle vehicle, double time);
+
 	// ALG 1
 	@Override
 	protected void propagateIntention(Vehicle vehicle, Route route, double currentTime) {
@@ -26,8 +28,17 @@ public abstract class AbstractDetailedPredictionIntentionMas extends AbstractInt
 		for (Road road : route.getRoads()) {
 			roadTraveTime = predictRoadTravelTime(road, vehicle, time + travelTime);
 			road.getArrivalList().add(new Pair<>(vehicle, new Pair<>(time + travelTime, roadTraveTime)));
-			travelTime = travelTime + roadTraveTime;
+			travelTime += roadTraveTime;
 		}
+	}
+
+	// ALG2
+	@Override
+	protected double predictRoadTravelTime(Road road, Vehicle vehicle, double time) {
+		double travelTimeAlready = getRemaningTravelTime(road, time);
+		double travelTime = calculateTravelTimeFromRoadCharacteristics(road, vehicle, time);
+
+		return Math.max(travelTime, travelTimeAlready);
 	}
 
 	// ALG3
@@ -37,7 +48,7 @@ public abstract class AbstractDetailedPredictionIntentionMas extends AbstractInt
 			double travelTime = 0;
 			double time = currentTime;
 			for (Road road : route.getRoads()) {
-				travelTime = travelTime + predictRoadTravelTime(road, time + travelTime);
+				travelTime += predictRoadTravelTime(road, time + travelTime);
 			}
 
 			route.setPredictedTravelTime(travelTime);
@@ -50,20 +61,10 @@ public abstract class AbstractDetailedPredictionIntentionMas extends AbstractInt
 		double travelTime = 0;
 		double time = currentTime;
 		for (Road road : storedRoute.getRoads()) {
-			travelTime = travelTime + predictRoadTravelTime(road, vehicle, time + travelTime);
+			travelTime += predictRoadTravelTime(road, vehicle, time + travelTime);
 		}
 
 		return travelTime;
 	}
-
-	@Override
-	protected double predictRoadTravelTime(Road road, Vehicle vehicle, double time) {
-		double travelTimeAlready = getRemaningTravelTime(road, time);
-		double travelTime = calculateTravelTimeFromRoadCharacteristics(road, vehicle, time);
-
-		return Math.max(travelTime, travelTimeAlready);
-	}
-
-	protected abstract double calculateTravelTimeFromRoadCharacteristics(Road road, Vehicle vehicle, double time);
 
 }

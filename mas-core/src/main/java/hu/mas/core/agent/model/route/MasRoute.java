@@ -20,7 +20,7 @@ public class MasRoute {
 	private List<Vertex> nodes;
 
 	private List<Edge> edges;
-	
+
 	public MasRoute(Vertex from, Vertex to, List<Vertex> nodes, List<Edge> edges) {
 		this(generateId(), from, to, nodes, edges);
 	}

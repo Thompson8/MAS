@@ -23,7 +23,7 @@ public abstract class AbstractNoIntentionMas extends AbstractMas {
 	protected double calculateTravelTime(MasRoute route, Vehicle vehicle, double time) {
 		double travelTime = 0;
 		for (AbstractEdge edge : getEdgesWihtInternalEdgesIncluded(route)) {
-			travelTime = travelTime + calculateTravelTimeFromRoadCharacteristics(edge, vehicle, time);
+			travelTime += calculateTravelTimeFromRoadCharacteristics(edge, vehicle, time);
 		}
 
 		return travelTime;

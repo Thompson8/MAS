@@ -52,6 +52,10 @@ public abstract class AbstractMas {
 		this.pathFinder = pathFinder;
 	}
 
+	protected abstract double calculateTravelTime(MasRoute route, Vehicle vehicle, double time);
+
+	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
+
 	protected void updateTravelWeigthMatrix(double previousTime, double currentTime) throws MasException {
 		beforeUpdateTravelWeigthMatrix(previousTime, currentTime);
 		for (Edge edge : graph.getEdges()) {
@@ -62,8 +66,6 @@ public abstract class AbstractMas {
 	protected void beforeUpdateTravelWeigthMatrix(double previousTime, double currentTime) {
 	}
 
-	protected abstract double getValueForWeigthUpdate(Edge edge, double currentTime) throws MasException;
-
 	public List<Pair<Double, MasRoute>> getShortestPath(String from, String to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
@@ -71,8 +73,6 @@ public abstract class AbstractMas {
 	public List<Pair<Double, MasRoute>> getShortestPath(Vertex from, Vertex to, Vehicle vehicle, double currentTime) {
 		return pathFinder.getShortestPaths(from, to, vehicle, currentTime, graph, this::calculateTravelTime);
 	}
-
-	protected abstract double calculateTravelTime(MasRoute route, Vehicle vehicle, double time);
 
 	public void updateData(double previousTime, double currentTime) throws Exception {
 		updateVehicleData(currentTime);
@@ -85,7 +85,7 @@ public abstract class AbstractMas {
 				.forEach(e -> handleVehicleDataUpdate(e, vehicles, currentTime));
 	}
 
-	public void handleVehicleDataUpdate(Entry<Vehicle, VehicleData> vehicleData, SumoStringList vehicles,
+	protected void handleVehicleDataUpdate(Entry<Vehicle, VehicleData> vehicleData, SumoStringList vehicles,
 			double currentTime) {
 		try {
 			Optional<String> contains = vehicles.stream().filter(e -> vehicleData.getKey().getId().equals(e))
@@ -113,8 +113,8 @@ public abstract class AbstractMas {
 	}
 
 	protected void handleVehicleEdgeUpdate(Entry<Vehicle, VehicleData> vehicleData, String edgeId, Double time) {
-		Optional<Edge> optEdge = graph.findEdge(edgeId);
 		AbstractEdge currentEdge = vehicleData.getValue().getCurrentEdge();
+		Optional<Edge> optEdge = graph.findEdge(edgeId);
 		logger.trace("Vehicle: {} current edge is: {}", vehicleData.getKey().getId(), edgeId);
 
 		if (optEdge.isPresent()) {
@@ -124,7 +124,7 @@ public abstract class AbstractMas {
 			if (internalEdge.isPresent()) {
 				handleVehicleEdgeDataUpdate(vehicleData, internalEdge.get(), currentEdge, time);
 			} else {
-				logger.trace("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
+				logger.warn("Unknown edge id: {} for vehicle: {}, must be a junction", edgeId,
 						vehicleData.getKey().getId());
 			}
 		}
@@ -162,7 +162,6 @@ public abstract class AbstractMas {
 	public void registerRoute(Vehicle vehicle, MasRoute route, double currentTime) {
 		VehicleData data = new VehicleData();
 		data.setRoute(route);
-		data.setCurrentEdge(route.getEdges().get(0));
 		vehiclesData.put(vehicle, data);
 		registerRouteOperations(vehicle, route, currentTime);
 	}
