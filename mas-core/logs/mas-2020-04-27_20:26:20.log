@@ -1,0 +1,5 @@
+2020-26-27 20:26:22.072 [pool-2-thread-1] INFO  hu.mas.core.mas.controller.MasController - Mas iteration: 0, current time: 0.0
+2020-26-27 20:26:23.090 [main] INFO  hu.mas.core.Main - Simulation over, shutting down unfinished agents
+2020-26-27 20:26:23.091 [main] INFO  hu.mas.core.Main - Output file: /home/tom/Dokumentumok/SUMO/output.txt, start writing
+2020-26-27 20:26:23.104 [main] INFO  hu.mas.core.Main - Output witing finished
+2020-26-27 20:26:23.105 [main] INFO  hu.mas.core.Main - Press enter to close the application and SUMO

@@ -56,7 +56,7 @@ public class Main {
 
 	private static final int MAS_THREAD_POOL_SIZE = 1;
 
-	private static final int AGENT_THREAD_POOL_SIZE = 20;
+	private static final int AGENT_THREAD_POOL_SIZE = 1024;
 
 	private static final ExecutorService MAS_EXECUTER = Executors.newFixedThreadPool(MAS_THREAD_POOL_SIZE);
 
