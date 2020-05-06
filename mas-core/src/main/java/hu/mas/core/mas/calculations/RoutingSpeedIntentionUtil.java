@@ -49,10 +49,10 @@ public class RoutingSpeedIntentionUtil {
 			}
 
 			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
-					CalculatorUtil.calculateRoutingSpeed(edge, estimatedSpeeds));
+					edge.getLength() / CalculatorUtil.calculateRoutingSpeed(edge, estimatedSpeeds));
 		} else {
 			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
-					CalculatorUtil.calculateRoutingSpeed(edge, Collections.emptyList()));
+					edge.getLength() / CalculatorUtil.calculateRoutingSpeed(edge, Collections.emptyList()));
 		}
 	}
 
