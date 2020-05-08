@@ -1,7 +1,6 @@
 package hu.mas.core.mas.calculations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -49,14 +48,14 @@ public class RoutingSpeedIntentionUtil {
 			}
 
 			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
-					edge.getLength() / CalculatorUtil.calculateRoutingSpeed(edge, estimatedSpeeds));
+					edge.getLength() / CalculatorUtil.calculateRoutingSpeed(estimatedSpeeds));
 		} else {
-			return Math.max(CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle),
-					edge.getLength() / CalculatorUtil.calculateRoutingSpeed(edge, Collections.emptyList()));
+			return CalculatorUtil.calculateTravelTimeOnEdge(edge, vehicle);
 		}
 	}
 
-	private double estimateSpeedForVehicle(AbstractEdge edge, Pair<Vehicle, Pair<Double, Double>> currentVehicleIntention,
+	private double estimateSpeedForVehicle(AbstractEdge edge,
+			Pair<Vehicle, Pair<Double, Double>> currentVehicleIntention,
 			Pair<Vehicle, Pair<Double, Double>> beforeVehicleIntention, double previousEstimation, double time) {
 		double currentVehicleBaseSpeed = CalculatorUtil.calculateSpeedOnEdge(edge, currentVehicleIntention.getLeft());
 		if (currentVehicleBaseSpeed < previousEstimation) {
@@ -66,8 +65,10 @@ public class RoutingSpeedIntentionUtil {
 			double currentFinishTimeDiff = currentVehicleIntention.getRigth().getRigth() - time;
 			double finishTimeDiff = Math.abs(currentFinishTimeDiff - beforeFinishTimeDiff) / currentFinishTimeDiff;
 
-			return currentVehicleBaseSpeed * finishTimeDiff * (1 - alpha)
-					+ previousEstimation * (1 - finishTimeDiff) * alpha;
+			double estimation = currentVehicleBaseSpeed * (1 - finishTimeDiff) * (1 - alpha)
+					+ previousEstimation * finishTimeDiff * alpha;
+
+			return Math.max(estimation, previousEstimation);
 		}
 	}
 

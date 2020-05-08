@@ -32,5 +32,5 @@ public class RoutingSpeedSimplePredictionIntentionMas extends AbstractSimplePred
 		List<Pair<Vehicle, Pair<Double, Double>>> onRoad = getVehiclesOnRoadByIntention(road, time);
 		return routingSpeedIntentionUtil.estimaTravelTimeUsingRoutingSpeed(road, vehicle, onRoad, time);
 	}
-	
+
 }

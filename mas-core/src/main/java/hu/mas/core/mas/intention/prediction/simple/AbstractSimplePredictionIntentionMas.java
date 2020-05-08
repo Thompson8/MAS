@@ -49,11 +49,9 @@ public abstract class AbstractSimplePredictionIntentionMas extends AbstractInten
 	}
 
 	// ALG 5
-	protected void updatePredictedRoadTravelTimes(double previousTime, double currentTime) {
-		// double timeDifference = currentTime - previousTime;
+	protected void updatePredictedRoadTravelTimes() {
 		for (Edge edge : graph.getEdges()) {
-			// TODO difference calculations
-			double predictedTravelTime = edge.getRoad().getPredictedTravelTime() * (1 - decayConstant);
+			double predictedTravelTime = edge.getRoad().getPredictedTravelTime() * (1 - (decayConstant));
 			double emptyTravelTime = CalculatorUtil.calculateTravelTimeOnEdge(edge);
 			edge.getRoad().setPredictedTravelTime(Math.max(predictedTravelTime, emptyTravelTime));
 		}
@@ -71,14 +69,25 @@ public abstract class AbstractSimplePredictionIntentionMas extends AbstractInten
 		for (Road road : route.getRoads()) {
 			travelTime += road.getPredictedTravelTime();
 		}
+
 		route.setPredictedTravelTime(travelTime);
+	}
+
+	protected double calculateTravelTimeForRoute(Route route, Vehicle vehicle) {
+		double travelTime = 0;
+		for (Road road : route.getRoads()) {
+			travelTime += Math.max(road.getPredictedTravelTime(),
+					CalculatorUtil.calculateTravelTimeOnEdge(road.getEdge(), vehicle));
+		}
+
+		return travelTime;
 	}
 
 	@Override
 	protected double predictRouteTravelTime(MasRoute route, Vehicle vehicle, double time) {
 		Route storedRoute = getRoute(route);
-		updateTravelTimeCalculationsForRoute(storedRoute);
-		return storedRoute.getPredictedTravelTime();
+
+		return calculateTravelTimeForRoute(storedRoute, vehicle);
 	}
 
 	@Override
@@ -96,7 +105,7 @@ public abstract class AbstractSimplePredictionIntentionMas extends AbstractInten
 
 	@Override
 	protected void beforeUpdateTravelWeigthMatrix(double previousTime, double currentTime) {
-		updatePredictedRoadTravelTimes(previousTime, currentTime);
+		updatePredictedRoadTravelTimes();
 	}
 
 }

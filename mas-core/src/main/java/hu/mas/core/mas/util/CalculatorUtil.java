@@ -21,15 +21,13 @@ public class CalculatorUtil {
 				: calculateTravelTimeOnEdge(edge);
 	}
 
-	public static double calculateRoutingSpeed(AbstractEdge edge, List<Double> vehiclesOnEdgeSpeeds) {
-		return calculateRoutingSpeed(edge,
+	public static double calculateRoutingSpeed(List<Double> vehiclesOnEdgeSpeeds) {
+		return calculateRoutingSpeed(
 				vehiclesOnEdgeSpeeds.isEmpty() ? null : vehiclesOnEdgeSpeeds.stream().mapToDouble(Double::doubleValue));
 	}
 
-	private static double calculateRoutingSpeed(AbstractEdge edge, DoubleStream vehiclesOnEdgeSpeeds) {
-		return vehiclesOnEdgeSpeeds == null ? calculateTravelTimeOnEdge(edge)
-				: Math.max(edge.getLength() / vehiclesOnEdgeSpeeds.average().getAsDouble(),
-						calculateTravelTimeOnEdge(edge));
+	private static double calculateRoutingSpeed(DoubleStream vehiclesOnEdgeSpeeds) {
+		return vehiclesOnEdgeSpeeds == null ? 0.0 : vehiclesOnEdgeSpeeds.average().getAsDouble();
 	}
 
 	public static double calculateNettoOccupancy(AbstractEdge edge, List<Vehicle> vehicles) {
