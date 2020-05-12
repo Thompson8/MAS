@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,6 +29,7 @@ import hu.mas.core.mas.model.message.RouteSelectionAnswer;
 import hu.mas.core.mas.model.message.RouteSelectionRequest;
 import hu.mas.core.mas.model.message.RouteStartedAnswer;
 import hu.mas.core.mas.model.message.RouteStartedRequest;
+import hu.mas.core.mas.model.vehicle.VehicleData;
 import hu.mas.core.mas.util.TimeCalculator;
 
 public class MasController implements Runnable {
@@ -45,6 +48,10 @@ public class MasController implements Runnable {
 
 	private final List<AgentPopulator> agentPopulators;
 
+	private LocalDateTime started;
+
+	private LocalDateTime finished;
+
 	public MasController(AbstractMas mas, int simulationIterationLimit, double stepLength) {
 		this.mas = mas;
 		this.simulationIterationLimit = simulationIterationLimit;
@@ -59,6 +66,8 @@ public class MasController implements Runnable {
 			mas.runServer();
 			double endTime = TimeCalculator.calculateTime(simulationIterationLimit, stepLength);
 			double previousTime = 0;
+			started = LocalDateTime.now();
+
 			for (int i = 0; i < simulationIterationLimit; i++) {
 				double currentTime = TimeCalculator.calculateTime(i, stepLength);
 				mas.updateData(previousTime, currentTime);
@@ -81,6 +90,8 @@ public class MasController implements Runnable {
 				mas.doTimeStep();
 				Thread.sleep(100);
 			}
+
+			finished = LocalDateTime.now();
 
 			mas.updateData(previousTime, endTime);
 		} catch (Exception e) {
@@ -162,12 +173,13 @@ public class MasController implements Runnable {
 	public void writeStatisticsToFile(File file) throws IOException {
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			try (PrintWriter printWriter = new PrintWriter(fileWriter)) {
-				printWriter.println("Statistics");
-				printWriter.println(getStatictics());
+				printWriter.println("Simulation statistics:");
+				printWriter.println("Simulation started: " + started + ", finished: " + finished + "\n");
+				printWriter.print(getStatictics());
 
 				printWriter.println("Tracked vehicle data:");
 				mas.getVehiclesData().getData().entrySet().stream()
-						.map(e -> "Vehicle: " + e.getKey().getId() + ", start: "
+						.map(e -> "Vehicle: " + e.getKey().getId() + ", type: " + e.getKey().getTypeId() + ", start: "
 								+ e.getValue().getStatistics().getActualStart() + ", finish: "
 								+ e.getValue().getStatistics().getActualFinish())
 						.forEach(printWriter::println);
@@ -181,15 +193,49 @@ public class MasController implements Runnable {
 		long finishedVehicles = mas.getVehiclesData().getData().values().stream()
 				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() != null)
 				.count();
-		builder.append("Finished vehicles: " + finishedVehicles + "/" + vehicleCount + "\n");
+		builder.append("Finished (all vehicles): " + finishedVehicles + "/" + vehicleCount + "\n");
 		List<Double> times = mas.getVehiclesData().getData().values().stream()
 				.filter(e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() != null)
 				.map(e -> e.getStatistics().getActualFinish() - e.getStatistics().getActualStart())
 				.collect(Collectors.toList());
+
 		if (!times.isEmpty()) {
+			List<String> vehicleTypes = mas.getVehiclesData().getData().keySet().stream().map(Vehicle::getTypeId)
+					.distinct().sorted().collect(Collectors.toList());
+			vehicleTypes.forEach(v -> {
+				List<Entry<Vehicle, VehicleData>> vehiclesByType = mas.getVehiclesData().getData().entrySet().stream()
+						.filter(e -> e.getKey().getTypeId().equals(v)).collect(Collectors.toList());
+				long finishedVehiclesForType = vehiclesByType.stream().map(Entry::getValue).filter(
+						e -> e.getStatistics().getActualStart() != null && e.getStatistics().getActualFinish() != null)
+						.count();
+				builder.append(
+						"Finished " + v + " (type): " + finishedVehiclesForType + "/" + vehiclesByType.size() + "\n");
+
+			});
+
+			builder.append("\n");
+			builder.append("Travel time statistics: \n");
+			builder.append("Travel times (all vehicles): \n");
 			builder.append("Avg time: " + times.stream().reduce(0.0, (a, b) -> a + b) / times.size() + "\n");
 			builder.append("Min time: " + times.stream().min((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
 			builder.append("Max time: " + times.stream().max((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
+			builder.append("\n");
+
+			vehicleTypes.forEach(v -> {
+				builder.append("Travel times " + v + " (type):\n");
+				List<Double> timesForType = mas.getVehiclesData().getData().entrySet().stream()
+						.filter(e -> e.getKey().getTypeId().equals(v)).map(Entry::getValue)
+						.filter(e -> e.getStatistics().getActualStart() != null
+								&& e.getStatistics().getActualFinish() != null)
+						.map(e -> e.getStatistics().getActualFinish() - e.getStatistics().getActualStart())
+						.collect(Collectors.toList());
+				builder.append(
+						"Avg time: " + timesForType.stream().reduce(0.0, (a, b) -> a + b) / timesForType.size() + "\n");
+				builder.append("Min time: " + timesForType.stream().min((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
+				builder.append("Max time: " + timesForType.stream().max((a, b) -> a.compareTo(b)).orElse(0.0) + "\n");
+				builder.append("\n");
+			});
+
 		} else {
 			builder.append("No time data to process\n");
 		}
