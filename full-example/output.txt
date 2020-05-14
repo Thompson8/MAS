@@ -1,37 +1,60 @@
-Statistics
-Finished vehicles: 22/30
-Avg time: 28.613636363636363
+Simulation statistics:
+Simulation started: 2020-05-14T20:48:23.428, finished: 2020-05-14T20:49:16.520138
+
+Finished (all vehicles): 22/30
+Finished FAST (type): 11/12
+Finished MEDIUM (type): 11/12
+Finished SLOW (type): 0/6
+
+Travel time statistics: 
+Travel times (all vehicles): 
+Avg time: 28.5
 Min time: 19.5
-Max time: 38.5
+Max time: 39.0
+
+Travel times FAST (type):
+Avg time: 32.18181818181818
+Min time: 29.0
+Max time: 39.0
+
+Travel times MEDIUM (type):
+Avg time: 24.818181818181817
+Min time: 19.5
+Max time: 37.0
+
+Travel times SLOW (type):
+Avg time: NaN
+Min time: 0.0
+Max time: 0.0
 
 Tracked vehicle data:
-Vehicle: Vehicle_8, start: 41.5, finish: 72.0
-Vehicle: Vehicle_9, start: 62.0, finish: 83.0
-Vehicle: Vehicle_6, start: 41.5, finish: 63.5
-Vehicle: Vehicle_7, start: 41.0, finish: null
-Vehicle: Vehicle_4, start: 21.5, finish: 41.0
-Vehicle: Vehicle_5, start: 22.0, finish: 52.0
-Vehicle: Vehicle_25, start: 182.0, finish: 216.0
-Vehicle: Vehicle_24, start: 182.0, finish: 220.5
-Vehicle: Vehicle_27, start: 201.0, finish: null
-Vehicle: Vehicle_26, start: 201.5, finish: 237.5
-Vehicle: Vehicle_21, start: 161.5, finish: 196.0
-Vehicle: Vehicle_20, start: 142.0, finish: 174.5
-Vehicle: Vehicle_23, start: 161.5, finish: 193.0
-Vehicle: Vehicle_22, start: 161.5, finish: null
-Vehicle: Vehicle_29, start: 221.5, finish: null
-Vehicle: Vehicle_28, start: 202.0, finish: 240.0
-Vehicle: Vehicle_30, start: 222.5, finish: null
-Vehicle: Vehicle_2, start: 1.5, finish: null
-Vehicle: Vehicle_14, start: 102.0, finish: 122.0
-Vehicle: Vehicle_13, start: 81.5, finish: 113.0
-Vehicle: Vehicle_3, start: 1.5, finish: 32.0
-Vehicle: Vehicle_16, start: 121.5, finish: 142.0
-Vehicle: Vehicle_1, start: 1.5, finish: 23.0
-Vehicle: Vehicle_15, start: 102.5, finish: 134.0
-Vehicle: Vehicle_10, start: 62.0, finish: 95.0
-Vehicle: Vehicle_12, start: 81.0, finish: null
-Vehicle: Vehicle_11, start: 81.5, finish: 101.5
-Vehicle: Vehicle_18, start: 121.5, finish: 155.0
-Vehicle: Vehicle_17, start: 121.0, finish: null
-Vehicle: Vehicle_19, start: 142.0, finish: 161.5
+Vehicle: Vehicle_8, type: FAST, start: 42.5, finish: 75.0
+Vehicle: Vehicle_9, type: MEDIUM, start: 62.0, finish: 84.0
+Vehicle: Vehicle_6, type: MEDIUM, start: 41.0, finish: 61.5
+Vehicle: Vehicle_7, type: SLOW, start: 41.0, finish: null
+Vehicle: Vehicle_4, type: MEDIUM, start: 21.5, finish: 41.0
+Vehicle: Vehicle_5, type: FAST, start: 22.5, finish: 52.5
+Vehicle: Vehicle_25, type: FAST, start: 182.5, finish: 217.5
+Vehicle: Vehicle_24, type: MEDIUM, start: 181.5, finish: 218.5
+Vehicle: Vehicle_27, type: SLOW, start: 201.5, finish: null
+Vehicle: Vehicle_26, type: MEDIUM, start: 201.5, finish: 237.0
+Vehicle: Vehicle_21, type: MEDIUM, start: 161.0, finish: 195.0
+Vehicle: Vehicle_20, type: FAST, start: 142.5, finish: 171.5
+Vehicle: Vehicle_23, type: FAST, start: 161.5, finish: 193.5
+Vehicle: Vehicle_22, type: SLOW, start: 161.0, finish: null
+Vehicle: Vehicle_29, type: MEDIUM, start: 222.0, finish: null
+Vehicle: Vehicle_28, type: FAST, start: 201.5, finish: 240.5
+Vehicle: Vehicle_30, type: FAST, start: 222.0, finish: null
+Vehicle: Vehicle_2, type: SLOW, start: 2.0, finish: null
+Vehicle: Vehicle_14, type: MEDIUM, start: 102.0, finish: 122.5
+Vehicle: Vehicle_13, type: FAST, start: 82.0, finish: 113.5
+Vehicle: Vehicle_3, type: FAST, start: 2.0, finish: 32.5
+Vehicle: Vehicle_16, type: MEDIUM, start: 121.5, finish: 143.0
+Vehicle: Vehicle_1, type: MEDIUM, start: 2.0, finish: 23.0
+Vehicle: Vehicle_15, type: FAST, start: 102.0, finish: 132.5
+Vehicle: Vehicle_10, type: FAST, start: 62.0, finish: 93.0
+Vehicle: Vehicle_12, type: SLOW, start: 81.0, finish: null
+Vehicle: Vehicle_11, type: MEDIUM, start: 81.0, finish: 101.0
+Vehicle: Vehicle_18, type: FAST, start: 121.5, finish: 154.5
+Vehicle: Vehicle_17, type: SLOW, start: 121.0, finish: null
+Vehicle: Vehicle_19, type: MEDIUM, start: 141.5, finish: 163.0
