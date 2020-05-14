@@ -71,6 +71,7 @@ public class Main {
 			Configuration configuration = parseArgs(args);
 
 			if (validateConfiguration(configuration)) {
+				logger.info("Simulation parameters: {}", configuration);
 				Optional<Pair<MasController, SumoTraciConnection>> controllerAndConnectionOpt = startSimulation(
 						configuration);
 				if (controllerAndConnectionOpt.isPresent()) {
@@ -110,8 +111,6 @@ public class Main {
 				configuration.setStepLength(Double.parseDouble(arg.replace("--step_length=", "").trim()));
 			} else if (arg.startsWith("--output_file=")) {
 				configuration.setOutputFile(arg.replace("--output_file=", "").trim());
-			} else if (arg.startsWith("--path_finder_alg=")) {
-				configuration.setPathFinderAlgorithm(PathFinder.valueOf(arg.replace("--path_finder_alg=", "").trim()));
 			} else if (arg.startsWith("--mas=")) {
 				configuration.setMasToUse(Mas.valueOf(arg.replace("--mas=", "").trim()));
 			} else if (arg.startsWith("--road_types_to_include=")) {
@@ -136,6 +135,18 @@ public class Main {
 		}
 		if (configuration.getAgentConfigFile() == null) {
 			logger.error("--agent_config_file parameter cannot be null!");
+			validConfig = false;
+		}
+		if (configuration.getStepLength() == null) {
+			logger.error("--step_length parameter cannot be null!");
+			validConfig = false;
+		}
+		if (configuration.getIterationCount() == null) {
+			logger.error("--simulation_iteration parameter cannot be null!");
+			validConfig = false;
+		}
+		if (configuration.getMasToUse() == null) {
+			logger.error("--mas parameter cannot be null!");
 			validConfig = false;
 		}
 		if (configuration.getOutputFile() == null) {

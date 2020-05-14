@@ -15,9 +15,9 @@ public class Configuration {
 
 	private String sumoStartCommand;
 
-	private double stepLength;
+	private Double stepLength;
 
-	private int iterationCount;
+	private Integer iterationCount;
 
 	private PathFinder pathFinderAlgorithm;
 
@@ -33,10 +33,7 @@ public class Configuration {
 
 	public Configuration() {
 		this.sumoStartCommand = DefaultConfiguration.DEFAULT_SUMO_START_COMMAND;
-		this.stepLength = DefaultConfiguration.DEFAULT_STEP_LENGTH;
-		this.iterationCount = DefaultConfiguration.DEFAULT_ITERATION_COUNT;
 		this.pathFinderAlgorithm = DefaultConfiguration.DEFAULT_PATH_FINDER_ALGORITHM;
-		this.masToUse = DefaultConfiguration.DEFAULT_MAS;
 		this.roadTypesToInclude = DefaultConfiguration.DEFAULT_ROAD_TYPES_TO_INCLUDE;
 		this.timeFrameForFlowCalculation = DefaultConfiguration.DEFAULT_TIME_FRAME_FOR_FLOW_CALCULATION;
 	}
@@ -73,19 +70,19 @@ public class Configuration {
 		this.sumoStartCommand = sumoStartCommand;
 	}
 
-	public double getStepLength() {
+	public Double getStepLength() {
 		return stepLength;
 	}
 
-	public void setStepLength(double stepLength) {
+	public void setStepLength(Double stepLength) {
 		this.stepLength = stepLength;
 	}
 
-	public int getIterationCount() {
+	public Integer getIterationCount() {
 		return iterationCount;
 	}
 
-	public void setIterationCount(int iterationCount) {
+	public void setIterationCount(Integer iterationCount) {
 		this.iterationCount = iterationCount;
 	}
 
@@ -135,6 +132,16 @@ public class Configuration {
 
 	public void setTimeFrameForFlowCalculation(Double timeFrameForFlowCalculation) {
 		this.timeFrameForFlowCalculation = timeFrameForFlowCalculation;
+	}
+
+	@Override
+	public String toString() {
+		return "Configuration [sumoConfigFile=" + sumoConfigFile + ", sumoConfigPath=" + sumoConfigPath
+				+ ", agentConfigFile=" + agentConfigFile + ", sumoStartCommand=" + sumoStartCommand + ", stepLength="
+				+ stepLength + ", iterationCount=" + iterationCount + ", pathFinderAlgorithm=" + pathFinderAlgorithm
+				+ ", masToUse=" + masToUse + ", outputFile=" + outputFile + ", roadTypesToInclude=" + roadTypesToInclude
+				+ ", tripInfoOutputFile=" + tripInfoOutputFile + ", timeFrameForFlowCalculation="
+				+ timeFrameForFlowCalculation + "]";
 	}
 
 }
